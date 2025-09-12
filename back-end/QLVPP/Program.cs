@@ -1,11 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLVPP.Data;
+using QLVPP.Repositories;
+using QLVPP.Repositories.Implementations;
+using QLVPP.Services;
+using QLVPP.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔗 Add DbContext với SQL Server
+// 🔗 Add DbContext with SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 🔗 Add UnitOfWork
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// 🔗 Add Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// 🔗 Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Add services to the container.
 builder.Services.AddControllers();
