@@ -20,6 +20,8 @@ namespace QLVPP.Data
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Requisition> Requisitions { get; set; }
+        public DbSet<InvalidToken> InvalidTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

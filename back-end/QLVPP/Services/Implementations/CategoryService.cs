@@ -22,6 +22,12 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<CategoryRes>>(categories);
         }
 
+        public async Task<List<CategoryRes>> GetAllActived()
+        {
+            var categories = await _unitOfWork.Category.GetAllIsActived();
+            return _mapper.Map<List<CategoryRes>>(categories);
+        }
+
         public async Task<CategoryRes?> GetById(long id)
         {
             var category = await _unitOfWork.Category.GetById(id);
@@ -46,7 +52,7 @@ namespace QLVPP.Services.Implementations
 
             _mapper.Map(request, category);
 
-            _unitOfWork.Category.Update(category);
+            await _unitOfWork.Category.Update(category);
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<CategoryRes>(category);

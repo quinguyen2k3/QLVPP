@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
+using QLVPP.Models;
 using QLVPP.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,10 +21,23 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<CategoryRes>>> GetAll()
+        public async Task<ActionResult<List<CategoryRes>>> GetAll()
         {
             var categories = await _service.GetAll();
-            return Ok(categories);
+            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
+                categories,
+                "Fetched categories successfully"
+            ));
+        }
+
+        [HttpGet("GetAllActived")]
+        public async Task<ActionResult<List<CategoryRes>>> GetAllActived()
+        {
+            var categories = await _service.GetAllActived();
+            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
+                 categories,
+                 "Fetched categories successfully"
+             ));
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -32,30 +47,65 @@ namespace QLVPP.Controllers
             if (category == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(category);
+            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
+                category,
+                "Fetched categroy successfully"
+            ));
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<CategoryRes>> Create([FromBody] CategoryReq request)
+        public async Task<ActionResult<ApiResponse<CategoryRes>>> Create([FromBody] CategoryReq request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse(
+                    "Validation failed",
+                    errors
+                ));
+            }
 
             var created = await _service.Create(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.Id },
+                ApiResponse<CategoryRes>.SuccessResponse(
+                    created,
+                    "Created category successfully"
+                )
+            );
         }
+
 
         [HttpPut("Update/{id:long}")]
         public async Task<ActionResult<CategoryRes>> Update(long id, [FromBody] CategoryReq request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse(
+                    "Validation failed",
+                    errors
+                ));
+            }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(updated);
+            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
+                updated,
+                "Updated categroy successfully"
+            ));
         }
     }
 }

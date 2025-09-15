@@ -15,7 +15,7 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<Category>> GetAllIsActived()
         {
             return await _context.Categories
-                                 .Where(c => c.IsActived)
+                                 .Where(c => c.IsActived == true)
                                  .ToListAsync();
         }
     }
