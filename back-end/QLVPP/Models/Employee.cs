@@ -27,5 +27,6 @@ namespace QLVPP.Models
         [ForeignKey(nameof(DepartmentId))]
         public Department Department { get; set; } = null!;
         public ICollection<Requisition> Requisitions { get; set; } = new List<Requisition>();
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

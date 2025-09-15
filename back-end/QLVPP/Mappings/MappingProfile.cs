@@ -11,6 +11,9 @@ namespace QLVPP.Mappings
         {
             CreateMap<CategoryReq, Category>();
             CreateMap<Category, CategoryRes>();
+
+            CreateMap<EmployeeReq, Employee>();
+            CreateMap<Employee, EmployeeRes>();
         }
     }
 }
