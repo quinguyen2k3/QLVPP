@@ -33,6 +33,8 @@ namespace QLVPP.Models
         public Category Category { get; set; } = null!;
         public ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public ICollection<RequisitionDetail> RequisitionDetails { get; set; } = new List<RequisitionDetail>();
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
+
     }
 }

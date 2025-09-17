@@ -9,6 +9,8 @@ namespace QLVPP.Repositories.Implementations
         public IEmployeeRepository Employee { get; private set; }
         public IRefreshTokenRepository RefreshToken { get; private set; }
         public IInvalidTokenRepository InvalidToken { get; private set; }
+        public IDepartmentRepository Department {  get; private set; }
+        public ISupplierRepository Supplier {  get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -19,6 +21,8 @@ namespace QLVPP.Repositories.Implementations
             Employee = new EmployeeRepository(context);
             RefreshToken = new RefreshTokenRepository(context);
             InvalidToken = new InvalidTokenRepository(context);
+            Department = new DepartmentRepository(context);
+            Supplier = new SupplierRepository(context);
             _context = context;
         }
 

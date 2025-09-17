@@ -8,7 +8,7 @@ namespace QLVPP.Models
     {
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(15)]
         public string? Phone { get; set; }
@@ -17,12 +17,11 @@ namespace QLVPP.Models
 
         [Required]
         [StringLength(25)]
-        public string Account { get; set; }
+        public string Account { get; set; } = string.Empty;
         [Required]
         [StringLength(200)]
-        public string Password { get; set; }
-        [Required]
-        public long DepartmentId { get; set; }
+        public string Password { get; set; } = string.Empty;
+        public long? DepartmentId { get; set; }
 
         [ForeignKey(nameof(DepartmentId))]
         public Department Department { get; set; } = null!;

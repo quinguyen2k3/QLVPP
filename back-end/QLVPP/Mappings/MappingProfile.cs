@@ -14,6 +14,15 @@ namespace QLVPP.Mappings
 
             CreateMap<EmployeeReq, Employee>();
             CreateMap<Employee, EmployeeRes>();
+
+            CreateMap<Department, DepartmentRes>();
+            CreateMap<DepartmentReq, Department>();
+
+            CreateMap<Unit, UnitRes>();
+            CreateMap<UnitReq, Unit>();
+
+            CreateMap<Supplier, SupplierRes>();
+            CreateMap<SupplierReq, Supplier>();
         }
     }
 }

@@ -2,7 +2,6 @@
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,50 +9,49 @@ namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
-        private readonly ICategoryService _service;
+        private readonly IDepartmentService _service;
 
-        public CategoryController(ICategoryService service)
+        public DepartmentController(IDepartmentService service)
         {
             _service = service;
         }
-
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAll()
+        public async Task<ActionResult<List<DepartmentRes>>> GetAll()
         {
-            var categories = await _service.GetAll();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                categories,
-                "Fetched categories successfully"
+            var departments = await _service.GetAll();
+            return Ok(ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                departments,
+                "Fetched departments successfully"
             ));
         }
 
         [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAllActived()
+        public async Task<ActionResult<List<DepartmentRes>>> GetAllActived()
         {
-            var categories = await _service.GetAllActived();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                 categories,
-                 "Fetched categories successfully"
+            var departments = await _service.GetAllActived();
+            return Ok(ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                 departments,
+                 "Fetched departments successfully"
              ));
         }
 
         [HttpGet("GetById/{id:long}")]
-        public async Task<ActionResult<CategoryRes>> GetById(long id)
+        public async Task<ActionResult<DepartmentRes>> GetById(long id)
         {
-            var category = await _service.GetById(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            var department = await _service.GetById(id);
+            if (department == null)
+                return NotFound(new { message = "Department not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
-                category,
-                "Fetched categroy successfully"
+            return Ok(ApiResponse<DepartmentRes>.SuccessResponse(
+                department,
+                "Fetched department successfully"
             ));
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<CategoryRes>>> Create([FromBody] CategoryReq request)
+        public async Task<ActionResult<ApiResponse<DepartmentRes>>> Create([FromBody] DepartmentReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -73,16 +71,16 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<CategoryRes>.SuccessResponse(
+                ApiResponse<DepartmentRes>.SuccessResponse(
                     created,
-                    "Created category successfully"
+                    "Created employee successfully"
                 )
             );
         }
 
 
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<CategoryRes>> Update(long id, [FromBody] CategoryReq request)
+        public async Task<ActionResult<DepartmentRes>> Update(long id, [FromBody] DepartmentReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -99,9 +97,9 @@ namespace QLVPP.Controllers
 
             var updated = await _service.Update(id, request);
             if (updated == null)
-                return NotFound(new { message = "Category not found" });
+                return NotFound(new { message = "Department not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
+            return Ok(ApiResponse<DepartmentRes>.SuccessResponse(
                 updated,
                 "Updated categroy successfully"
             ));

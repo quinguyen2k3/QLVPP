@@ -17,11 +17,33 @@ namespace QLVPP.Data
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<DeliveryDetail> DeliveryDetails { get; set; }
+        public DbSet<Department> Departments { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Requisition> Requisitions { get; set; }
+        public DbSet<RequisitionDetail> RequisitionDetails { get; set; }
         public DbSet<InvalidToken> InvalidTokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedDate = DateTime.Now;
+                    entry.Entity.IsActived = true;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.ModifiedDate = DateTime.Now;
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +54,9 @@ namespace QLVPP.Data
 
             modelBuilder.Entity<DeliveryDetail>()
                 .HasKey(dd => new { dd.DeliveryId, dd.ProductId });
+
+            modelBuilder.Entity<RequisitionDetail>()
+                .HasKey(dd => new { dd.RequisitionId, dd.ProductId });
 
             modelBuilder.Entity<Inventory>()
                 .HasKey(i => new { i.WarehouseId, i.ProductId });

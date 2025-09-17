@@ -16,7 +16,8 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<Employee>> GetAllIsActived()
         {
             return await _context.Employees
-                                .Where(c => c.IsActived == true)
+                                .Where(e => e.IsActived == true)
+                                .OrderByDescending(e => e.CreatedBy)
                                 .ToListAsync();
         }
 

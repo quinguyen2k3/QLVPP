@@ -2,7 +2,6 @@
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,50 +9,49 @@ namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class UnitController : ControllerBase
     {
-        private readonly ICategoryService _service;
+        private readonly IUnitService _service;
 
-        public CategoryController(ICategoryService service)
+        public UnitController(IUnitService service)
         {
             _service = service;
         }
-
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAll()
+        public async Task<ActionResult<List<UnitRes>>> GetAll()
         {
-            var categories = await _service.GetAll();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                categories,
-                "Fetched categories successfully"
+            var units = await _service.GetAll();
+            return Ok(ApiResponse<List<UnitRes>>.SuccessResponse(
+                units,
+                "Fetched units successfully"
             ));
         }
 
         [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAllActived()
+        public async Task<ActionResult<List<UnitRes>>> GetAllActived()
         {
-            var categories = await _service.GetAllActived();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                 categories,
-                 "Fetched categories successfully"
+            var units = await _service.GetAllActived();
+            return Ok(ApiResponse<List<UnitRes>>.SuccessResponse(
+                 units,
+                 "Fetched units successfully"
              ));
         }
 
         [HttpGet("GetById/{id:long}")]
-        public async Task<ActionResult<CategoryRes>> GetById(long id)
+        public async Task<ActionResult<UnitRes>> GetById(long id)
         {
-            var category = await _service.GetById(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            var unit = await _service.GetById(id);
+            if (unit == null)
+                return NotFound(new { message = "Unit not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
-                category,
+            return Ok(ApiResponse<UnitRes>.SuccessResponse(
+                unit,
                 "Fetched categroy successfully"
             ));
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<CategoryRes>>> Create([FromBody] CategoryReq request)
+        public async Task<ActionResult<ApiResponse<UnitRes>>> Create([FromBody] UnitReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -73,7 +71,7 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<CategoryRes>.SuccessResponse(
+                ApiResponse<UnitRes>.SuccessResponse(
                     created,
                     "Created category successfully"
                 )
@@ -82,7 +80,7 @@ namespace QLVPP.Controllers
 
 
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<CategoryRes>> Update(long id, [FromBody] CategoryReq request)
+        public async Task<ActionResult<UnitRes>> Update(long id, [FromBody] UnitReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -101,7 +99,7 @@ namespace QLVPP.Controllers
             if (updated == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
+            return Ok(ApiResponse<UnitRes>.SuccessResponse(
                 updated,
                 "Updated categroy successfully"
             ));

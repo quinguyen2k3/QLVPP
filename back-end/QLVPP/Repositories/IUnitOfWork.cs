@@ -7,6 +7,8 @@
         IEmployeeRepository Employee { get; }
         IRefreshTokenRepository RefreshToken { get; }
         IInvalidTokenRepository InvalidToken { get; }
+        IDepartmentRepository Department { get; }
+        ISupplierRepository Supplier { get; }
         Task<int> SaveChanges();
     }
 }
