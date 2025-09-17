@@ -16,6 +16,7 @@ namespace QLVPP.Repositories.Implementations
         {
             return await _context.Categories
                                  .Where(c => c.IsActived == true)
+                                 .OrderByDescending(c => c.CreatedBy)
                                  .ToListAsync();
         }
     }

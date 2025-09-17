@@ -15,10 +15,16 @@ namespace QLVPP.Repositories.Implementations
 
         public void Delete(T entity) => _context.Set<T>().Remove(entity);
 
-        public async Task<List<T>> GetAll() => await _context.Set<T>().ToListAsync();
+        public async Task<List<T>> GetAll() => await _context.Set<T>()
+            .OrderByDescending(e => EF.Property<DateTime>(e, "CreatedDate"))
+            .ToListAsync();
 
         public async Task<T?> GetById(object id) => await _context.Set<T>().FindAsync(id);
 
-        public async Task Update(T entity) => _context.Set<T>().Update(entity);
+        public Task Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+            return Task.CompletedTask;
+        }
     }
 }

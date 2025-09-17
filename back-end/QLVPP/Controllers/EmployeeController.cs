@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
 namespace QLVPP.Controllers
 {
-    public class EmployeeController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _service;
         public EmployeeController(IEmployeeService service)

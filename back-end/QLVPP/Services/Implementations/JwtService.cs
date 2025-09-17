@@ -23,7 +23,7 @@ namespace QLVPP.Services.Implementations
         public async Task<TokenDto> GenerateAccessTokenAsync(Employee employee)
         {
             var jwtSettings = _configuration.GetSection("JwtSec");
-            var secretKey = jwtSettings["Key"];
+            var secretKey = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>
@@ -75,7 +75,7 @@ namespace QLVPP.Services.Implementations
         public bool Validator(string token)
         {
             var jwtSettings = _configuration.GetSection("JwtSec");
-            var secretKey = jwtSettings["Key"];
+            var secretKey = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
 
@@ -141,19 +141,19 @@ namespace QLVPP.Services.Implementations
                 refreshTokenEntity.IsUsed ||
                 refreshTokenEntity.ExpiredAt <= DateTime.UtcNow)
             {
-                return null;
+                throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
             if (!Validator(request.AccessToken))
             {
-                return null;
+                throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
             var claims = GetClaims(request.AccessToken);
             var userIdStr = claims.FirstOrDefault(c => c.Type == "id")?.Value;
             if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out var userId))
             {
-                return null;
+                throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
             refreshTokenEntity.IsUsed = true;
@@ -161,7 +161,8 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.RefreshToken.Update(refreshTokenEntity);
 
             var employee = await _unitOfWork.Employee.GetById(userId);
-            if (employee == null) return null;
+            if (employee == null)
+                throw new KeyNotFoundException("User does not exist");
 
             await _unitOfWork.SaveChanges();
 
@@ -179,9 +180,6 @@ namespace QLVPP.Services.Implementations
             refreshTokenEntity.IsUsed = true;
             refreshTokenEntity.IsRevoked = true;
             await _unitOfWork.RefreshToken.Update(refreshTokenEntity);
-
-            if (!Validator(request.AccessToken))
-                throw new Exception("Invalid access token.");
 
             var claims = GetClaims(request.AccessToken);
             var account = claims.FirstOrDefault(c => c.Type == "account")?.Value ?? "unknown";

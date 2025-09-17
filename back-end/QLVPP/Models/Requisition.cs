@@ -20,5 +20,6 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(EmployeeId))]
         public Employee Employee { get; set; } = null!;
+        public ICollection<RequisitionDetail> RequisitionDetails { get; set; } = new List<RequisitionDetail>();
     }
 }

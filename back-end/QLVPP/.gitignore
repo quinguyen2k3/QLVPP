@@ -53,6 +53,7 @@ Generated_Code/
 # --------------------------
 
 ## Configuration
+appsettings.json
 appsettings.Development.json
 secrets.json
 
