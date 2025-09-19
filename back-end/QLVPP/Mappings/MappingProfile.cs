@@ -12,7 +12,8 @@ namespace QLVPP.Mappings
             CreateMap<CategoryReq, Category>();
             CreateMap<Category, CategoryRes>();
 
-            CreateMap<EmployeeReq, Employee>();
+            CreateMap<EmployeeReq, Employee>()
+                    .ForMember(dest => dest.Password, opt => opt.Ignore());
             CreateMap<Employee, EmployeeRes>();
 
             CreateMap<Department, DepartmentRes>();

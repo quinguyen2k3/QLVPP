@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -8,6 +9,7 @@ using QLVPP.Services;
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class DepartmentController : ControllerBase
     {
