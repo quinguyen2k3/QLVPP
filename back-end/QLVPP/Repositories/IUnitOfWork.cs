@@ -9,6 +9,7 @@
         IInvalidTokenRepository InvalidToken { get; }
         IDepartmentRepository Department { get; }
         ISupplierRepository Supplier { get; }
+        IWarehouseRepository Warehouse { get; }
         Task<int> SaveChanges();
     }
 }

@@ -11,6 +11,7 @@ namespace QLVPP.Repositories.Implementations
         public IInvalidTokenRepository InvalidToken { get; private set; }
         public IDepartmentRepository Department {  get; private set; }
         public ISupplierRepository Supplier {  get; private set; }
+        public IWarehouseRepository Warehouse { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -23,6 +24,7 @@ namespace QLVPP.Repositories.Implementations
             InvalidToken = new InvalidTokenRepository(context);
             Department = new DepartmentRepository(context);
             Supplier = new SupplierRepository(context);
+            Warehouse = new WarehouseRepository(context);
             _context = context;
         }
 
