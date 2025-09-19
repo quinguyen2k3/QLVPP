@@ -6,11 +6,11 @@ services:
     environment:
       SA_PASSWORD: "0931368945Qui@"
       ACCEPT_EULA: "Y"
+    command: [ "/opt/mssql/bin/sqlservr", "-T272" ]
     ports:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
-
   api:
     build: .
     container_name: qlvpp-api

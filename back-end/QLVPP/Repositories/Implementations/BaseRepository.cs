@@ -3,7 +3,7 @@ using QLVPP.Data;
 
 namespace QLVPP.Repositories.Implementations
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
+    public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         private readonly AppDbContext _context;
         public BaseRepository(AppDbContext context)
@@ -11,17 +11,17 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task Add(T entity) => await _context.Set<T>().AddAsync(entity);
+        public virtual async Task Add(T entity) => await _context.Set<T>().AddAsync(entity);
 
-        public void Delete(T entity) => _context.Set<T>().Remove(entity);
+        public virtual void Delete(T entity) => _context.Set<T>().Remove(entity);
 
-        public async Task<List<T>> GetAll() => await _context.Set<T>()
+        public virtual async Task<List<T>> GetAll() => await _context.Set<T>()
             .OrderByDescending(e => EF.Property<DateTime>(e, "CreatedDate"))
             .ToListAsync();
 
-        public async Task<T?> GetById(object id) => await _context.Set<T>().FindAsync(id);
+        public virtual async Task<T?> GetById(object id) => await _context.Set<T>().FindAsync(id);
 
-        public Task Update(T entity)
+        public virtual Task Update(T entity)
         {
             _context.Set<T>().Update(entity);
             return Task.CompletedTask;

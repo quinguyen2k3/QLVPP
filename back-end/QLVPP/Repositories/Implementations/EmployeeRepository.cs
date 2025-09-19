@@ -26,5 +26,13 @@ namespace QLVPP.Repositories.Implementations
             return await _context.Employees
                 .FirstOrDefaultAsync(e => e.Account == account);
         }
+
+        public override async Task<List<Employee>> GetAll()
+        {
+            return await _context.Employees
+                .Include(e => e.Department)
+                .OrderByDescending(e => e.CreatedDate) 
+                .ToListAsync();
+        }
     }
 }
