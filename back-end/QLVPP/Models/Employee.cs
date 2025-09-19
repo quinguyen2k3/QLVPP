@@ -18,9 +18,8 @@ namespace QLVPP.Models
         [Required]
         [StringLength(25)]
         public string Account { get; set; } = string.Empty;
-        [Required]
         [StringLength(200)]
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; }
         public long? DepartmentId { get; set; }
 
         [ForeignKey(nameof(DepartmentId))]

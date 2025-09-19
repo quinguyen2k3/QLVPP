@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: qlvpp-db
+    environment:
+      SA_PASSWORD: "0931368945Qui@"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  api:
+    build: .
+    container_name: qlvpp-api
+    ports:
+      - "5000:8080"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=QLVPP_DB;User=sa;Password=0931368945Qui@;TrustServerCertificate=True
+
+volumes:
+  mssql_data:

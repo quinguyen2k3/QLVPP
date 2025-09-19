@@ -21,10 +21,9 @@ namespace QLVPP.DTOs.Request
         [StringLength(50, ErrorMessage = "Account cannot exceed 50 characters")]
         public string Account { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password is required")]
         [StringLength(100, MinimumLength = 6,
             ErrorMessage = "Password must be between 6 and 100 characters")]
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; }
 
         [Required(ErrorMessage = "Department is required")]
         public long DepartmentId { get; set; }
