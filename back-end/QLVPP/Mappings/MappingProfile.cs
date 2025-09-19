@@ -25,6 +25,9 @@ namespace QLVPP.Mappings
 
             CreateMap<Supplier, SupplierRes>();
             CreateMap<SupplierReq, Supplier>();
+
+            CreateMap<Warehouse,  WarehouseRes>();
+            CreateMap<WarehouseReq,  Warehouse>();
         }
     }
 }

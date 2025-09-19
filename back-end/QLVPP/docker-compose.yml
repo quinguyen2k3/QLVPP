@@ -19,6 +19,7 @@ services:
     depends_on:
       - db
     environment:
+      - TZ=Asia/Ho_Chi_Minh
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Server=db,1433;Database=QLVPP_DB;User=sa;Password=0931368945Qui@;TrustServerCertificate=True
 
