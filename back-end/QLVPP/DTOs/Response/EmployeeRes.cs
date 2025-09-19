@@ -8,6 +8,7 @@
         public string? Phone { get; set; }
         public string? Account { get; set; }
         public long? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
         public bool? IsActived { get; set; }
     }
 }

@@ -21,32 +21,26 @@ namespace QLVPP.Services.Implementations
 
         public async Task<AuthRes> AuthenticateAsync(AuthReq request)
         {
-            Employee employee = await _unitOfWork.Employee.GetByAccount(request.Account);
-            if (employee == null)
-            {
-                return new AuthRes
-                {
-                    Authenticated = false
-                };
-            }
+            var employee = await _unitOfWork.Employee.GetByAccount(request.Account);
 
-            if (!employee.IsActived)
+            if (employee == null || !employee.IsActived)
             {
                 return new AuthRes
                 {
                     Authenticated = false,
-                    IsActived = false
+                    IsActived = employee?.IsActived ?? false
                 };
             }
 
             if (!PasswordHasher.VerifyPassword(request.Password, employee.Password))
             {
-                return new AuthRes 
-                { 
+                return new AuthRes
+                {
                     Authenticated = false,
-                    IsActived = false 
+                    IsActived = employee.IsActived
                 };
             }
+
             var token = await _jwtService.GenerateAccessTokenAsync(employee);
 
             return new AuthRes
