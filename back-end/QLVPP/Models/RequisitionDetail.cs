@@ -20,6 +20,6 @@ namespace QLVPP.Models
         [Required]
         public int Quantity { get; set; }
 
-        public int? ApprovedQuantity { get; set; }
+        public string? Purpose { get; set; }
     }
 }

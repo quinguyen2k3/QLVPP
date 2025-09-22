@@ -30,6 +30,7 @@ builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IWarehouseService,  WarehouseService>();
+builder.Services.AddScoped<IRequisitionService,  RequisitionService>();
 
 // 🔗 Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));

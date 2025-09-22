@@ -13,6 +13,8 @@ namespace QLVPP.Repositories.Implementations
         public ISupplierRepository Supplier {  get; private set; }
         public IWarehouseRepository Warehouse { get; private set; }
 
+        public IRequisitionRepository Requisition { get; private set; }
+
         public readonly AppDbContext _context;
 
         public UnitOfWork(AppDbContext context)
@@ -25,6 +27,7 @@ namespace QLVPP.Repositories.Implementations
             Department = new DepartmentRepository(context);
             Supplier = new SupplierRepository(context);
             Warehouse = new WarehouseRepository(context);
+            Requisition = new RequisitionRepository(context);
             _context = context;
         }
 
