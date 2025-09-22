@@ -10,6 +10,7 @@
         IDepartmentRepository Department { get; }
         ISupplierRepository Supplier { get; }
         IWarehouseRepository Warehouse { get; }
+        IRequisitionRepository Requisition { get; }
         Task<int> SaveChanges();
     }
 }
