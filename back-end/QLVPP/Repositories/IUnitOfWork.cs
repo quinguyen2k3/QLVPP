@@ -11,6 +11,7 @@
         ISupplierRepository Supplier { get; }
         IWarehouseRepository Warehouse { get; }
         IRequisitionRepository Requisition { get; }
+        IProductRepository Product { get; }
         Task<int> SaveChanges();
     }
 }

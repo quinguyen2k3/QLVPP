@@ -1,4 +1,5 @@
 ﻿using QLVPP.Data;
+using QLVPP.Models;
 
 namespace QLVPP.Repositories.Implementations
 {
@@ -12,8 +13,8 @@ namespace QLVPP.Repositories.Implementations
         public IDepartmentRepository Department {  get; private set; }
         public ISupplierRepository Supplier {  get; private set; }
         public IWarehouseRepository Warehouse { get; private set; }
-
         public IRequisitionRepository Requisition { get; private set; }
+        public IProductRepository Product { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -28,6 +29,7 @@ namespace QLVPP.Repositories.Implementations
             Supplier = new SupplierRepository(context);
             Warehouse = new WarehouseRepository(context);
             Requisition = new RequisitionRepository(context);
+            Product = new ProductRepository(context);
             _context = context;
         }
 
