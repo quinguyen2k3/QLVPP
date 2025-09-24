@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250923033429_AddActualDateAndStatus")]
+    partial class AddActualDateAndStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,14 +297,9 @@ namespace QLVPP.Migrations
                     b.Property<long>("SupplierId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("WarehouseId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("SupplierId");
-
-                    b.HasIndex("WarehouseId");
 
                     b.ToTable("Order");
                 });
@@ -315,9 +313,6 @@ namespace QLVPP.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Received")
                         .HasColumnType("int");
 
                     b.Property<int>("UnitPrice")
@@ -696,15 +691,7 @@ namespace QLVPP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Orders")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Supplier");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("QLVPP.Models.OrderDetail", b =>
@@ -844,8 +831,6 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Warehouse", b =>
                 {
                     b.Navigation("Inventories");
-
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

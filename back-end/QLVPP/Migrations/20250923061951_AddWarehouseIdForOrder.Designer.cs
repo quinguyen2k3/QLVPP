@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250923061951_AddWarehouseIdForOrder")]
+    partial class AddWarehouseIdForOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -697,7 +700,7 @@ namespace QLVPP.Migrations
                         .IsRequired();
 
                     b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -844,8 +847,6 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Warehouse", b =>
                 {
                     b.Navigation("Inventories");
-
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

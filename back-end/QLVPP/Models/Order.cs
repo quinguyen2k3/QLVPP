@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QLVPP.Constants;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
@@ -7,16 +8,22 @@ namespace QLVPP.Models
     public class Order : BaseEntity
     {
         [Required]
-        public DateTime OrderDate { get; set; }
+        public DateOnly OrderDate { get; set; }
         [Required]
-        public DateTime ExpectedDate { get; set; }
-        public DateTime? ActualDate { get; set; }
-
+        public DateOnly ExpectedDate { get; set; }
+        public DateOnly? ActualDate { get; set; }
+        public string Status { get; set; } = RequisitionStatus.Pending;
         [Required]
         public long SupplierId { get; set; }
 
         [ForeignKey(nameof(SupplierId))]
         public Supplier Supplier { get; set; } = null!;
+
+        [Required]
+        public long WarehouseId { get; set; }
+
+        [ForeignKey(nameof(WarehouseId))]
+        public Warehouse Warehouse { get; set; } = null!;
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

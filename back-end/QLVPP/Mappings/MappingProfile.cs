@@ -45,6 +45,22 @@ namespace QLVPP.Mappings
 
             CreateMap<Product, ProductRes>();
             CreateMap<ProductReq, Product>();
+
+            CreateMap<OrderReq, Order>()
+                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.Items)) 
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
+            CreateMap<OrderItemReq, OrderDetail>()
+                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
+                 .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
+
+            CreateMap<Order, OrderRes>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderDetails));
+            CreateMap<OrderDetail, OrderItemRes>()
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
+                .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
+
         }
     }
 }

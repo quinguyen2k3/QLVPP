@@ -19,7 +19,7 @@ namespace QLVPP.Repositories.Implementations
             .OrderByDescending(e => EF.Property<DateTime>(e, "CreatedDate"))
             .ToListAsync();
 
-        public virtual async Task<T?> GetById(object id) => await _context.Set<T>().FindAsync(id);
+        public virtual async Task<T?> GetById(params object[] id) => await _context.Set<T>().FindAsync(id);
 
         public virtual Task Update(T entity)
         {
