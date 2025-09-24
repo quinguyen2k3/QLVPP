@@ -15,6 +15,8 @@ namespace QLVPP.Repositories.Implementations
         public IWarehouseRepository Warehouse { get; private set; }
         public IRequisitionRepository Requisition { get; private set; }
         public IProductRepository Product { get; private set; }
+        public IOrderRepository Order { get; private set; }
+        public IInventoryRepository Inventory { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -30,6 +32,8 @@ namespace QLVPP.Repositories.Implementations
             Warehouse = new WarehouseRepository(context);
             Requisition = new RequisitionRepository(context);
             Product = new ProductRepository(context);
+            Order = new OrderRepository(context);
+            Inventory = new InventoryRepository(context);
             _context = context;
         }
 

@@ -13,7 +13,7 @@ namespace QLVPP.Models
         public string? Note { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public string? ApprovedBy { get; set; }
-        public string Status { get; set; } = RequisitionStatus.Draft;
+        public string Status { get; set; } = RequisitionStatus.Pending; 
 
         [Required]
         public long EmployeeId { get; set; }

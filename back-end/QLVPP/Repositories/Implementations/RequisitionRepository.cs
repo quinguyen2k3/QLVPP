@@ -19,13 +19,15 @@ namespace QLVPP.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public override async Task<Requisition?> GetById(object id)
+        public override async Task<Requisition?> GetById(params object[] id)
         {
+            var requisitionId = (long)id[0];
+
             return await _context.Requisitions
                 .Include(r => r.RequisitionDetails)
                     .ThenInclude(d => d.Product)
                         .ThenInclude(p => p.Unit)
-                .FirstOrDefaultAsync(r => r.Id == (long)id);
+                .FirstOrDefaultAsync(r => r.Id == requisitionId);
         }
     }
 }

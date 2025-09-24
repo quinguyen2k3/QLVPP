@@ -6,7 +6,7 @@ namespace QLVPP.Models
     [Table("Delivery")]
     public class Delivery : BaseEntity
     {
-        public DateTime DeliveryDate { get; set; }
+        public DateOnly DeliveryDate { get; set; }
         [Required]
         public long DepartmentId { get; set; }
 

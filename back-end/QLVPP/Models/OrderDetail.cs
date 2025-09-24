@@ -22,6 +22,9 @@ namespace QLVPP.Models
         public int Quantity { get; set; }
 
         [Required]
+        public int Received { get; set; }
+
+        [Required]
         public int UnitPrice { get; set; }
 
         public double Total => Quantity * UnitPrice;
