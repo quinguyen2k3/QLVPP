@@ -4,5 +4,6 @@
     {
         long? UserId { get; }
         string? UserAccount { get; }
+        bool IsAuthenticated { get; }
     }
 }

@@ -18,5 +18,7 @@
             _httpContextAccessor.HttpContext?.User.FindFirst("account")?.Value
             ?? _httpContextAccessor.HttpContext?.User.Identity?.Name;
 
+        public bool IsAuthenticated =>
+            _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
     }
 }

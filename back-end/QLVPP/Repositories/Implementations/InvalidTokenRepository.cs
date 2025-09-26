@@ -16,5 +16,12 @@ namespace QLVPP.Repositories.Implementations
         {
             return await _context.InvalidTokens.AnyAsync(t => t.Jti == jti);
         }
+
+        public async Task<InvalidToken?> GetById(string jti)
+        {
+            return await _context.InvalidTokens
+                .FirstOrDefaultAsync(i => i.Jti == jti);
+        }
+
     }
 }

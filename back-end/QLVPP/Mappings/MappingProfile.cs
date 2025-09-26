@@ -61,6 +61,8 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
                 .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
 
+            CreateMap<InvalidToken, InvalidTokenRes>();
+
         }
     }
 }
