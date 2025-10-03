@@ -22,6 +22,15 @@ namespace QLVPP.Services.Implementations
             var product = _mapper.Map<Product>(request);
 
             await _unitOfWork.Product.Add(product);
+
+            var stock = new Inventory
+            {
+                Product = product,
+                WarehouseId = request.WarehouseId,
+                Quantity = 0,
+            };
+
+            await _unitOfWork.Inventory.Add(stock);
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<ProductRes>(product);
@@ -52,6 +61,22 @@ namespace QLVPP.Services.Implementations
                 return null;
 
             _mapper.Map(request, product);
+
+            var oldInventory = await _unitOfWork.Inventory.GetByProductId(id);
+            if (oldInventory != null && oldInventory.WarehouseId != request.WarehouseId)
+            {
+                var oldQuantity = oldInventory.Quantity;
+
+                await _unitOfWork.Inventory.Delete(oldInventory);
+
+                var newInventory = new Inventory
+                {
+                    ProductId = product.Id,
+                    WarehouseId = request.WarehouseId,
+                    Quantity = oldQuantity
+                };
+                await _unitOfWork.Inventory.Add(newInventory);
+            }
 
             await _unitOfWork.Product.Update(product);
             await _unitOfWork.SaveChanges();

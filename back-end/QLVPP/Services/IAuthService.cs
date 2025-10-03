@@ -8,5 +8,6 @@ namespace QLVPP.Services
     {
         Task<AuthRes> AuthenticateAsync(AuthReq request);
         Task LogoutAsync(TokenDto request);
+        Task ChangePasswordAsync(ChangePassReq request);
     }
 }

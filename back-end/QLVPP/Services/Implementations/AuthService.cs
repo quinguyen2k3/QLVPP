@@ -1,4 +1,5 @@
-﻿using QLVPP.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using QLVPP.Data;
 using QLVPP.DTOs;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
@@ -12,11 +13,13 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtService _jwtService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService)
+        public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<AuthRes> AuthenticateAsync(AuthReq request)
@@ -57,6 +60,20 @@ namespace QLVPP.Services.Implementations
             if (request == null)
                 throw new Exception("Request is invalid");
             await _jwtService.RevokeTokenAsync(request);
+        }
+
+        public async Task ChangePasswordAsync(ChangePassReq request)
+        {
+            var userId = _currentUserService.UserId;
+
+            var user = await _unitOfWork.Employee.GetById(userId);
+            if (user == null)
+                throw new KeyNotFoundException("User not found");
+
+            user.Password = PasswordHasher.HashPassword(request.ConfirmPassword);
+
+            await _unitOfWork.Employee.Update(user);
+            await _unitOfWork.SaveChanges();
         }
     }
 }

@@ -3,13 +3,9 @@ using QLVPP.Data;
 
 namespace QLVPP.Repositories.Implementations
 {
-    public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
+    public abstract class BaseRepository<T>(AppDbContext context) : IBaseRepository<T> where T : class
     {
-        private readonly AppDbContext _context;
-        public BaseRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public virtual async Task Add(T entity) => await _context.Set<T>().AddAsync(entity);
 

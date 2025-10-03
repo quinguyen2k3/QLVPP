@@ -95,5 +95,24 @@ namespace QLVPP.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("Change-Password")]
+        [Authorize] 
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassReq request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                await _authService.ChangePasswordAsync(request);
+                return Ok(new { success = true, message = "Password changed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { success = false, message = "An error occurred.", error = ex.Message });
+            }
+        }
     }
 }

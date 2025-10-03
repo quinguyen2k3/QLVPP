@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QLVPP.Migrations;
+using System.ComponentModel.DataAnnotations;
 
 namespace QLVPP.DTOs.Request
 {
@@ -19,5 +20,6 @@ namespace QLVPP.DTOs.Request
         public decimal? Depth { get; set; }
         [Required(ErrorMessage = "IsActived status is required")]
         public bool IsActived { get; set; }
+        public long WarehouseId { get; set; }
     }
 }

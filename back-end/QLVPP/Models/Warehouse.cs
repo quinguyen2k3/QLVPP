@@ -13,5 +13,6 @@ namespace QLVPP.Models
         public string? Note { get; set; }
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Delivery> Deliveries { get; set; } = new List<Delivery>();
     }
 }

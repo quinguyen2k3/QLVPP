@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251003031252_AddStatusForDelivery")]
+    partial class AddStatusForDelivery
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,14 +97,9 @@ namespace QLVPP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("WarehouseId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("WarehouseId");
 
                     b.ToTable("Delivery");
                 });
@@ -647,15 +645,7 @@ namespace QLVPP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Deliveries")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Department");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("QLVPP.Models.DeliveryDetail", b =>
@@ -860,8 +850,6 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Warehouse", b =>
                 {
-                    b.Navigation("Deliveries");
-
                     b.Navigation("Inventories");
 
                     b.Navigation("Orders");
