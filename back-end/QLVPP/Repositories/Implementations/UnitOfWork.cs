@@ -18,8 +18,9 @@ namespace QLVPP.Repositories.Implementations
         public IOrderRepository Order { get; private set; }
         public IInventoryRepository Inventory { get; private set; }
 
-        public readonly AppDbContext _context;
+        public IDeliveryRepository Delivery { get; private set; }
 
+        public readonly AppDbContext _context;
         public UnitOfWork(AppDbContext context)
         {
             Category = new CategoryRepository(context);
@@ -34,6 +35,7 @@ namespace QLVPP.Repositories.Implementations
             Product = new ProductRepository(context);
             Order = new OrderRepository(context);
             Inventory = new InventoryRepository(context);
+            Delivery = new DeliveryRepository(context);
             _context = context;
         }
 

@@ -12,6 +12,13 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(DepartmentId))]
         public Department Department { get; set; } = null!;
+
+        [Required]
+        public long WarehouseId { get; set; }
+
+        [ForeignKey(nameof(WarehouseId))]
+        public Warehouse Warehouse { get; set; } = null!;
+        public string Status { get; set; } = string.Empty;
         public ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
     }
 }

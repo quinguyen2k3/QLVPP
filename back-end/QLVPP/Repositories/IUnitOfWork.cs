@@ -14,6 +14,7 @@
         IProductRepository Product { get; }
         IOrderRepository Order { get; }
         IInventoryRepository Inventory {  get; }
+        IDeliveryRepository Delivery { get; }
         Task<int> SaveChanges();
     }
 }

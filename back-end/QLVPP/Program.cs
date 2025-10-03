@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QLVPP.Data;
+using QLVPP.Middlewares;
 using QLVPP.Repositories;
 using QLVPP.Repositories.Implementations;
 using QLVPP.Services;
@@ -33,6 +34,8 @@ builder.Services.AddScoped<IWarehouseService,  WarehouseService>();
 builder.Services.AddScoped<IRequisitionService,  RequisitionService>();
 builder.Services.AddScoped<IProductService,  ProductService>();
 builder.Services.AddScoped<IOrderService,  OrderService>();
+builder.Services.AddScoped<IInvalidTokenService,  InvalidTokenService>();
+builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 
 // 🔗 Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -118,8 +121,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Quan trọng: Authentication trước Authorization
 app.UseAuthentication();
+app.UseMiddleware<AccountAccessMiddleware>();
+app.UseMiddleware<RevokedTokenMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

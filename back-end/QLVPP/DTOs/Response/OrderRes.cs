@@ -12,6 +12,12 @@ namespace QLVPP.DTOs.Response
         public bool IsActived { get; set; }
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = string.Empty;
+
+        public DateTime CreatedDate { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+
+        public DateTime? ModifiedDate { get; set; }
+        public string? ModifiedBy { get; set; }
         public List<OrderItemRes> Items { get; set; } = new();
     }
 }

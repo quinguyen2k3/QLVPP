@@ -9,6 +9,11 @@
         public string? Account { get; set; }
         public long? DepartmentId { get; set; }
         public string? DepartmentName { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+
+        public DateTime? ModifiedDate { get; set; }
+        public string? ModifiedBy { get; set; }
         public bool? IsActived { get; set; }
     }
 }

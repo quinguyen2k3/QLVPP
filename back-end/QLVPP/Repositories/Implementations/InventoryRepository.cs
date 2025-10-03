@@ -28,5 +28,17 @@ namespace QLVPP.Repositories.Implementations
             return await _context.Inventories
                 .FirstOrDefaultAsync(i => i.WarehouseId == warehouseId && i.ProductId == productId);
         }
+
+        public async Task<Inventory?> GetByProductId(long productId)
+        {
+            return await _context.Inventories
+                .FirstOrDefaultAsync(i => i.ProductId == productId);
+        }
+
+        public Task Delete(Inventory entity)
+        {
+            _context.Inventories.Remove(entity);
+            return Task.CompletedTask;
+        }
     }
 }

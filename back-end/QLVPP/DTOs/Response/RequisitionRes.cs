@@ -19,7 +19,6 @@ namespace QLVPP.DTOs.Response
 
         public long EmployeeId { get; set; }
         public string EmployeeName { get; set; } = string.Empty;
-
         public List<RequisitionItemRes> Items { get; set; } = new();
 
     }
