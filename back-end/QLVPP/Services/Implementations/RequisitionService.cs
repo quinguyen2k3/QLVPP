@@ -38,9 +38,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 
-        public async Task<List<RequisitionRes>> GetAllActived()
+        public async Task<List<RequisitionRes>> GetAllActivated()
         {
-            var requisitions = await _unitOfWork.Requisition.GetAllIsActived();
+            var requisitions = await _unitOfWork.Requisition.GetAllIsActivated();
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 

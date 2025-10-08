@@ -12,8 +12,8 @@
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
         public decimal? Depth { get; set; }
-        public bool IsAssest { get; set; } 
-        public bool IsActived { get; set; }
+        public bool IsAsset { get; set; } 
+        public bool IsActivated { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ModifiedDate { get; set; }

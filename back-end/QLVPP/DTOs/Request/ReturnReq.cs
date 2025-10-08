@@ -4,7 +4,7 @@ namespace QLVPP.DTOs.Request
 {
     public class ReturnReq
     {
-        [Required(ErrorMessage = "DepartmenId is required")]
+        [Required(ErrorMessage = "DepartmentId is required")]
         public long DepartmentId { get; set; }
         [Required(ErrorMessage = "WarehouseId is required")]
         public long WarehouseId { get; set; }

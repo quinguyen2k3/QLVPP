@@ -36,9 +36,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<DeliveryRes>>(deliveries);
         }
 
-        public async Task<List<DeliveryRes>> GetAllActived()
+        public async Task<List<DeliveryRes>> GetAllActivated()
         {
-            var deliveries = await _unitOfWork.Delivery.GetAllIsActived();
+            var deliveries = await _unitOfWork.Delivery.GetAllIsActivated();
             return _mapper.Map<List<DeliveryRes>>(deliveries);
         }
 

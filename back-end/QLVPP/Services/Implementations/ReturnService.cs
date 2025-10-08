@@ -27,9 +27,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<ReturnRes>>(returns);
         }
 
-        public async Task<List<ReturnRes>> GetAllActived()
+        public async Task<List<ReturnRes>> GetAllActivated()
         {
-            var returns = await _unitOfWork.Return.GetAllIsActived();
+            var returns = await _unitOfWork.Return.GetAllIsActivated();
             return _mapper.Map<List<ReturnRes>>(returns);
         }
 

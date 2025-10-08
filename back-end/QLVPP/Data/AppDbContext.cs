@@ -49,7 +49,7 @@ namespace QLVPP.Data
                 {
                     entry.Entity.CreatedDate = DateTime.Now;
                     entry.Entity.CreatedBy = _currentUserService.UserAccount ?? "system";
-                    entry.Entity.IsActived = true;
+                    entry.Entity.IsActivated = true;
                 }
                 else if (entry.State == EntityState.Modified)
                 {

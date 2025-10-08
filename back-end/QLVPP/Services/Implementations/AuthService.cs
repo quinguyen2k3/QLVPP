@@ -26,12 +26,12 @@ namespace QLVPP.Services.Implementations
         {
             var employee = await _unitOfWork.Employee.GetByAccount(request.Account);
 
-            if (employee == null || !employee.IsActived)
+            if (employee == null || !employee.IsActivated)
             {
                 return new AuthRes
                 {
                     Authenticated = false,
-                    IsActived = employee?.IsActived ?? false
+                    IsActivated = employee?.IsActivated ?? false
                 };
             }
 
@@ -40,7 +40,7 @@ namespace QLVPP.Services.Implementations
                 return new AuthRes
                 {
                     Authenticated = false,
-                    IsActived = employee.IsActived
+                    IsActivated = employee.IsActivated
                 };
             }
 
@@ -50,7 +50,7 @@ namespace QLVPP.Services.Implementations
             {
                 AccessToken = token.AccessToken,
                 RefreshToken = token.RefreshToken,
-                IsActived = true,
+                IsActivated = true,
                 Authenticated = true
             };
         }

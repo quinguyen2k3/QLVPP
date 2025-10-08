@@ -50,7 +50,7 @@ namespace QLVPP.Middlewares
                 return;
             }
 
-            if (user.IsActived == false) 
+            if (user.IsActivated == false) 
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("Your account has been disabled.");

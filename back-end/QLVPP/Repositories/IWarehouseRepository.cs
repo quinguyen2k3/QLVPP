@@ -4,6 +4,6 @@ namespace QLVPP.Repositories
 {
     public interface IWarehouseRepository : IBaseRepository<Warehouse>
     {
-        Task<List<Warehouse>> GetAllIsActived();
+        Task<List<Warehouse>> GetAllIsActivated();
     }
 }

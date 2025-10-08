@@ -29,10 +29,10 @@ namespace QLVPP.Controllers
             ));
         }
 
-        [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAllActived()
+        [HttpGet("GetAllActivated")]
+        public async Task<ActionResult<List<CategoryRes>>> GetAllActivated()
         {
-            var suppliers = await _service.GetAllActived();
+            var suppliers = await _service.GetAllActivated();
             return Ok(ApiResponse<List<SupplierRes>>.SuccessResponse(
                  suppliers,
                  "Fetched suppliers successfully"

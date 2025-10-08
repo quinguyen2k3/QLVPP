@@ -36,9 +36,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<OrderRes>>(requisitions);
         }
 
-        public async Task<List<OrderRes>> GetAllActived()
+        public async Task<List<OrderRes>> GetAllActivated()
         {
-            var requisitions = await _unitOfWork.Order.GetAllIsActived();
+            var requisitions = await _unitOfWork.Order.GetAllIsActivated();
             return _mapper.Map<List<OrderRes>>(requisitions);
         }
 
@@ -76,7 +76,7 @@ namespace QLVPP.Services.Implementations
                 throw new InvalidOperationException("Only pending orders can be deleted.");
             }
 
-            order.IsActived = false;
+            order.IsActivated = false;
 
             await _unitOfWork.Order.Update(order);
             await _unitOfWork.SaveChanges();

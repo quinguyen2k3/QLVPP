@@ -8,10 +8,10 @@ namespace QLVPP.Repositories.Implementations
     {
         private readonly AppDbContext _context = context;
 
-        public async Task<List<Delivery>> GetAllIsActived()
+        public async Task<List<Delivery>> GetAllIsActivated()
         {
             return await _context.Deliveries
-                .Where(d => d.IsActived == true)
+                .Where(d => d.IsActivated == true)
                 .ToListAsync();
         }
 

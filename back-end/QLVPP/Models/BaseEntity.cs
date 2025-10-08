@@ -15,12 +15,12 @@ namespace QLVPP.Models
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ModifiedDate { get; set; }
         public string? ModifiedBy { get; set; }
-        public bool IsActived { get; set; }
+        public bool IsActivated { get; set; }
 
         public BaseEntity()
         {
             CreatedDate = DateTime.Now;
-            IsActived = true;
+            IsActivated = true;
         }
     }
 }

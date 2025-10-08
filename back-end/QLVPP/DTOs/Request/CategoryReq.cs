@@ -12,6 +12,6 @@ namespace QLVPP.DTOs.Request
         public string? Note { get; set; }
 
         [Required(ErrorMessage = "IsActived status is required")]
-        public bool IsActived { get; set; }
+        public bool IsActivated { get; set; }
     }
 }

@@ -12,10 +12,10 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<Product>> GetAllIsActived()
+        public async Task<List<Product>> GetAllIsActivated()
         {
             return await _context.Products
-                .Where(p => p.IsActived == true)
+                .Where(p => p.IsActivated == true)
                 .ToListAsync();
         }
 

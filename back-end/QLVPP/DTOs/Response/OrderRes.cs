@@ -9,7 +9,7 @@ namespace QLVPP.DTOs.Response
         public DateOnly ExpectedDate { get; set; }
         public long SupplierId { get; set; }
         public long WarehouseId { get; set; }
-        public bool IsActived { get; set; }
+        public bool IsActivated { get; set; }
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = string.Empty;
 

@@ -42,9 +42,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<ProductRes>>(products);
         }
 
-        public async Task<List<ProductRes>> GetAllActived()
+        public async Task<List<ProductRes>> GetAllActivated()
         {
-            var products = await _unitOfWork.Product.GetAllIsActived();
+            var products = await _unitOfWork.Product.GetAllIsActivated();
             return _mapper.Map<List<ProductRes>>(products);
         }
 

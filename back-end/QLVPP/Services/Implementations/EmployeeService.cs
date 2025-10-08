@@ -40,9 +40,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<EmployeeRes>>(employees);
         }
 
-        public async Task<List<EmployeeRes>> GetAllActived()
+        public async Task<List<EmployeeRes>> GetAllActivated()
         {
-            var employees = await _unitOfWork.Employee.GetAllIsActived();
+            var employees = await _unitOfWork.Employee.GetAllIsActivated();
             return _mapper.Map<List<EmployeeRes>>(employees);
         }
 

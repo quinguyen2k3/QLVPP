@@ -11,8 +11,6 @@ namespace QLVPP.DTOs.Request
         [StringLength(200, ErrorMessage = "Note cannot exceed 200 characters")]
         public string? Note { get; set; }
 
-        [Required(ErrorMessage = "IsActived status is required")]
-
         [EmailAddress(ErrorMessage = "Email format is invalid")]
         public string? Email { get; set; }
 
@@ -20,7 +18,7 @@ namespace QLVPP.DTOs.Request
         [Phone(ErrorMessage = "Phone number format is invalid")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "IsActived status is required")]
-        public bool IsActived { get; set; }
+        [Required(ErrorMessage = "IsActivated status is required")]
+        public bool IsActivated { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace QLVPP.Services
     public interface IUnitService
     {
         Task<List<UnitRes>> GetAll();
-        Task<List<UnitRes>> GetAllActived();
+        Task<List<UnitRes>> GetAllActivated();
         Task<UnitRes?> GetById(long id);
         Task<UnitRes> Create(UnitReq request);
         Task<UnitRes?> Update(long id, UnitReq request);

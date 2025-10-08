@@ -14,6 +14,6 @@
 
         public DateTime? ModifiedDate { get; set; }
         public string? ModifiedBy { get; set; }
-        public bool? IsActived { get; set; }
+        public bool? IsActivated { get; set; }
     }
 }

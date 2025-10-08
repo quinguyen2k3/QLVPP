@@ -29,10 +29,10 @@ namespace QLVPP.Controllers
             ));
         }
 
-        [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<UnitRes>>> GetAllActived()
+        [HttpGet("GetAllActivated")]
+        public async Task<ActionResult<List<UnitRes>>> GetAllActivated()
         {
-            var units = await _service.GetAllActived();
+            var units = await _service.GetAllActivated();
             return Ok(ApiResponse<List<UnitRes>>.SuccessResponse(
                  units,
                  "Fetched units successfully"

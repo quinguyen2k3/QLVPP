@@ -18,9 +18,9 @@ namespace QLVPP.DTOs.Request
         public decimal? Height { get; set; }
         public decimal? Depth { get; set; }
         [Required(ErrorMessage = "IsAsset status is required")]
-        public bool IsAssest { get; set; } 
-        [Required(ErrorMessage = "IsActived status is required")]
-        public bool IsActived { get; set; }
+        public bool IsAsset { get; set; } 
+        [Required(ErrorMessage = "IsActivated status is required")]
+        public bool IsActivated { get; set; }
         public long WarehouseId { get; set; }
     }
 }

@@ -4,6 +4,6 @@ namespace QLVPP.Repositories
 {
     public interface IDepartmentRepository : IBaseRepository<Department>
     {
-        Task<List<Department>> GetAllIsActived();
+        Task<List<Department>> GetAllIsActivated();
     }
 }

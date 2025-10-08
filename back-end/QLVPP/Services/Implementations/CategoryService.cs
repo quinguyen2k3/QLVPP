@@ -22,9 +22,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<CategoryRes>>(categories);
         }
 
-        public async Task<List<CategoryRes>> GetAllActived()
+        public async Task<List<CategoryRes>> GetAllActivated()
         {
-            var categories = await _unitOfWork.Category.GetAllIsActived();
+            var categories = await _unitOfWork.Category.GetAllIsActivated();
             return _mapper.Map<List<CategoryRes>>(categories);
         }
 

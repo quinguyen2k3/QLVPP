@@ -6,7 +6,7 @@ namespace QLVPP.Services
     public interface ISupplierService
     {
         Task<List<SupplierRes>> GetAll();
-        Task<List<SupplierRes>> GetAllActived();
+        Task<List<SupplierRes>> GetAllActivated();
         Task<SupplierRes?> GetById(long id);
         Task<SupplierRes> Create(SupplierReq request);
         Task<SupplierRes?> Update(long id, SupplierReq request);

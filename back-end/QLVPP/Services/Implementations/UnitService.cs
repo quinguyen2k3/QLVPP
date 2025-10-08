@@ -33,9 +33,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<UnitRes>>(units);
         }
 
-        public async Task<List<UnitRes>> GetAllActived()
+        public async Task<List<UnitRes>> GetAllActivated()
         {
-            var units = await _unitOfWork.Unit.GetAllIsActived();
+            var units = await _unitOfWork.Unit.GetAllIsActivated();
             return _mapper.Map<List<UnitRes>>(units);
         }
 

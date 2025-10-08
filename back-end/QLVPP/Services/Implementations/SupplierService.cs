@@ -33,9 +33,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<SupplierRes>>(suppliers);
         }
 
-        public async Task<List<SupplierRes>> GetAllActived()
+        public async Task<List<SupplierRes>> GetAllActivated()
         {
-            var suppliers = await _unitOfWork.Supplier.GetAllIsActived();
+            var suppliers = await _unitOfWork.Supplier.GetAllIsActivated();
             return _mapper.Map<List<SupplierRes>>(suppliers);
         }
 

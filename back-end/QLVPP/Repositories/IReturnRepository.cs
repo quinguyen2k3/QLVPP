@@ -5,6 +5,6 @@ namespace QLVPP.Security
 {
     public interface IReturnRepository : IBaseRepository<Return>
     {
-        public Task<List<Return>> GetAllIsActived();
+        public Task<List<Return>> GetAllIsActivated();
     }
 }

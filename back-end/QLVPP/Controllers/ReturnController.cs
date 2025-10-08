@@ -27,10 +27,10 @@ namespace QLVPP.Controllers
              ));
         }
 
-        [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<ReturnRes>>> GetAllActived()
+        [HttpGet("GetAllActivated")]
+        public async Task<ActionResult<List<ReturnRes>>> GetAllActivated()
         {
-            var returnNotes = await _service.GetAllActived();
+            var returnNotes = await _service.GetAllActivated();
             return Ok(ApiResponse<List<ReturnRes>>.SuccessResponse(
                 returnNotes,
                 "Fetched return successfully"

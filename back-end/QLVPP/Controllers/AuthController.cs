@@ -42,7 +42,7 @@ namespace QLVPP.Controllers
 
                 if (!result.Authenticated)
                 {
-                    if (result.IsActived == false)
+                    if (result.IsActivated == false)
                     {
                         return Unauthorized(ApiResponse<AuthRes>.ErrorResponse(
                             "NotActive"
