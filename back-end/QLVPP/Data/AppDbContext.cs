@@ -13,7 +13,6 @@ namespace QLVPP.Data
         {
         }
 
-
         public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUserService)
             : base(options)
         {
@@ -72,14 +71,30 @@ namespace QLVPP.Data
             modelBuilder.Entity<ReturnDetail>(entity =>
             {
                 entity.HasOne(detail => detail.Return)
-                      .WithMany(note => note.ReturnDetails)
-                      .HasForeignKey(detail => detail.ReturnId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany(r => r.ReturnDetails)
+                    .HasForeignKey(detail => detail.ReturnId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(detail => detail.AssetLoan)
-                      .WithMany(loan => loan.ReturnDetails)
-                      .HasForeignKey(detail => detail.AssetLoanId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany(a => a.ReturnDetails)
+                    .HasForeignKey(detail => detail.AssetLoanId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<AssetLoan>(entity =>
+            {
+                entity.HasOne(a => a.DeliveryDetail)
+                    .WithOne(d => d.AssetLoan)
+                    .HasForeignKey<AssetLoan>(a => a.DeliveryDetailId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<DeliveryDetail>(entity =>
+            {
+                entity.HasOne(d => d.Delivery)
+                    .WithMany(h => h.DeliveryDetails)
+                    .HasForeignKey(d => d.DeliveryId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

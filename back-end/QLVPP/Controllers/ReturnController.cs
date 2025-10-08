@@ -50,6 +50,34 @@ namespace QLVPP.Controllers
             ));
         }
 
+         [HttpPost("Create")]
+        public async Task<ActionResult<ApiResponse<ReturnRes>>> Create([FromBody] ReturnReq request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse(
+                    "Validation failed",
+                    errors
+                ));
+            }
+
+            var created = await _service.Create(request);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = created.Id },
+                ApiResponse<ReturnRes>.SuccessResponse(
+                    created,
+                    "Created return successfully"
+                )
+            );
+        }
+
         [HttpPut("Update/{id:long}")]
         public async Task<ActionResult<ReturnRes>> Update(long id, [FromBody] ReturnReq request)
         {

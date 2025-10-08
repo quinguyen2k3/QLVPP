@@ -18,14 +18,14 @@ namespace QLVPP.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public override async Task<AssetLoan?> GetById(params object[] id)
+        public override async Task<AssetLoan?> GetById(object id)
         {
-            var deliveryDetailId = (long)id[0];
+            var Id = Convert.ToInt64(id);
 
             return await _context.AssetLoans
                 .Include(a => a.DeliveryDetail.Delivery)
                 .Include(a => a.DeliveryDetail.Product)
-                .FirstOrDefaultAsync(a => a.DeliveryDetailId == deliveryDetailId);
+                .FirstOrDefaultAsync(a => a.DeliveryDetailId == Id);
         }
     }
 }

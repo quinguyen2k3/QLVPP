@@ -35,19 +35,31 @@ namespace QLVPP.Services.Implementations
 
         public async Task<ReturnRes?> GetById(long id)
         {
-            var assetLoan = await _unitOfWork.AssetLoan.GetById(id);
+            var assetLoan = await _unitOfWork.Return.GetById(id);
             return assetLoan == null ? null : _mapper.Map<ReturnRes>(assetLoan);
+        }
+
+         public async Task<ReturnRes> Create(ReturnReq request)
+        {
+            var returnNote = _mapper.Map<Return>(request);
+            returnNote.Status = ReturnStatus.Pending;
+
+            await _unitOfWork.Return.Add(returnNote);
+            await _unitOfWork.SaveChanges();
+
+            var response = _mapper.Map<ReturnRes>(returnNote);
+            return response;
         }
 
         public async Task<ReturnRes?> Update(long id, ReturnReq request)
         {
-            var returnNote = await _unitOfWork.AssetLoan.GetById(id);
+            var returnNote = await _unitOfWork.Return.GetById(id);
             if (returnNote == null)
                 return null;
 
             _mapper.Map(request, returnNote);
 
-            await _unitOfWork.AssetLoan.Update(returnNote);
+            await _unitOfWork.Return.Update(returnNote);
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<ReturnRes>(returnNote);

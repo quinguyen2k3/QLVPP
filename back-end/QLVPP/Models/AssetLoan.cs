@@ -7,6 +7,9 @@ namespace QLVPP.Models
     public class AssetLoan
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+        [Required]
         public long DeliveryDetailId { get; set; } 
 
         [ForeignKey(nameof(DeliveryDetailId))]
