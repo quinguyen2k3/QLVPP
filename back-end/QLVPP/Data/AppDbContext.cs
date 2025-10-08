@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLVPP.Models;
 using QLVPP.Services;
-using QLVPP.Services.Implementations;
 
 namespace QLVPP.Data
 {
     public class AppDbContext : DbContext
     {
         private readonly ICurrentUserService _currentUserService;
-        
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         {
@@ -37,8 +36,11 @@ namespace QLVPP.Data
         public DbSet<RequisitionDetail> RequisitionDetails { get; set; }
         public DbSet<InvalidToken> InvalidTokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<AssetLoan> AssetLoans { get; set; }
+        public DbSet<Return> Returns { get; set; }
+        public DbSet<ReturnDetail> ReturnDetails { get; set; }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default )
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var entries = ChangeTracker.Entries<BaseEntity>();
 
@@ -64,17 +66,21 @@ namespace QLVPP.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<OrderDetail>()
-                .HasKey(od => new { od.OrderId, od.ProductId });
-
-            modelBuilder.Entity<DeliveryDetail>()
-                .HasKey(dd => new { dd.DeliveryId, dd.ProductId });
-
-            modelBuilder.Entity<RequisitionDetail>()
-                .HasKey(dd => new { dd.RequisitionId, dd.ProductId });
-
             modelBuilder.Entity<Inventory>()
                 .HasKey(i => new { i.WarehouseId, i.ProductId });
+
+            modelBuilder.Entity<ReturnDetail>(entity =>
+            {
+                entity.HasOne(detail => detail.Return)
+                      .WithMany(note => note.ReturnDetails)
+                      .HasForeignKey(detail => detail.ReturnId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(detail => detail.AssetLoan)
+                      .WithMany(loan => loan.ReturnDetails)
+                      .HasForeignKey(detail => detail.AssetLoanId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

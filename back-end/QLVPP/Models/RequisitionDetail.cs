@@ -5,6 +5,9 @@ namespace QLVPP.Models
 {
     public class RequisitionDetail
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
         [Required]
         public long RequisitionId { get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251007020650_ColReturnedDate")]
+    partial class ColReturnedDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +36,19 @@ namespace QLVPP.Migrations
                     b.Property<int>("IssuedQuantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateOnly>("ReturnedDate")
+                        .HasColumnType("date");
+
                     b.Property<int>("ReturnedQuantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DeliveryDetailId");
 
@@ -567,89 +581,6 @@ namespace QLVPP.Migrations
                     b.ToTable("RequisitionDetails");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Return", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("DepartmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsActived")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateOnly>("ReturnDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("WarehouseId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("Return");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.ReturnDetail", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AssetLoanId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("DamagedQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<long>("ReturnId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("ReturnedQuantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssetLoanId");
-
-                    b.HasIndex("ReturnId");
-
-                    b.ToTable("ReturnDetail");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Supplier", b =>
                 {
                     b.Property<long>("Id")
@@ -954,49 +885,6 @@ namespace QLVPP.Migrations
                     b.Navigation("Requisition");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Return", b =>
-                {
-                    b.HasOne("QLVPP.Models.Department", "Department")
-                        .WithMany("Returns")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Returns")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.ReturnDetail", b =>
-                {
-                    b.HasOne("QLVPP.Models.AssetLoan", "AssetLoan")
-                        .WithMany("ReturnDetails")
-                        .HasForeignKey("AssetLoanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Return", "Return")
-                        .WithMany("ReturnDetails")
-                        .HasForeignKey("ReturnId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AssetLoan");
-
-                    b.Navigation("Return");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.AssetLoan", b =>
-                {
-                    b.Navigation("ReturnDetails");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Category", b =>
                 {
                     b.Navigation("Products");
@@ -1018,8 +906,6 @@ namespace QLVPP.Migrations
                     b.Navigation("Deliveries");
 
                     b.Navigation("Employees");
-
-                    b.Navigation("Returns");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Employee", b =>
@@ -1050,11 +936,6 @@ namespace QLVPP.Migrations
                     b.Navigation("RequisitionDetails");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Return", b =>
-                {
-                    b.Navigation("ReturnDetails");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Supplier", b =>
                 {
                     b.Navigation("Orders");
@@ -1074,8 +955,6 @@ namespace QLVPP.Migrations
                     b.Navigation("Inventories");
 
                     b.Navigation("Orders");
-
-                    b.Navigation("Returns");
                 });
 #pragma warning restore 612, 618
         }

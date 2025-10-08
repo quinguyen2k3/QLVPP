@@ -31,6 +31,7 @@ namespace QLVPP.Services.Implementations
                 new Claim("id", employee.Id.ToString()),
                 new Claim("name", employee.Name ?? ""),
                 new Claim("account", employee.Account ?? ""),
+                new Claim("warehouseId", employee.WarehouseId.ToString() ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var expiresInMinutes = jwtSettings.GetValue<int>("ExpiresInMinutes");

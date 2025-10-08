@@ -19,6 +19,7 @@ namespace QLVPP.Models
         public double? Width { get; set; }
         public double? Height { get; set; }
         public double? Depth  { get; set; }
+        public bool IsAsset { get; set; }
 
         [Required]
         public long UnitId { get; set; }

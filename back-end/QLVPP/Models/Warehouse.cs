@@ -14,5 +14,7 @@ namespace QLVPP.Models
         public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         public ICollection<Delivery> Deliveries { get; set; } = new List<Delivery>();
+        public ICollection<Return> Returns{ get; set; }= new List<Return>();
+        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
 }

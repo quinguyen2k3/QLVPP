@@ -1,4 +1,6 @@
-﻿namespace QLVPP.Repositories
+﻿using QLVPP.Security;
+
+namespace QLVPP.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {
@@ -15,6 +17,8 @@
         IOrderRepository Order { get; }
         IInventoryRepository Inventory {  get; }
         IDeliveryRepository Delivery { get; }
+        IAssetLoanRepository AssetLoan { get; }
+        IReturnRepository Return{ get; }
         Task<int> SaveChanges();
     }
 }

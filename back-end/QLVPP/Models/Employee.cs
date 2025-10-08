@@ -20,6 +20,11 @@ namespace QLVPP.Models
         public string Account { get; set; } = string.Empty;
         [StringLength(200)]
         public string? Password { get; set; }
+
+        public long? WarehouseId { get; set; }
+
+        [ForeignKey(nameof(WarehouseId))]
+        public Warehouse? Warehouse { get; set; } 
         public long? DepartmentId { get; set; }
 
         [ForeignKey(nameof(DepartmentId))]
