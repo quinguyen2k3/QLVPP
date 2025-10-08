@@ -20,5 +20,10 @@
 
         public bool IsAuthenticated =>
             _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
+        public long? WarehouseId =>
+             long.TryParse(_httpContextAccessor.HttpContext?.User.FindFirst("warehouseId")?.Value, out var id)
+                 ? id
+                 : null;
     }
 }

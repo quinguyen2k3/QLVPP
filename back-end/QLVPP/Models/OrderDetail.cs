@@ -6,6 +6,10 @@ namespace QLVPP.Models
     [Table("OrderDetail")]
     public class OrderDetail
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+        
         [Required]
         public long OrderId { get; set; }
 

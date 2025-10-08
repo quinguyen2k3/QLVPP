@@ -36,6 +36,7 @@ builder.Services.AddScoped<IProductService,  ProductService>();
 builder.Services.AddScoped<IOrderService,  OrderService>();
 builder.Services.AddScoped<IInvalidTokenService,  InvalidTokenService>();
 builder.Services.AddScoped<IDeliveryService, DeliveryService>();
+builder.Services.AddScoped<IReturnService, ReturnService>();
 
 // 🔗 Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));

@@ -18,5 +18,12 @@ namespace QLVPP.Repositories.Implementations
                 .Where(p => p.IsActived == true)
                 .ToListAsync();
         }
+
+        public async Task<List<Product>> GetByIds(IEnumerable<long> ids)
+        {
+            return await _context.Products
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using QLVPP.Data;
 using QLVPP.Models;
+using QLVPP.Security;
 
 namespace QLVPP.Repositories.Implementations
 {
@@ -17,8 +18,9 @@ namespace QLVPP.Repositories.Implementations
         public IProductRepository Product { get; private set; }
         public IOrderRepository Order { get; private set; }
         public IInventoryRepository Inventory { get; private set; }
-
         public IDeliveryRepository Delivery { get; private set; }
+        public IAssetLoanRepository AssetLoan { get; private set; }
+        public IReturnRepository Return { get; private set; }
 
         public readonly AppDbContext _context;
         public UnitOfWork(AppDbContext context)
@@ -36,6 +38,8 @@ namespace QLVPP.Repositories.Implementations
             Order = new OrderRepository(context);
             Inventory = new InventoryRepository(context);
             Delivery = new DeliveryRepository(context);
+            AssetLoan = new AssetLoanRepository(context);
+            Return = new ReturnRepository(context);
             _context = context;
         }
 

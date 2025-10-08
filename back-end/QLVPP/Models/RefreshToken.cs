@@ -9,8 +9,10 @@ namespace QLVPP.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-        public string Token { get; set; }
-        public string JwtId { get; set; }
+        [Required]
+        public string Token { get; set; } = string.Empty;
+        [Required]
+        public string JwtId { get; set; } = string.Empty;
         public bool IsUsed { get; set; } = false;
         public bool IsRevoked { get; set; } = false;
         public DateTime IssuedAt { get; set; }

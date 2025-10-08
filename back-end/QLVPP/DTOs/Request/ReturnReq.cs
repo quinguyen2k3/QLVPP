@@ -1,0 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace QLVPP.DTOs.Request
+{
+    public class ReturnReq
+    {
+        [Required(ErrorMessage = "DepartmenId is required")]
+        public long DepartmentId { get; set; }
+        [Required(ErrorMessage = "WarehouseId is required")]
+        public long WarehouseId { get; set; }
+        public string? Note { get; set; }
+        public DateOnly ReturnDate { get; set; }    
+        public List<ReturnItemReq> Items{ get; set; } = new List<ReturnItemReq>();
+    }
+}

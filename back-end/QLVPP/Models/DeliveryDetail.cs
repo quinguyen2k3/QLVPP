@@ -5,6 +5,9 @@ namespace QLVPP.Models
 {
     public class DeliveryDetail
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
         [Required]
         public long DeliveryId { get; set; }
 
@@ -19,5 +22,6 @@ namespace QLVPP.Models
 
         [Required]
         public int Quantity { get; set; }
+        public  AssetLoan AssetLoan { get; set; }
     }
 }

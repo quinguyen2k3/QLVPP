@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using QLVPP.Constants;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
@@ -91,6 +90,18 @@ namespace QLVPP.Services.Implementations
 
                 inventory.Quantity -= item.Quantity;
                 await _unitOfWork.Inventory.Update(inventory);
+
+                if (item.Product.IsAsset)
+                {
+                    var assetLoan = new AssetLoan
+                    {
+                        DeliveryDetail = item,
+                        IssuedQuantity = item.Quantity,
+                        ReturnedQuantity = 0,
+                        DamagedQuantity = 0,
+                    };
+                    await _unitOfWork.AssetLoan.Add(assetLoan);
+                }
             }
 
             delivery.Status = DeliveryStatus.Complete;
