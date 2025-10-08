@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251008034811_ModifiedAssetLoanKey")]
+    partial class ModifiedAssetLoanKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -787,7 +790,7 @@ namespace QLVPP.Migrations
                     b.HasOne("QLVPP.Models.DeliveryDetail", "DeliveryDetail")
                         .WithOne("AssetLoan")
                         .HasForeignKey("QLVPP.Models.AssetLoan", "DeliveryDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DeliveryDetail");
@@ -993,7 +996,7 @@ namespace QLVPP.Migrations
                     b.HasOne("QLVPP.Models.Return", "Return")
                         .WithMany("ReturnDetails")
                         .HasForeignKey("ReturnId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssetLoan");

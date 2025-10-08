@@ -15,15 +15,15 @@ namespace QLVPP.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public override async Task<Delivery?> GetById(params object[] id)
+        public override async Task<Delivery?> GetById(object id)
         {
-            var deliveryId = (long)id[0];
+            var Id = Convert.ToInt64(id);
 
             return await _context.Deliveries
                 .Include(r => r.DeliveryDetails)
                     .ThenInclude(d => d.Product)
                         .ThenInclude(p => p.Unit)
-                .FirstOrDefaultAsync(r => r.Id == deliveryId);
+                .FirstOrDefaultAsync(r => r.Id == Id);
         }
     }
 }
