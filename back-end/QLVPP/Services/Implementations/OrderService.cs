@@ -36,9 +36,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<OrderRes>>(requisitions);
         }
 
-        public async Task<List<OrderRes>> GetAllActived()
+        public async Task<List<OrderRes>> GetAllActivated()
         {
-            var requisitions = await _unitOfWork.Order.GetAllIsActived();
+            var requisitions = await _unitOfWork.Order.GetAllIsActivated();
             return _mapper.Map<List<OrderRes>>(requisitions);
         }
 
@@ -51,11 +51,14 @@ namespace QLVPP.Services.Implementations
         public async Task<OrderRes?> Update(long id, OrderReq request)
         {
             var order = await _unitOfWork.Order.GetById(id);
-            if (order == null) return null;
+            if (order == null)
+                return null;
 
             if (order.Status != OrderStatus.Pending)
             {
-                throw new InvalidOperationException("Order is not in Pending status and cannot be updated.");
+                throw new InvalidOperationException(
+                    "Order is not in Pending status and cannot be updated."
+                );
             }
 
             _mapper.Map(request, order);
@@ -69,14 +72,15 @@ namespace QLVPP.Services.Implementations
         public async Task<bool> Delete(long id)
         {
             var order = await _unitOfWork.Order.GetById(id);
-            if (order == null) return false;
+            if (order == null)
+                return false;
 
             if (order.Status != OrderStatus.Pending)
             {
                 throw new InvalidOperationException("Only pending orders can be deleted.");
             }
 
-            order.IsActived = false;
+            order.IsActivated = false;
 
             await _unitOfWork.Order.Update(order);
             await _unitOfWork.SaveChanges();
@@ -87,11 +91,14 @@ namespace QLVPP.Services.Implementations
         public async Task<OrderRes?> Received(long id, OrderReq request)
         {
             var order = await _unitOfWork.Order.GetById(id);
-            if (order == null) return null;
+            if (order == null)
+                return null;
 
             if (order.Status == OrderStatus.Complete)
             {
-                throw new InvalidOperationException("Order has already been completed and cannot receive more items.");
+                throw new InvalidOperationException(
+                    "Order has already been completed and cannot receive more items."
+                );
             }
 
             foreach (var item in request.Items)
@@ -101,8 +108,10 @@ namespace QLVPP.Services.Implementations
                 {
                     detail.Received += item.Received;
 
-                    var inventory = await _unitOfWork.Inventory
-                        .GetByKey(request.WarehouseId, detail.ProductId);
+                    var inventory = await _unitOfWork.Inventory.GetByKey(
+                        request.WarehouseId,
+                        detail.ProductId
+                    );
 
                     if (inventory == null)
                     {

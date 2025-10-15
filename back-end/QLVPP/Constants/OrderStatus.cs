@@ -12,7 +12,7 @@
             Pending,
             PartiallyReceived,
             Complete,
-            Cancelled
+            Cancelled,
         };
     }
 }

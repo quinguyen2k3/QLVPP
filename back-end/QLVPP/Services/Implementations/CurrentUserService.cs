@@ -9,21 +9,42 @@
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public long? UserId =>
-            long.TryParse(_httpContextAccessor.HttpContext?.User.FindFirst("id")?.Value, out var id)
-                ? id
-                : null;
+        public long GetUserId()
+        {
+            var idClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("id")?.Value;
+            if (long.TryParse(idClaim, out var id))
+                return id;
 
-        public string? UserAccount =>
-            _httpContextAccessor.HttpContext?.User.FindFirst("account")?.Value
-            ?? _httpContextAccessor.HttpContext?.User.Identity?.Name;
+            throw new InvalidOperationException("User ID not found in the current context.");
+        }
 
-        public bool IsAuthenticated =>
-            _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+        public string GetUserAccount()
+        {
+            var accountClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("account")?.Value;
+            if (!string.IsNullOrEmpty(accountClaim))
+                return accountClaim;
 
-        public long? WarehouseId =>
-             long.TryParse(_httpContextAccessor.HttpContext?.User.FindFirst("warehouseId")?.Value, out var id)
-                 ? id
-                 : null;
+            var name = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+            if (!string.IsNullOrEmpty(name))
+                return name;
+
+            throw new InvalidOperationException("User account not found in the current context.");
+        }
+
+        public bool IsUserAuthenticated()
+        {
+            return _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+        }
+
+        public long GetWarehouseId()
+        {
+            var warehouseClaim = _httpContextAccessor
+                .HttpContext?.User?.FindFirst("warehouseId")
+                ?.Value;
+            if (long.TryParse(warehouseClaim, out var id))
+                return id;
+
+            throw new InvalidOperationException("Warehouse ID not found for the current user.");
+        }
     }
 }

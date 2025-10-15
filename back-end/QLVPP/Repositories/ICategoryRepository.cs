@@ -4,6 +4,6 @@ namespace QLVPP.Repositories
 {
     public interface ICategoryRepository : IBaseRepository<Category>
     {
-        Task<List<Category>> GetAllIsActived();
+        Task<List<Category>> GetAllIsActivated();
     }
 }

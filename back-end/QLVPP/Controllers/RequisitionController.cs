@@ -24,20 +24,24 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<RequisitionRes>>> GetAll()
         {
             var requisitions = await _service.GetAll();
-            return Ok(ApiResponse<List<RequisitionRes>>.SuccessResponse(
-                requisitions,
-                "Fetched requisitions successfully"
-            ));
+            return Ok(
+                ApiResponse<List<RequisitionRes>>.SuccessResponse(
+                    requisitions,
+                    "Fetched requisitions successfully"
+                )
+            );
         }
 
-        [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<RequisitionRes>>> GetAllActived()
+        [HttpGet("GetAllActivated")]
+        public async Task<ActionResult<List<RequisitionRes>>> GetAllActivated()
         {
-            var requisitions = await _service.GetAllActived();
-            return Ok(ApiResponse<List<RequisitionRes>>.SuccessResponse(
-                 requisitions,
-                 "Fetched requisitions successfully"
-             ));
+            var requisitions = await _service.GetAllActivated();
+            return Ok(
+                ApiResponse<List<RequisitionRes>>.SuccessResponse(
+                    requisitions,
+                    "Fetched requisitions successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -47,26 +51,27 @@ namespace QLVPP.Controllers
             if (requisition == null)
                 return NotFound(new { message = "Requisition not found" });
 
-            return Ok(ApiResponse<RequisitionRes>.SuccessResponse(
-                requisition,
-                "Fetched requisition successfully"
-            ));
+            return Ok(
+                ApiResponse<RequisitionRes>.SuccessResponse(
+                    requisition,
+                    "Fetched requisition successfully"
+                )
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<RequisitionRes>>> Create([FromBody] RequisitionReq request)
+        public async Task<ActionResult<ApiResponse<RequisitionRes>>> Create(
+            [FromBody] RequisitionReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -82,29 +87,28 @@ namespace QLVPP.Controllers
         }
 
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<RequisitionRes>> Update(long id,  [FromQuery] string status)
+        public async Task<ActionResult<RequisitionRes>> Update(long id, [FromQuery] string status)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, status);
             if (updated == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(ApiResponse<RequisitionRes>.SuccessResponse(
-                updated,
-                "Updated categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<RequisitionRes>.SuccessResponse(
+                    updated,
+                    "Updated categroy successfully"
+                )
+            );
         }
     }
 }

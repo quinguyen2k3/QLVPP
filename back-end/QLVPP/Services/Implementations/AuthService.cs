@@ -15,56 +15,59 @@ namespace QLVPP.Services.Implementations
         private readonly IJwtService _jwtService;
         private readonly ICurrentUserService _currentUserService;
 
-        public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, ICurrentUserService currentUserService)
+        public AuthService(
+            IUnitOfWork unitOfWork,
+            IJwtService jwtService,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
             _currentUserService = currentUserService;
         }
 
-        public async Task<AuthRes> AuthenticateAsync(AuthReq request)
+        public async Task<AuthRes> AuthenticateAsync(AuthReq request, HttpResponse httpResponse)
         {
             var employee = await _unitOfWork.Employee.GetByAccount(request.Account);
 
-            if (employee == null || !employee.IsActived)
+            if (employee == null || !employee.IsActivated)
             {
                 return new AuthRes
                 {
                     Authenticated = false,
-                    IsActived = employee?.IsActived ?? false
+                    IsActivated = employee?.IsActivated ?? false,
                 };
             }
 
             if (!PasswordHasher.VerifyPassword(request.Password, employee.Password))
             {
-                return new AuthRes
-                {
-                    Authenticated = false,
-                    IsActived = employee.IsActived
-                };
+                return new AuthRes { Authenticated = false, IsActivated = employee.IsActivated };
             }
 
-            var token = await _jwtService.GenerateAccessTokenAsync(employee);
+            var token = await _jwtService.GenerateAccessTokenAsync(employee, httpResponse);
 
             return new AuthRes
             {
-                AccessToken = token.AccessToken,
-                RefreshToken = token.RefreshToken,
-                IsActived = true,
-                Authenticated = true
+                AccessToken = token,
+                IsActivated = true,
+                Authenticated = true,
             };
         }
 
-        public async Task LogoutAsync(TokenDto request)
+        public async Task LogoutAsync(
+            LogoutReq request,
+            HttpRequest httpRequest,
+            HttpResponse httpResponse
+        )
         {
             if (request == null)
                 throw new Exception("Request is invalid");
-            await _jwtService.RevokeTokenAsync(request);
+            await _jwtService.RevokeTokenAsync(request.AccessToken, httpRequest, httpResponse);
         }
 
         public async Task ChangePasswordAsync(ChangePassReq request)
         {
-            var userId = _currentUserService.UserId;
+            var userId = _currentUserService.GetUserId();
 
             var user = await _unitOfWork.Employee.GetById(userId);
             if (user == null)

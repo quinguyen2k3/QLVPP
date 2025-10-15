@@ -11,18 +11,19 @@ namespace QLVPP.Repositories.Implementations
         public IEmployeeRepository Employee { get; private set; }
         public IRefreshTokenRepository RefreshToken { get; private set; }
         public IInvalidTokenRepository InvalidToken { get; private set; }
-        public IDepartmentRepository Department {  get; private set; }
-        public ISupplierRepository Supplier {  get; private set; }
+        public IDepartmentRepository Department { get; private set; }
+        public ISupplierRepository Supplier { get; private set; }
         public IWarehouseRepository Warehouse { get; private set; }
         public IRequisitionRepository Requisition { get; private set; }
         public IProductRepository Product { get; private set; }
         public IOrderRepository Order { get; private set; }
         public IInventoryRepository Inventory { get; private set; }
         public IDeliveryRepository Delivery { get; private set; }
-        public IAssetLoanRepository AssetLoan { get; private set; }
         public IReturnRepository Return { get; private set; }
+        public IInventorySnapshotRepository InventorySnapshot { get; private set; }
 
         public readonly AppDbContext _context;
+
         public UnitOfWork(AppDbContext context)
         {
             Category = new CategoryRepository(context);
@@ -38,8 +39,8 @@ namespace QLVPP.Repositories.Implementations
             Order = new OrderRepository(context);
             Inventory = new InventoryRepository(context);
             Delivery = new DeliveryRepository(context);
-            AssetLoan = new AssetLoanRepository(context);
             Return = new ReturnRepository(context);
+            InventorySnapshot = new InventorySnapshotRepository(context);
             _context = context;
         }
 
@@ -52,6 +53,5 @@ namespace QLVPP.Repositories.Implementations
         {
             return await _context.SaveChangesAsync();
         }
-
     }
 }

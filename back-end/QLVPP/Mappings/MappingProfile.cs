@@ -13,9 +13,12 @@ namespace QLVPP.Mappings
             CreateMap<Category, CategoryRes>();
 
             CreateMap<EmployeeReq, Employee>()
-                 .ForMember(dest => dest.Password, opt => opt.Ignore());
+                .ForMember(dest => dest.Password, opt => opt.Ignore());
             CreateMap<Employee, EmployeeRes>()
-                 .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department.Name));
+                .ForMember(
+                    dest => dest.DepartmentName,
+                    opt => opt.MapFrom(src => src.Department.Name)
+                );
 
             CreateMap<Department, DepartmentRes>();
             CreateMap<DepartmentReq, Department>();
@@ -35,24 +38,32 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
             CreateMap<Requisition, RequisitionRes>()
-               .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.Name))
-               .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails));
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.Name))
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails));
             CreateMap<RequisitionDetail, RequisitionItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Product.Unit.Name))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
 
-            CreateMap<Product, ProductRes>();
+            CreateMap<Product, ProductRes>()
+                .ForMember(
+                    dest => dest.WarehouseId,
+                    opt => opt.MapFrom(src => src.Inventory.WarehouseId)
+                )
+                .ForMember(
+                    dest => dest.Quantity,
+                    opt => opt.MapFrom(src => src.Inventory.Quantity)
+                );
             CreateMap<ProductReq, Product>();
 
             CreateMap<OrderReq, Order>()
                 .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
             CreateMap<OrderItemReq, OrderDetail>()
-                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
-                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
-                 .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
+                .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
 
             CreateMap<Order, OrderRes>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderDetails));
@@ -68,26 +79,43 @@ namespace QLVPP.Mappings
             CreateMap<DeliveryItemReq, DeliveryDetail>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
             CreateMap<Delivery, DeliveryRes>()
-              .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.DeliveryDetails));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.DeliveryDetails));
             CreateMap<DeliveryDetail, DeliveryItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Product.Unit.Name))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
 
             CreateMap<ReturnReq, Return>()
-               .ForMember(dest => dest.ReturnDetails, opt => opt.MapFrom(src => src.Items))
-               .ForMember(dest => dest.Status, opt => opt.Ignore());
+                .ForMember(dest => dest.ReturnDetails, opt => opt.MapFrom(src => src.Items))
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
             CreateMap<ReturnItemReq, ReturnDetail>()
-                 .ForMember(dest => dest.DamagedQuantity, opt => opt.MapFrom(src => src.DamagedQuantity))
-                 .ForMember(dest => dest.ReturnedQuantity, opt => opt.MapFrom(src => src.ReturnedQuantity))
-                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
+                .ForMember(
+                    dest => dest.DamagedQuantity,
+                    opt => opt.MapFrom(src => src.DamagedQuantity)
+                )
+                .ForMember(
+                    dest => dest.ReturnedQuantity,
+                    opt => opt.MapFrom(src => src.ReturnedQuantity)
+                )
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
 
             CreateMap<Return, ReturnRes>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.ReturnDetails));
             CreateMap<ReturnDetail, ReturnItemRes>()
-                .ForMember(dest => dest.DamagedQuantity, opt => opt.MapFrom(src => src.DamagedQuantity))
-                .ForMember(dest => dest.ReturnedQuantity, opt => opt.MapFrom(src => src.ReturnedQuantity))
+                .ForMember(
+                    dest => dest.DamagedQuantity,
+                    opt => opt.MapFrom(src => src.DamagedQuantity)
+                )
+                .ForMember(
+                    dest => dest.ReturnedQuantity,
+                    opt => opt.MapFrom(src => src.ReturnedQuantity)
+                )
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
+
+            CreateMap<InventorySnapshot, InventorySnapshotRes>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.SnapshotDetails));
+            CreateMap<SnapshotDetail, InventorySnapshotItemRes>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
         }
     }
 }

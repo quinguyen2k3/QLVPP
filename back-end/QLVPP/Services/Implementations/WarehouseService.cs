@@ -33,9 +33,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<WarehouseRes>>(warehouse);
         }
 
-        public async Task<List<WarehouseRes>> GetAllActived()
+        public async Task<List<WarehouseRes>> GetAllActivated()
         {
-            var warehouse = await _unitOfWork.Warehouse.GetAllIsActived();
+            var warehouse = await _unitOfWork.Warehouse.GetAllIsActivated();
             return _mapper.Map<List<WarehouseRes>>(warehouse);
         }
 

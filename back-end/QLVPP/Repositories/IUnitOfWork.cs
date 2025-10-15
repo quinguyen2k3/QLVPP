@@ -15,10 +15,10 @@ namespace QLVPP.Repositories
         IRequisitionRepository Requisition { get; }
         IProductRepository Product { get; }
         IOrderRepository Order { get; }
-        IInventoryRepository Inventory {  get; }
+        IInventoryRepository Inventory { get; }
         IDeliveryRepository Delivery { get; }
-        IAssetLoanRepository AssetLoan { get; }
-        IReturnRepository Return{ get; }
+        IReturnRepository Return { get; }
+        IInventorySnapshotRepository InventorySnapshot { get; }
         Task<int> SaveChanges();
     }
 }

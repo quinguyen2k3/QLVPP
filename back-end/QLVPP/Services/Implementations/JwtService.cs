@@ -1,11 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using QLVPP.DTOs;
-using QLVPP.Models;
-using QLVPP.Repositories;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using QLVPP.DTOs;
+using QLVPP.Models;
+using QLVPP.Repositories;
 
 namespace QLVPP.Services.Implementations
 {
@@ -14,16 +14,18 @@ namespace QLVPP.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
-        public JwtService (IUnitOfWork unitOfWork, IConfiguration configuration)
+        public JwtService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
         }
 
-        public async Task<TokenDto> GenerateAccessTokenAsync(Employee employee)
+        public async Task<string> GenerateAccessTokenAsync(Employee employee, HttpResponse response)
         {
             var jwtSettings = _configuration.GetSection("JwtSec");
-            var secretKey = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
+            var secretKey =
+                jwtSettings["Key"]
+                ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>
@@ -32,7 +34,7 @@ namespace QLVPP.Services.Implementations
                 new Claim("name", employee.Name ?? ""),
                 new Claim("account", employee.Account ?? ""),
                 new Claim("warehouseId", employee.WarehouseId.ToString() ?? ""),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             var expiresInMinutes = jwtSettings.GetValue<int>("ExpiresInMinutes");
             var token = new JwtSecurityToken(
@@ -52,17 +54,22 @@ namespace QLVPP.Services.Implementations
                 IsRevoked = false,
                 IssuedAt = DateTime.Now,
                 ExpiredAt = DateTime.Now.AddDays(7),
-                EmployeeId = employee.Id
+                EmployeeId = employee.Id,
             };
 
             await _unitOfWork.RefreshToken.Add(refreshTokenEntity);
-            await _unitOfWork.SaveChanges();
-            return new TokenDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
 
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = refreshTokenEntity.ExpiredAt,
+            };
+            response.Cookies.Append("REFRESH_TOKEN", refreshToken, cookieOptions);
+
+            await _unitOfWork.SaveChanges();
+            return accessToken;
         }
 
         public string GenerateRefreshToken()
@@ -76,7 +83,9 @@ namespace QLVPP.Services.Implementations
         public bool Validator(string token)
         {
             var jwtSettings = _configuration.GetSection("JwtSec");
-            var secretKey = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
+            var secretKey =
+                jwtSettings["Key"]
+                ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
 
@@ -85,24 +94,9 @@ namespace QLVPP.Services.Implementations
 
             try
             {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidateAudience = true,
-                    ValidAudience = audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                }, out _);
-                return false;
-            }
-            catch (SecurityTokenExpiredException)
-            {
-                try
-                {
-                    tokenHandler.ValidateToken(token, new TokenValidationParameters
+                tokenHandler.ValidateToken(
+                    token,
+                    new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = key,
@@ -110,15 +104,38 @@ namespace QLVPP.Services.Implementations
                         ValidIssuer = issuer,
                         ValidateAudience = true,
                         ValidAudience = audience,
-                        ValidateLifetime = false,
-                        ClockSkew = TimeSpan.Zero
-                    }, out _);
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                    },
+                    out _
+                );
+                return false;
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                try
+                {
+                    tokenHandler.ValidateToken(
+                        token,
+                        new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = key,
+                            ValidateIssuer = true,
+                            ValidIssuer = issuer,
+                            ValidateAudience = true,
+                            ValidAudience = audience,
+                            ValidateLifetime = false,
+                            ClockSkew = TimeSpan.Zero,
+                        },
+                        out _
+                    );
 
                     return true;
                 }
                 catch
                 {
-                    return false; 
+                    return false;
                 }
             }
             catch
@@ -126,6 +143,7 @@ namespace QLVPP.Services.Implementations
                 return false;
             }
         }
+
         public IEnumerable<Claim> GetClaims(string accessToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -134,31 +152,36 @@ namespace QLVPP.Services.Implementations
             return jwtToken.Claims;
         }
 
-        public async Task<TokenDto> RenewAccessTokenAsync(TokenDto request)
+        public async Task<string> RenewAccessTokenAsync(HttpRequest request, HttpResponse response)
         {
-            var refreshTokenEntity = await _unitOfWork.RefreshToken.GetByTokenAsync(request.RefreshToken);
-            if (refreshTokenEntity == null ||
-                refreshTokenEntity.IsRevoked ||
-                refreshTokenEntity.IsUsed ||
-                refreshTokenEntity.ExpiredAt <= DateTime.UtcNow)
+            var refreshToken = request.Cookies["REFRESH_TOKEN"];
+            if (string.IsNullOrEmpty(refreshToken))
+                throw new UnauthorizedAccessException("Invalid refresh token");
+            var refreshTokenEntity = await _unitOfWork.RefreshToken.GetByTokenAsync(refreshToken);
+            if (
+                refreshTokenEntity == null
+                || refreshTokenEntity.IsRevoked
+                || refreshTokenEntity.IsUsed
+                || refreshTokenEntity.ExpiredAt <= DateTime.UtcNow
+            )
             {
                 throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
-            if (!Validator(request.AccessToken))
-            {
-                throw new UnauthorizedAccessException("Invalid refresh token");
-            }
+            var accessToken = request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
 
-            var claims = GetClaims(request.AccessToken);
+            if (string.IsNullOrEmpty(accessToken) || !Validator(accessToken))
+                throw new UnauthorizedAccessException("Invalid access token");
+
+            var claims = GetClaims(accessToken);
             var userIdStr = claims.FirstOrDefault(c => c.Type == "id")?.Value;
+
             if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out var userId))
-            {
-                throw new UnauthorizedAccessException("Invalid refresh token");
-            }
+                throw new UnauthorizedAccessException("Invalid access token");
 
             refreshTokenEntity.IsUsed = true;
             refreshTokenEntity.IsRevoked = true;
+
             await _unitOfWork.RefreshToken.Update(refreshTokenEntity);
 
             var employee = await _unitOfWork.Employee.GetById(userId);
@@ -167,12 +190,20 @@ namespace QLVPP.Services.Implementations
 
             await _unitOfWork.SaveChanges();
 
-            return await GenerateAccessTokenAsync(employee);
+            return await GenerateAccessTokenAsync(employee, response);
         }
 
-        public async Task RevokeTokenAsync(TokenDto request)
+        public async Task RevokeTokenAsync(
+            string accessToken,
+            HttpRequest request,
+            HttpResponse response
+        )
         {
-            var refreshTokenEntity = await _unitOfWork.RefreshToken.GetByTokenAsync(request.RefreshToken);
+            var refreshToken = request.Cookies["REFRESH_TOKEN"];
+            if (string.IsNullOrEmpty(refreshToken))
+                throw new UnauthorizedAccessException("Refresh token is missing or invalid.");
+
+            var refreshTokenEntity = await _unitOfWork.RefreshToken.GetByTokenAsync(refreshToken);
             if (refreshTokenEntity == null)
                 throw new Exception("Refresh token does not exist.");
             if (refreshTokenEntity.IsRevoked)
@@ -182,7 +213,9 @@ namespace QLVPP.Services.Implementations
             refreshTokenEntity.IsRevoked = true;
             await _unitOfWork.RefreshToken.Update(refreshTokenEntity);
 
-            var claims = GetClaims(request.AccessToken);
+            response.Cookies.Delete("REFRESH_TOKEN");
+
+            var claims = GetClaims(accessToken);
             var account = claims.FirstOrDefault(c => c.Type == "account")?.Value ?? "unknown";
             var jti = claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
             var expUnix = claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
@@ -200,7 +233,7 @@ namespace QLVPP.Services.Implementations
                 Jti = jti,
                 Expiration = expiration,
                 RevokedAt = DateTime.UtcNow,
-                RevokedBy = account
+                RevokedBy = account,
             };
 
             await _unitOfWork.InvalidToken.Add(invalidToken);

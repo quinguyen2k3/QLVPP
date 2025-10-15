@@ -1,6 +1,4 @@
 ﻿using QLVPP.Services;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
 namespace QLVPP.Middlewares
 {
@@ -15,26 +13,20 @@ namespace QLVPP.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
-            var _currentUserService = context.RequestServices.GetRequiredService<ICurrentUserService>();
+            var _currentUserService =
+                context.RequestServices.GetRequiredService<ICurrentUserService>();
             var _employeeService = context.RequestServices.GetRequiredService<IEmployeeService>();
 
-            if (_currentUserService.IsAuthenticated == false)
+            if (_currentUserService.IsUserAuthenticated() == false)
             {
                 await _next(context);
                 return;
             }
 
-            var userId = _currentUserService.UserId;
-            var account = _currentUserService.UserAccount;
+            var userId = _currentUserService.GetUserId();
+            var account = _currentUserService.GetUserAccount();
 
-            if (userId == null || string.IsNullOrWhiteSpace(account))
-            {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Missing account information.");
-                return;
-            }
-
-            var user = await _employeeService.GetById(userId.Value);
+            var user = await _employeeService.GetById(userId);
 
             if (user == null)
             {
@@ -50,7 +42,7 @@ namespace QLVPP.Middlewares
                 return;
             }
 
-            if (user.IsActived == false) 
+            if (user.IsActivated == false)
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("Your account has been disabled.");

@@ -13,10 +13,10 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<Employee>> GetAllIsActived()
+        public async Task<List<Employee>> GetAllIsActivated()
         {
             return await _context.Employees
-                                .Where(e => e.IsActived == true)
+                                .Where(e => e.IsActivated == true)
                                 .OrderByDescending(e => e.CreatedBy)
                                 .ToListAsync();
         }

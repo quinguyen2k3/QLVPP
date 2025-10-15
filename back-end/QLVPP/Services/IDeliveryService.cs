@@ -6,7 +6,7 @@ namespace QLVPP.Services
     public interface IDeliveryService
     {
         Task<List<DeliveryRes>> GetAll();
-        Task<List<DeliveryRes>> GetAllActived();
+        Task<List<DeliveryRes>> GetAllActivated();
         Task<DeliveryRes?> GetById(long id);
         Task<DeliveryRes> Create(DeliveryReq request);
         Task<DeliveryRes?> Update(long id, DeliveryReq request);

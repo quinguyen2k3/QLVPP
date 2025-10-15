@@ -2,9 +2,9 @@
 {
     public interface ICurrentUserService
     {
-        long? UserId { get; }
-        long? WarehouseId { get; }
-        string? UserAccount { get; }
-        bool IsAuthenticated { get; }
+        long GetUserId();
+        long GetWarehouseId();
+        string GetUserAccount();
+        bool IsUserAuthenticated();
     }
 }

@@ -6,7 +6,7 @@ namespace QLVPP.Services
     public interface IOrderService
     {
         Task<List<OrderRes>> GetAll();
-        Task<List<OrderRes>> GetAllActived();
+        Task<List<OrderRes>> GetAllActivated();
         Task<OrderRes?> GetById(long id);
         Task<OrderRes> Create(OrderReq request);
         Task<OrderRes?> Update(long id, OrderReq request);

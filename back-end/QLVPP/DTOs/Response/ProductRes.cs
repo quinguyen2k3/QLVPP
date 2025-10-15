@@ -12,11 +12,9 @@
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
         public decimal? Depth { get; set; }
-        public bool IsAssest { get; set; } 
-        public bool IsActived { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public string CreatedBy { get; set; } = string.Empty;
-        public DateTime? ModifiedDate { get; set; }
-        public string? ModifiedBy { get; set; }
+        public int Quantity { get; set; }
+        public long WarehouseId { get; set; }
+        public bool IsAsset { get; set; }
+        public bool IsActivated { get; set; }
     }
 }

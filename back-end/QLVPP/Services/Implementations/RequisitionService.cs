@@ -13,7 +13,11 @@ namespace QLVPP.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
-        public RequisitionService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+        public RequisitionService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -38,9 +42,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 
-        public async Task<List<RequisitionRes>> GetAllActived()
+        public async Task<List<RequisitionRes>> GetAllActivated()
         {
-            var requisitions = await _unitOfWork.Requisition.GetAllIsActived();
+            var requisitions = await _unitOfWork.Requisition.GetAllIsActivated();
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 
@@ -55,7 +59,8 @@ namespace QLVPP.Services.Implementations
             status = status.ToUpper();
 
             var requisition = await _unitOfWork.Requisition.GetById(id);
-            if (requisition == null) return null;
+            if (requisition == null)
+                return null;
 
             if (!RequisitionStatus.All.Contains(status))
             {
@@ -65,14 +70,14 @@ namespace QLVPP.Services.Implementations
             if (requisition.Status is RequisitionStatus.Approved or RequisitionStatus.Rejected)
                 throw new InvalidOperationException(
                     $"Requisition {id} is already {requisition.Status} and cannot be modified."
-            );
+                );
 
             requisition.Status = status;
 
             if (status == RequisitionStatus.Approved)
             {
                 requisition.ApprovedDate = DateTime.UtcNow;
-                requisition.ApprovedBy = _currentUserService.UserAccount;
+                requisition.ApprovedBy = _currentUserService.GetUserAccount();
             }
 
             await _unitOfWork.Requisition.Update(requisition);

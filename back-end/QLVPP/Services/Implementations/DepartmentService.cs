@@ -29,14 +29,13 @@ namespace QLVPP.Services.Implementations
 
         public async Task<List<DepartmentRes>> GetAll()
         {
-
             var departments = await _unitOfWork.Department.GetAll();
             return _mapper.Map<List<DepartmentRes>>(departments);
         }
 
-        public async Task<List<DepartmentRes>> GetAllActived()
+        public async Task<List<DepartmentRes>> GetAllActivated()
         {
-            var departments = await _unitOfWork.Department.GetAllIsActived();
+            var departments = await _unitOfWork.Department.GetAllIsActivated();
             return _mapper.Map<List<DepartmentRes>>(departments);
         }
 

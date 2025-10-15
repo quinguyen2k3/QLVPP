@@ -6,7 +6,7 @@ namespace QLVPP.Services
     public interface IReturnService
     {
         Task<List<ReturnRes>> GetAll();
-        Task<List<ReturnRes>> GetAllActived();
+        Task<List<ReturnRes>> GetAllActivated();
         Task<ReturnRes?> GetById(long id);
         Task<ReturnRes> Create(ReturnReq request);
         Task<ReturnRes?> Update(long id, ReturnReq request);

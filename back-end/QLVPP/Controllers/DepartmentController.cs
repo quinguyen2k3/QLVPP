@@ -19,24 +19,29 @@ namespace QLVPP.Controllers
         {
             _service = service;
         }
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<DepartmentRes>>> GetAll()
         {
             var departments = await _service.GetAll();
-            return Ok(ApiResponse<List<DepartmentRes>>.SuccessResponse(
-                departments,
-                "Fetched departments successfully"
-            ));
+            return Ok(
+                ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                    departments,
+                    "Fetched departments successfully"
+                )
+            );
         }
 
-        [HttpGet("GetAllActived")]
-        public async Task<ActionResult<List<DepartmentRes>>> GetAllActived()
+        [HttpGet("GetAllActivated")]
+        public async Task<ActionResult<List<DepartmentRes>>> GetAllActivated()
         {
-            var departments = await _service.GetAllActived();
-            return Ok(ApiResponse<List<DepartmentRes>>.SuccessResponse(
-                 departments,
-                 "Fetched departments successfully"
-             ));
+            var departments = await _service.GetAllActivated();
+            return Ok(
+                ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                    departments,
+                    "Fetched departments successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -46,26 +51,27 @@ namespace QLVPP.Controllers
             if (department == null)
                 return NotFound(new { message = "Department not found" });
 
-            return Ok(ApiResponse<DepartmentRes>.SuccessResponse(
-                department,
-                "Fetched department successfully"
-            ));
+            return Ok(
+                ApiResponse<DepartmentRes>.SuccessResponse(
+                    department,
+                    "Fetched department successfully"
+                )
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<DepartmentRes>>> Create([FromBody] DepartmentReq request)
+        public async Task<ActionResult<ApiResponse<DepartmentRes>>> Create(
+            [FromBody] DepartmentReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -73,38 +79,33 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<DepartmentRes>.SuccessResponse(
-                    created,
-                    "Created employee successfully"
-                )
+                ApiResponse<DepartmentRes>.SuccessResponse(created, "Created employee successfully")
             );
         }
 
-
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<DepartmentRes>> Update(long id, [FromBody] DepartmentReq request)
+        public async Task<ActionResult<DepartmentRes>> Update(
+            long id,
+            [FromBody] DepartmentReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Department not found" });
 
-            return Ok(ApiResponse<DepartmentRes>.SuccessResponse(
-                updated,
-                "Updated categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<DepartmentRes>.SuccessResponse(updated, "Updated categroy successfully")
+            );
         }
     }
 }

@@ -10,11 +10,17 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProductService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ProductRes> Create(ProductReq request)
@@ -42,9 +48,9 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<ProductRes>>(products);
         }
 
-        public async Task<List<ProductRes>> GetAllActived()
+        public async Task<List<ProductRes>> GetAllActivated()
         {
-            var products = await _unitOfWork.Product.GetAllIsActived();
+            var products = await _unitOfWork.Product.GetAllIsActivated();
             return _mapper.Map<List<ProductRes>>(products);
         }
 
@@ -52,6 +58,13 @@ namespace QLVPP.Services.Implementations
         {
             var product = await _unitOfWork.Product.GetById(id);
             return product == null ? null : _mapper.Map<ProductRes>(product);
+        }
+
+        public async Task<List<ProductRes>> GetByWarehouse()
+        {
+            var warehouseId = _currentUserService.GetWarehouseId();
+            var products = await _unitOfWork.Product.GetByWarehouseId(warehouseId);
+            return _mapper.Map<List<ProductRes>>(products);
         }
 
         public async Task<ProductRes?> Update(long id, ProductReq request)
@@ -73,7 +86,7 @@ namespace QLVPP.Services.Implementations
                 {
                     ProductId = product.Id,
                     WarehouseId = request.WarehouseId,
-                    Quantity = oldQuantity
+                    Quantity = oldQuantity,
                 };
                 await _unitOfWork.Inventory.Add(newInventory);
             }

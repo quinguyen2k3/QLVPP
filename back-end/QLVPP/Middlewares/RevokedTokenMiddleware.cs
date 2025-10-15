@@ -38,7 +38,9 @@ namespace QLVPP.Middlewares
                 return;
             }
 
-            var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+            var jti = jwtToken
+                .Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)
+                ?.Value;
 
             if (string.IsNullOrEmpty(jti))
             {
