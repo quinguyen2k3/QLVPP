@@ -3,7 +3,8 @@ using QLVPP.Data;
 
 namespace QLVPP.Repositories.Implementations
 {
-    public abstract class BaseRepository<T>(AppDbContext context) : IBaseRepository<T> where T : class
+    public abstract class BaseRepository<T>(AppDbContext context) : IBaseRepository<T>
+        where T : class
     {
         private readonly AppDbContext _context = context;
 
@@ -11,9 +12,11 @@ namespace QLVPP.Repositories.Implementations
 
         public virtual void Delete(T entity) => _context.Set<T>().Remove(entity);
 
-        public virtual async Task<List<T>> GetAll() => await _context.Set<T>()
-            .OrderByDescending(e => EF.Property<DateTime>(e, "CreatedDate"))
-            .ToListAsync();
+        public virtual async Task<List<T>> GetAll() =>
+            await _context
+                .Set<T>()
+                .OrderByDescending(e => EF.Property<DateTime>(e, "CreatedDate"))
+                .ToListAsync();
 
         public virtual async Task<T?> GetById(object id)
         {

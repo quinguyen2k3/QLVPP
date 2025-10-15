@@ -29,7 +29,6 @@ namespace QLVPP.Services.Implementations
 
         public async Task<List<DepartmentRes>> GetAll()
         {
-
             var departments = await _unitOfWork.Department.GetAll();
             return _mapper.Map<List<DepartmentRes>>(departments);
         }

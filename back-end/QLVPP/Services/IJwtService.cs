@@ -5,8 +5,8 @@ namespace QLVPP.Services
 {
     public interface IJwtService
     {
-        Task<TokenDto> GenerateAccessTokenAsync(Employee employee);
-        Task<TokenDto> RenewAccessTokenAsync(TokenDto request);
-        Task RevokeTokenAsync(TokenDto request);
+        Task<string> GenerateAccessTokenAsync(Employee employee, HttpResponse response);
+        Task<string> RenewAccessTokenAsync(HttpRequest request, HttpResponse response);
+        Task RevokeTokenAsync(string accessToken, HttpRequest request, HttpResponse response);
     }
 }

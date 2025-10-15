@@ -10,7 +10,7 @@ namespace QLVPP.Constants
         {
             Pending,
             Complete,
-            Cancel
+            Cancel,
         };
-    } 
+    }
 }

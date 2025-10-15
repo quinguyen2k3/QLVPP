@@ -24,20 +24,24 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<DeliveryRes>>> GetAll()
         {
             var deliveries = await _service.GetAll();
-            return Ok(ApiResponse<List<DeliveryRes>>.SuccessResponse(
-                deliveries,
-                "Fetched deliveries successfully"
-            ));
+            return Ok(
+                ApiResponse<List<DeliveryRes>>.SuccessResponse(
+                    deliveries,
+                    "Fetched deliveries successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<DeliveryRes>>> GetAllActivated()
         {
             var deliveries = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<DeliveryRes>>.SuccessResponse(
-                 deliveries,
-                 "Fetched deliveries successfully"
-             ));
+            return Ok(
+                ApiResponse<List<DeliveryRes>>.SuccessResponse(
+                    deliveries,
+                    "Fetched deliveries successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -47,26 +51,24 @@ namespace QLVPP.Controllers
             if (delivery == null)
                 return NotFound(new { message = "Delivery not found" });
 
-            return Ok(ApiResponse<DeliveryRes>.SuccessResponse(
-                delivery,
-                "Fetched delivery successfully"
-            ));
+            return Ok(
+                ApiResponse<DeliveryRes>.SuccessResponse(delivery, "Fetched delivery successfully")
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<DeliveryRes>>> Create([FromBody] DeliveryReq request)
+        public async Task<ActionResult<ApiResponse<DeliveryRes>>> Create(
+            [FromBody] DeliveryReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -74,10 +76,7 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<DeliveryRes>.SuccessResponse(
-                    created,
-                    "Created delivery successfully"
-                )
+                ApiResponse<DeliveryRes>.SuccessResponse(created, "Created delivery successfully")
             );
         }
 
@@ -86,25 +85,21 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Delivery not found" });
 
-            return Ok(ApiResponse<DeliveryRes>.SuccessResponse(
-                updated,
-                "Delivery order successfully"
-            ));
+            return Ok(
+                ApiResponse<DeliveryRes>.SuccessResponse(updated, "Delivery order successfully")
+            );
         }
 
         [HttpPut("Dispatch/{id:long}")]
@@ -112,25 +107,21 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Dispatch(id, request);
             if (updated == null)
                 return NotFound(new { message = "Delivery not found" });
 
-            return Ok(ApiResponse<DeliveryRes>.SuccessResponse(
-                updated,
-                "Dispatch supply successfully"
-            ));
+            return Ok(
+                ApiResponse<DeliveryRes>.SuccessResponse(updated, "Dispatch supply successfully")
+            );
         }
     }
 }

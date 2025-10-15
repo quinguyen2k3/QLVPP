@@ -19,24 +19,29 @@ namespace QLVPP.Controllers
         {
             _service = service;
         }
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<SupplierRes>>> GetAll()
         {
             var suppliers = await _service.GetAll();
-            return Ok(ApiResponse<List<SupplierRes>>.SuccessResponse(
-                suppliers,
-                "Fetched suppliers successfully"
-            ));
+            return Ok(
+                ApiResponse<List<SupplierRes>>.SuccessResponse(
+                    suppliers,
+                    "Fetched suppliers successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<CategoryRes>>> GetAllActivated()
         {
             var suppliers = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<SupplierRes>>.SuccessResponse(
-                 suppliers,
-                 "Fetched suppliers successfully"
-             ));
+            return Ok(
+                ApiResponse<List<SupplierRes>>.SuccessResponse(
+                    suppliers,
+                    "Fetched suppliers successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -46,26 +51,24 @@ namespace QLVPP.Controllers
             if (supplier == null)
                 return NotFound(new { message = "Supplier not found" });
 
-            return Ok(ApiResponse<SupplierRes>.SuccessResponse(
-                supplier,
-                "Fetched categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<SupplierRes>.SuccessResponse(supplier, "Fetched categroy successfully")
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<SupplierRes>>> Create([FromBody] SupplierReq request)
+        public async Task<ActionResult<ApiResponse<SupplierRes>>> Create(
+            [FromBody] SupplierReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -73,38 +76,30 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<SupplierRes>.SuccessResponse(
-                    created,
-                    "Created category successfully"
-                )
+                ApiResponse<SupplierRes>.SuccessResponse(created, "Created category successfully")
             );
         }
-
 
         [HttpPut("Update/{id:long}")]
         public async Task<ActionResult<SupplierRes>> Update(long id, [FromBody] SupplierReq request)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(ApiResponse<SupplierRes>.SuccessResponse(
-                updated,
-                "Updated categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<SupplierRes>.SuccessResponse(updated, "Updated categroy successfully")
+            );
         }
     }
 }

@@ -25,20 +25,24 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<CategoryRes>>> GetAll()
         {
             var categories = await _service.GetAll();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                categories,
-                "Fetched categories successfully"
-            ));
+            return Ok(
+                ApiResponse<List<CategoryRes>>.SuccessResponse(
+                    categories,
+                    "Fetched categories successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<CategoryRes>>> GetAllActivated()
         {
             var categories = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<CategoryRes>>.SuccessResponse(
-                 categories,
-                 "Fetched categories successfully"
-             ));
+            return Ok(
+                ApiResponse<List<CategoryRes>>.SuccessResponse(
+                    categories,
+                    "Fetched categories successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -48,26 +52,24 @@ namespace QLVPP.Controllers
             if (category == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
-                category,
-                "Fetched categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<CategoryRes>.SuccessResponse(category, "Fetched categroy successfully")
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<CategoryRes>>> Create([FromBody] CategoryReq request)
+        public async Task<ActionResult<ApiResponse<CategoryRes>>> Create(
+            [FromBody] CategoryReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -75,38 +77,30 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<CategoryRes>.SuccessResponse(
-                    created,
-                    "Created category successfully"
-                )
+                ApiResponse<CategoryRes>.SuccessResponse(created, "Created category successfully")
             );
         }
-
 
         [HttpPut("Update/{id:long}")]
         public async Task<ActionResult<CategoryRes>> Update(long id, [FromBody] CategoryReq request)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Category not found" });
 
-            return Ok(ApiResponse<CategoryRes>.SuccessResponse(
-                updated,
-                "Updated categroy successfully"
-            ));
+            return Ok(
+                ApiResponse<CategoryRes>.SuccessResponse(updated, "Updated categroy successfully")
+            );
         }
     }
 }

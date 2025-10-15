@@ -22,34 +22,6 @@ namespace QLVPP.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("QLVPP.Models.AssetLoan", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("DamagedQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<long>("DeliveryDetailId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("IssuedQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ReturnedQuantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryDetailId")
-                        .IsUnique();
-
-                    b.ToTable("AssetLoan");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Category", b =>
                 {
                     b.Property<long>("Id")
@@ -299,9 +271,51 @@ namespace QLVPP.Migrations
 
                     b.HasKey("WarehouseId", "ProductId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .IsUnique();
 
                     b.ToTable("Inventory");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.InventorySnapshot", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("SnapshotDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("InventorySnapshots");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Order", b =>
@@ -591,6 +605,9 @@ namespace QLVPP.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("DepartmentId")
                         .HasColumnType("bigint");
 
@@ -619,6 +636,8 @@ namespace QLVPP.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeliveryId");
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("WarehouseId");
@@ -634,15 +653,15 @@ namespace QLVPP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AssetLoanId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("DamagedQuantity")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ReturnId")
                         .HasColumnType("bigint");
@@ -652,11 +671,46 @@ namespace QLVPP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetLoanId");
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("ReturnId");
 
                     b.ToTable("ReturnDetail");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.SnapshotDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ClosingQty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OpeningQty")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SnapshotId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TotalIn")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalOut")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SnapshotId");
+
+                    b.ToTable("SnapshotDetails");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Supplier", b =>
@@ -782,17 +836,6 @@ namespace QLVPP.Migrations
                     b.ToTable("Warehouse");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.AssetLoan", b =>
-                {
-                    b.HasOne("QLVPP.Models.DeliveryDetail", "DeliveryDetail")
-                        .WithOne("AssetLoan")
-                        .HasForeignKey("QLVPP.Models.AssetLoan", "DeliveryDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("DeliveryDetail");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Delivery", b =>
                 {
                     b.HasOne("QLVPP.Models.Department", "Department")
@@ -849,8 +892,8 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Inventory", b =>
                 {
                     b.HasOne("QLVPP.Models.Product", "Product")
-                        .WithMany("Inventories")
-                        .HasForeignKey("ProductId")
+                        .WithOne("Inventory")
+                        .HasForeignKey("QLVPP.Models.Inventory", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -861,6 +904,17 @@ namespace QLVPP.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.InventorySnapshot", b =>
+                {
+                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
+                        .WithMany("InventorySnapshots")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Warehouse");
                 });
@@ -965,6 +1019,12 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Return", b =>
                 {
+                    b.HasOne("QLVPP.Models.Delivery", "Delivery")
+                        .WithMany("Returns")
+                        .HasForeignKey("DeliveryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("QLVPP.Models.Department", "Department")
                         .WithMany("Returns")
                         .HasForeignKey("DepartmentId")
@@ -977,6 +1037,8 @@ namespace QLVPP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Delivery");
+
                     b.Navigation("Department");
 
                     b.Navigation("Warehouse");
@@ -984,10 +1046,10 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.ReturnDetail", b =>
                 {
-                    b.HasOne("QLVPP.Models.AssetLoan", "AssetLoan")
+                    b.HasOne("QLVPP.Models.Product", "Product")
                         .WithMany("ReturnDetails")
-                        .HasForeignKey("AssetLoanId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("QLVPP.Models.Return", "Return")
@@ -996,14 +1058,28 @@ namespace QLVPP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AssetLoan");
+                    b.Navigation("Product");
 
                     b.Navigation("Return");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.AssetLoan", b =>
+            modelBuilder.Entity("QLVPP.Models.SnapshotDetail", b =>
                 {
-                    b.Navigation("ReturnDetails");
+                    b.HasOne("QLVPP.Models.Product", "Product")
+                        .WithMany("SnapshotDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.InventorySnapshot", "InventorySnapshot")
+                        .WithMany("SnapshotDetails")
+                        .HasForeignKey("SnapshotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventorySnapshot");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Category", b =>
@@ -1014,12 +1090,8 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Delivery", b =>
                 {
                     b.Navigation("DeliveryDetails");
-                });
 
-            modelBuilder.Entity("QLVPP.Models.DeliveryDetail", b =>
-                {
-                    b.Navigation("AssetLoan")
-                        .IsRequired();
+                    b.Navigation("Returns");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Department", b =>
@@ -1038,6 +1110,11 @@ namespace QLVPP.Migrations
                     b.Navigation("Requisitions");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.InventorySnapshot", b =>
+                {
+                    b.Navigation("SnapshotDetails");
+                });
+
             modelBuilder.Entity("QLVPP.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
@@ -1047,11 +1124,16 @@ namespace QLVPP.Migrations
                 {
                     b.Navigation("DeliveryDetails");
 
-                    b.Navigation("Inventories");
+                    b.Navigation("Inventory")
+                        .IsRequired();
 
                     b.Navigation("OrderDetails");
 
                     b.Navigation("RequisitionDetails");
+
+                    b.Navigation("ReturnDetails");
+
+                    b.Navigation("SnapshotDetails");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Requisition", b =>
@@ -1081,6 +1163,8 @@ namespace QLVPP.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("Inventories");
+
+                    b.Navigation("InventorySnapshots");
 
                     b.Navigation("Orders");
 

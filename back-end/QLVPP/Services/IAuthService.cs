@@ -6,8 +6,8 @@ namespace QLVPP.Services
 {
     public interface IAuthService
     {
-        Task<AuthRes> AuthenticateAsync(AuthReq request);
-        Task LogoutAsync(TokenDto request);
+        Task<AuthRes> AuthenticateAsync(AuthReq request, HttpResponse httpResponse);
+        Task LogoutAsync(LogoutReq request, HttpRequest httpRequest, HttpResponse httpResponse);
         Task ChangePasswordAsync(ChangePassReq request);
     }
 }

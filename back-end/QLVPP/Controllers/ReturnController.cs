@@ -12,6 +12,7 @@ namespace QLVPP.Controllers
     public class ReturnController : ControllerBase
     {
         private readonly IReturnService _service;
+
         public ReturnController(IReturnService service)
         {
             _service = service;
@@ -21,20 +22,24 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<ReturnRes>>> GetAll()
         {
             var returnNotes = await _service.GetAll();
-            return Ok(ApiResponse<List<ReturnRes>>.SuccessResponse(
-                returnNotes,
-                "Fetched return successfully"
-             ));
+            return Ok(
+                ApiResponse<List<ReturnRes>>.SuccessResponse(
+                    returnNotes,
+                    "Fetched return successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<ReturnRes>>> GetAllActivated()
         {
             var returnNotes = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<ReturnRes>>.SuccessResponse(
-                returnNotes,
-                "Fetched return successfully"
-             ));
+            return Ok(
+                ApiResponse<List<ReturnRes>>.SuccessResponse(
+                    returnNotes,
+                    "Fetched return successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -44,26 +49,25 @@ namespace QLVPP.Controllers
             if (returnNote == null)
                 return NotFound(new { message = "Return note not found" });
 
-            return Ok(ApiResponse<ReturnRes>.SuccessResponse(
-                returnNote,
-                "Fetched return note successfully"
-            ));
+            return Ok(
+                ApiResponse<ReturnRes>.SuccessResponse(
+                    returnNote,
+                    "Fetched return note successfully"
+                )
+            );
         }
 
-         [HttpPost("Create")]
+        [HttpPost("Create")]
         public async Task<ActionResult<ApiResponse<ReturnRes>>> Create([FromBody] ReturnReq request)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -71,10 +75,7 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<ReturnRes>.SuccessResponse(
-                    created,
-                    "Created return successfully"
-                )
+                ApiResponse<ReturnRes>.SuccessResponse(created, "Created return successfully")
             );
         }
 
@@ -83,25 +84,21 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Return note not found" });
 
-            return Ok(ApiResponse<ReturnRes>.SuccessResponse(
-                updated,
-                "Return note update successfully"
-            ));
+            return Ok(
+                ApiResponse<ReturnRes>.SuccessResponse(updated, "Return note update successfully")
+            );
         }
 
         [HttpPut("Returned/{id:long}")]
@@ -109,25 +106,19 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Returned(id, request);
             if (updated == null)
                 return NotFound(new { message = "Return note not found" });
 
-            return Ok(ApiResponse<ReturnRes>.SuccessResponse(
-                updated,
-                "Return note complete"
-            ));
+            return Ok(ApiResponse<ReturnRes>.SuccessResponse(updated, "Return note complete"));
         }
     }
 }

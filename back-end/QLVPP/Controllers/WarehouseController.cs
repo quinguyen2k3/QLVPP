@@ -24,20 +24,24 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<WarehouseRes>>> GetAll()
         {
             var warehouses = await _service.GetAll();
-            return Ok(ApiResponse<List<WarehouseRes>>.SuccessResponse(
-                warehouses,
-                "Fetched warehouses successfully"
-            ));
+            return Ok(
+                ApiResponse<List<WarehouseRes>>.SuccessResponse(
+                    warehouses,
+                    "Fetched warehouses successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<WarehouseRes>>> GetAllActivated()
         {
             var warehouses = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<WarehouseRes>>.SuccessResponse(
-                 warehouses,
-                 "Fetched warehouses successfully"
-             ));
+            return Ok(
+                ApiResponse<List<WarehouseRes>>.SuccessResponse(
+                    warehouses,
+                    "Fetched warehouses successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -47,26 +51,27 @@ namespace QLVPP.Controllers
             if (warehouse == null)
                 return NotFound(new { message = "Warehouse not found" });
 
-            return Ok(ApiResponse<WarehouseRes>.SuccessResponse(
-                warehouse,
-                "Fetched warehouse successfully"
-            ));
+            return Ok(
+                ApiResponse<WarehouseRes>.SuccessResponse(
+                    warehouse,
+                    "Fetched warehouse successfully"
+                )
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<WarehouseRes>>> Create([FromBody] WarehouseReq request)
+        public async Task<ActionResult<ApiResponse<WarehouseRes>>> Create(
+            [FromBody] WarehouseReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -74,38 +79,33 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<WarehouseRes>.SuccessResponse(
-                    created,
-                    "Created warehouse successfully"
-                )
+                ApiResponse<WarehouseRes>.SuccessResponse(created, "Created warehouse successfully")
             );
         }
 
-
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<WarehouseRes>> Update(long id, [FromBody] WarehouseReq request)
+        public async Task<ActionResult<WarehouseRes>> Update(
+            long id,
+            [FromBody] WarehouseReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Warehouse not found" });
 
-            return Ok(ApiResponse<WarehouseRes>.SuccessResponse(
-                updated,
-                "Updated warehouse successfully"
-            ));
+            return Ok(
+                ApiResponse<WarehouseRes>.SuccessResponse(updated, "Updated warehouse successfully")
+            );
         }
     }
 }

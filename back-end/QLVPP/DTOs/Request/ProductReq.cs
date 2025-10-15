@@ -6,10 +6,13 @@ namespace QLVPP.DTOs.Request
     {
         [Required(ErrorMessage = "Product Code is required")]
         public string ProdCode { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "UnitId is required")]
         public long UnitId { get; set; }
+
         [Required(ErrorMessage = "CategoryId is required")]
         public long CategoryId { get; set; }
         public string? ImagePath { get; set; }
@@ -17,8 +20,10 @@ namespace QLVPP.DTOs.Request
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
         public decimal? Depth { get; set; }
+
         [Required(ErrorMessage = "IsAsset status is required")]
-        public bool IsAsset { get; set; } 
+        public bool IsAsset { get; set; }
+
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; }
         public long WarehouseId { get; set; }

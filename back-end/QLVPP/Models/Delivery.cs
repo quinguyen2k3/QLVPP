@@ -20,5 +20,6 @@ namespace QLVPP.Models
         public Warehouse Warehouse { get; set; } = null!;
         public string Status { get; set; } = string.Empty;
         public ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
+        public ICollection<Return> Returns { get; set; } = new List<Return>();
     }
 }

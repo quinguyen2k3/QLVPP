@@ -24,20 +24,18 @@ namespace QLVPP.Controllers
         public async Task<ActionResult<List<OrderRes>>> GetAll()
         {
             var orders = await _service.GetAll();
-            return Ok(ApiResponse<List<OrderRes>>.SuccessResponse(
-                orders,
-                "Fetched orders successfully"
-            ));
+            return Ok(
+                ApiResponse<List<OrderRes>>.SuccessResponse(orders, "Fetched orders successfully")
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<OrderRes>>> GetAllActivated()
         {
             var orders = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<OrderRes>>.SuccessResponse(
-                 orders,
-                 "Fetched orders successfully"
-             ));
+            return Ok(
+                ApiResponse<List<OrderRes>>.SuccessResponse(orders, "Fetched orders successfully")
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -47,10 +45,7 @@ namespace QLVPP.Controllers
             if (order == null)
                 return NotFound(new { message = "Order not found" });
 
-            return Ok(ApiResponse<OrderRes>.SuccessResponse(
-                order,
-                "Fetched order successfully"
-            ));
+            return Ok(ApiResponse<OrderRes>.SuccessResponse(order, "Fetched order successfully"));
         }
 
         [HttpPost("Create")]
@@ -58,15 +53,12 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -74,10 +66,7 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<OrderRes>.SuccessResponse(
-                    created,
-                    "Created order successfully"
-                )
+                ApiResponse<OrderRes>.SuccessResponse(created, "Created order successfully")
             );
         }
 
@@ -86,25 +75,19 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Order not found" });
 
-            return Ok(ApiResponse<OrderRes>.SuccessResponse(
-                updated,
-                "Updated order successfully"
-            ));
+            return Ok(ApiResponse<OrderRes>.SuccessResponse(updated, "Updated order successfully"));
         }
 
         [HttpPut("Received/{id:long}")]
@@ -112,25 +95,21 @@ namespace QLVPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Received(id, request);
             if (updated == null)
                 return NotFound(new { message = "Order not found" });
 
-            return Ok(ApiResponse<OrderRes>.SuccessResponse(
-                updated,
-                "Received order successfully"
-            ));
+            return Ok(
+                ApiResponse<OrderRes>.SuccessResponse(updated, "Received order successfully")
+            );
         }
     }
 }

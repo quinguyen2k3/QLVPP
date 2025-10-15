@@ -11,7 +11,7 @@ namespace QLVPP.DTOs.Request
         [StringLength(200, ErrorMessage = "Note cannot exceed 200 characters")]
         public string? Note { get; set; }
 
-        [Required(ErrorMessage = "IsActived status is required")]
+        [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; }
     }
 }

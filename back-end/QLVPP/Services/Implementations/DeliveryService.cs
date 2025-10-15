@@ -51,11 +51,14 @@ namespace QLVPP.Services.Implementations
         public async Task<DeliveryRes?> Update(long id, DeliveryReq request)
         {
             var delivery = await _unitOfWork.Delivery.GetById(id);
-            if (delivery == null) return null;
+            if (delivery == null)
+                return null;
 
             if (delivery.Status != DeliveryStatus.Pending)
             {
-                throw new InvalidOperationException("Delivery is not in Pending status and cannot be updated.");
+                throw new InvalidOperationException(
+                    "Delivery is not in Pending status and cannot be updated."
+                );
             }
 
             _mapper.Map(request, delivery);
@@ -68,7 +71,6 @@ namespace QLVPP.Services.Implementations
 
         public async Task<DeliveryRes?> Dispatch(long id, DeliveryReq request)
         {
-
             var delivery = await _unitOfWork.Delivery.GetById(id);
             if (delivery == null)
             {
@@ -77,31 +79,26 @@ namespace QLVPP.Services.Implementations
 
             if (delivery.Status != DeliveryStatus.Pending)
             {
-                throw new InvalidOperationException("Delivery can only be dispatched if the status is Pending.");
+                throw new InvalidOperationException(
+                    "Delivery can only be dispatched if the status is Pending."
+                );
             }
 
             foreach (var item in delivery.DeliveryDetails)
             {
-                var inventory = await _unitOfWork.Inventory.GetByKey(request.WarehouseId, item.ProductId);
+                var inventory = await _unitOfWork.Inventory.GetByKey(
+                    request.WarehouseId,
+                    item.ProductId
+                );
                 if (inventory == null || inventory.Quantity < item.Quantity)
                 {
-                    throw new InvalidOperationException($"Insufficient stock for product '{item.Product?.Name ?? "unknown"}'.");
+                    throw new InvalidOperationException(
+                        $"Insufficient stock for product '{item.Product?.Name ?? "unknown"}'."
+                    );
                 }
 
                 inventory.Quantity -= item.Quantity;
                 await _unitOfWork.Inventory.Update(inventory);
-
-                if (item.Product.IsAsset)
-                {
-                    var assetLoan = new AssetLoan
-                    {
-                        DeliveryDetail = item,
-                        IssuedQuantity = item.Quantity,
-                        ReturnedQuantity = 0,
-                        DamagedQuantity = 0,
-                    };
-                    await _unitOfWork.AssetLoan.Add(assetLoan);
-                }
             }
 
             delivery.Status = DeliveryStatus.Complete;

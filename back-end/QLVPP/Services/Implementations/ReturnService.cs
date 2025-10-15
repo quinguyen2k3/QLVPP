@@ -13,7 +13,11 @@ namespace QLVPP.Services.Implementations
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
-        public ReturnService(IUnitOfWork uniOfWork, IMapper mapper, ICurrentUserService currentUserService)
+        public ReturnService(
+            IUnitOfWork uniOfWork,
+            IMapper mapper,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = uniOfWork;
             _mapper = mapper;
@@ -22,7 +26,6 @@ namespace QLVPP.Services.Implementations
 
         public async Task<List<ReturnRes>> GetAll()
         {
-
             var returns = await _unitOfWork.Return.GetAll();
             return _mapper.Map<List<ReturnRes>>(returns);
         }
@@ -39,8 +42,45 @@ namespace QLVPP.Services.Implementations
             return assetLoan == null ? null : _mapper.Map<ReturnRes>(assetLoan);
         }
 
-         public async Task<ReturnRes> Create(ReturnReq request)
+        public async Task<ReturnRes> Create(ReturnReq request)
         {
+            var delivery = await _unitOfWork.Delivery.GetById(request.DeliveryId);
+            if (delivery == null)
+            {
+                throw new InvalidOperationException(
+                    $"Delivery with Id {request.DeliveryId} not found."
+                );
+            }
+
+            foreach (var detailReq in request.Items)
+            {
+                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                    d.ProductId == detailReq.ProductId
+                );
+
+                if (deliveryDetail == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Product with Id {detailReq.ProductId} not found in Delivery #{delivery.Id}."
+                    );
+                }
+
+                var totalDelivered = deliveryDetail.Quantity;
+                var totalReturned = await _unitOfWork.Return.GetTotalReturnedQuantity(
+                    delivery.Id,
+                    detailReq.ProductId
+                );
+
+                var remaining = totalDelivered - totalReturned;
+                var totalToReturn = detailReq.ReturnedQuantity + detailReq.DamagedQuantity;
+
+                if (totalToReturn > remaining)
+                {
+                    throw new InvalidOperationException(
+                        $"Product {detailReq.ProductId}: remaining = {remaining}, attempted = {totalToReturn}"
+                    );
+                }
+            }
             var returnNote = _mapper.Map<Return>(request);
             returnNote.Status = ReturnStatus.Pending;
 
@@ -57,6 +97,40 @@ namespace QLVPP.Services.Implementations
             if (returnNote == null)
                 return null;
 
+            if (returnNote.Status != ReturnStatus.Pending)
+                throw new InvalidOperationException("Only pending return notes can be updated.");
+
+            var delivery = await _unitOfWork.Delivery.GetById(request.DeliveryId);
+            if (delivery == null)
+                throw new InvalidOperationException(
+                    $"Delivery with Id {request.DeliveryId} not found."
+                );
+
+            foreach (var item in request.Items)
+            {
+                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                    d.ProductId == item.ProductId
+                );
+                if (deliveryDetail == null)
+                    throw new InvalidOperationException(
+                        $"Product {item.ProductId} not found in Delivery #{delivery.Id}."
+                    );
+
+                var totalDelivered = deliveryDetail.Quantity;
+                var totalReturned = await _unitOfWork.Return.GetTotalReturnedQuantity(
+                    delivery.Id,
+                    item.ProductId
+                );
+                var remaining = totalDelivered - totalReturned;
+                var totalToReturn = item.ReturnedQuantity + item.DamagedQuantity;
+
+                if (totalToReturn > remaining)
+                {
+                    throw new InvalidOperationException(
+                        $"Product {item.ProductId}: remaining = {remaining}, attempted = {totalToReturn}"
+                    );
+                }
+            }
             _mapper.Map(request, returnNote);
 
             await _unitOfWork.Return.Update(returnNote);
@@ -72,42 +146,40 @@ namespace QLVPP.Services.Implementations
                 return null;
 
             if (returnNote.Status != ReturnStatus.Pending)
-            {
-                throw new InvalidOperationException("This return note is note pending");
-            }
+                throw new InvalidOperationException("Only pending return notes can be completed.");
 
+            var delivery = await _unitOfWork.Delivery.GetById(returnNote.DeliveryId);
+            if (delivery == null)
+                throw new InvalidOperationException(
+                    $"Delivery #{returnNote.DeliveryId} not found."
+                );
             foreach (var detail in returnNote.ReturnDetails)
             {
-                var assetLoan = detail.AssetLoan;
-                if (assetLoan == null)
-                {
-                    throw new InvalidOperationException($"Associated AssetLoan not found for ReturnDetail Id {detail.Id}.");
-                }
-
-                int remainingQuantity = assetLoan.IssuedQuantity - assetLoan.ReturnedQuantity - assetLoan.DamagedQuantity;
-                if (detail.ReturnedQuantity + detail.DamagedQuantity > remainingQuantity)
-                {
-                    throw new InvalidOperationException($"Return quantity for asset '{assetLoan.DeliveryDetail.ProductId}' exceeds the outstanding quantity.");
-                }
-
+                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                    d.Id == detail.ProductId
+                );
+                if (deliveryDetail == null)
+                    throw new InvalidOperationException(
+                        $"Delivery detail not found for Product {detail.ProductId}."
+                    );
                 if (detail.ReturnedQuantity > 0)
                 {
-                    var inventory = await _unitOfWork.Inventory.GetByKey(request.WarehouseId, assetLoan.DeliveryDetail.ProductId);
+                    var inventory = await _unitOfWork.Inventory.GetByKey(
+                        delivery.WarehouseId,
+                        detail.ProductId
+                    );
                     if (inventory == null)
-                        throw new InvalidOperationException("Inventory not found.");
+                        throw new InvalidOperationException(
+                            $"Inventory not found for Product {detail.ProductId}."
+                        );
 
                     inventory.Quantity += detail.ReturnedQuantity;
                     await _unitOfWork.Inventory.Update(inventory);
                 }
-
-                assetLoan.ReturnedQuantity += detail.ReturnedQuantity;
-                assetLoan.DamagedQuantity += detail.DamagedQuantity;
-
-                await _unitOfWork.AssetLoan.Update(assetLoan);
             }
 
             returnNote.Status = ReturnStatus.Complete;
-            
+
             await _unitOfWork.Return.Update(returnNote);
             await _unitOfWork.SaveChanges();
 

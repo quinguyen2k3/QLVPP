@@ -19,24 +19,41 @@ namespace QLVPP.Controllers
         {
             _service = service;
         }
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<ProductRes>>> GetAll()
         {
             var products = await _service.GetAll();
-            return Ok(ApiResponse<List<ProductRes>>.SuccessResponse(
-                products,
-                "Fetched products successfully"
-            ));
+            return Ok(
+                ApiResponse<List<ProductRes>>.SuccessResponse(
+                    products,
+                    "Fetched products successfully"
+                )
+            );
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<ProductRes>>> GetAllActivated()
         {
             var products = await _service.GetAllActivated();
-            return Ok(ApiResponse<List<ProductRes>>.SuccessResponse(
-                 products,
-                 "Fetched products successfully"
-             ));
+            return Ok(
+                ApiResponse<List<ProductRes>>.SuccessResponse(
+                    products,
+                    "Fetched products successfully"
+                )
+            );
+        }
+
+        [HttpGet("GetByWareHouse")]
+        public async Task<ActionResult<List<ProductRes>>> GetAllByWarehouse()
+        {
+            var products = await _service.GetByWarehouse();
+            return Ok(
+                ApiResponse<List<ProductRes>>.SuccessResponse(
+                    products,
+                    "Fetched products successfully"
+                )
+            );
         }
 
         [HttpGet("GetById/{id:long}")]
@@ -46,26 +63,24 @@ namespace QLVPP.Controllers
             if (product == null)
                 return NotFound(new { message = "Product not found" });
 
-            return Ok(ApiResponse<ProductRes>.SuccessResponse(
-                product,
-                "Fetched product successfully"
-            ));
+            return Ok(
+                ApiResponse<ProductRes>.SuccessResponse(product, "Fetched product successfully")
+            );
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<ApiResponse<ProductRes>>> Create([FromBody] ProductReq request)
+        public async Task<ActionResult<ApiResponse<ProductRes>>> Create(
+            [FromBody] ProductReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var created = await _service.Create(request);
@@ -73,38 +88,33 @@ namespace QLVPP.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
-                ApiResponse<ProductRes>.SuccessResponse(
-                    created,
-                    "Created product successfully"
-                )
+                ApiResponse<ProductRes>.SuccessResponse(created, "Created product successfully")
             );
         }
 
-
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<DepartmentRes>> Update(long id, [FromBody] ProductReq request)
+        public async Task<ActionResult<DepartmentRes>> Update(
+            long id,
+            [FromBody] ProductReq request
+        )
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResponse<string>.ErrorResponse(
-                    "Validation failed",
-                    errors
-                ));
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
             var updated = await _service.Update(id, request);
             if (updated == null)
                 return NotFound(new { message = "Product not found" });
 
-            return Ok(ApiResponse<ProductRes>.SuccessResponse(
-                updated,
-                "Updated product successfully"
-            ));
+            return Ok(
+                ApiResponse<ProductRes>.SuccessResponse(updated, "Updated product successfully")
+            );
         }
     }
 }
