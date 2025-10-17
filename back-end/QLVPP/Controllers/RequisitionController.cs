@@ -4,8 +4,6 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
@@ -23,40 +21,61 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<RequisitionRes>>> GetAll()
         {
-            var requisitions = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<RequisitionRes>>.SuccessResponse(
-                    requisitions,
-                    "Fetched requisitions successfully"
-                )
-            );
+            try
+            {
+                var requisitions = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<RequisitionRes>>.SuccessResponse(
+                        requisitions,
+                        "Fetched requisitions successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<RequisitionRes>>> GetAllActivated()
         {
-            var requisitions = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<RequisitionRes>>.SuccessResponse(
-                    requisitions,
-                    "Fetched requisitions successfully"
-                )
-            );
+            try
+            {
+                var requisitions = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<RequisitionRes>>.SuccessResponse(
+                        requisitions,
+                        "Fetched requisitions successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<RequisitionRes>> GetById(long id)
         {
-            var requisition = await _service.GetById(id);
-            if (requisition == null)
-                return NotFound(new { message = "Requisition not found" });
+            try
+            {
+                var requisition = await _service.GetById(id);
+                if (requisition == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
 
-            return Ok(
-                ApiResponse<RequisitionRes>.SuccessResponse(
-                    requisition,
-                    "Fetched requisition successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<RequisitionRes>.SuccessResponse(
+                        requisition,
+                        "Fetched requisition successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -74,16 +93,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<RequisitionRes>.SuccessResponse(
-                    created,
-                    "Created requisition successfully"
-                )
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<RequisitionRes>.SuccessResponse(
+                        created,
+                        "Created requisition successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -99,16 +125,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, status);
-            if (updated == null)
-                return NotFound(new { message = "Category not found" });
+            try
+            {
+                var updated = await _service.Update(id, status);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
 
-            return Ok(
-                ApiResponse<RequisitionRes>.SuccessResponse(
-                    updated,
-                    "Updated categroy successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<RequisitionRes>.SuccessResponse(
+                        updated,
+                        "Updated requisition successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

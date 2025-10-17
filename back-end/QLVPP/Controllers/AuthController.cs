@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QLVPP.DTOs;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace QLVPP.Controllers
 {
@@ -30,7 +27,8 @@ namespace QLVPP.Controllers
             {
                 var errors = ModelState
                     .Values.SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage);
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
                 return BadRequest(
                     ApiResponse<AuthRes>.ErrorResponse("Invalid request data", errors)
@@ -54,13 +52,7 @@ namespace QLVPP.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(
-                    500,
-                    ApiResponse<AuthRes>.ErrorResponse(
-                        "Internal Server Error",
-                        new[] { ex.Message }
-                    )
-                );
+                return StatusCode(500, ApiResponse<AuthRes>.ErrorResponse(ex.Message));
             }
         }
 
@@ -79,22 +71,22 @@ namespace QLVPP.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
 
         [HttpPost("Logout")]
+        [Authorize]
         public async Task<IActionResult> Logout([FromBody] LogoutReq request)
         {
             try
             {
                 await _authService.LogoutAsync(request, Request, Response);
-
-                return Ok(new { message = "Logout successful." });
+                return Ok(ApiResponse<string>.SuccessResponse(string.Empty, "Logout successful."));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
 
@@ -103,24 +95,28 @@ namespace QLVPP.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassReq request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
 
             try
             {
                 await _authService.ChangePasswordAsync(request);
-                return Ok(new { success = true, message = "Password changed successfully." });
+                return Ok(
+                    ApiResponse<string>.SuccessResponse(
+                        string.Empty,
+                        "Password changed successfully."
+                    )
+                );
             }
             catch (Exception ex)
             {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    new
-                    {
-                        success = false,
-                        message = "An error occurred.",
-                        error = ex.Message,
-                    }
-                );
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
     }

@@ -4,8 +4,6 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
@@ -23,40 +21,61 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<DepartmentRes>>> GetAll()
         {
-            var departments = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<DepartmentRes>>.SuccessResponse(
-                    departments,
-                    "Fetched departments successfully"
-                )
-            );
+            try
+            {
+                var departments = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                        departments,
+                        "Fetched departments successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<DepartmentRes>>> GetAllActivated()
         {
-            var departments = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<DepartmentRes>>.SuccessResponse(
-                    departments,
-                    "Fetched departments successfully"
-                )
-            );
+            try
+            {
+                var departments = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<DepartmentRes>>.SuccessResponse(
+                        departments,
+                        "Fetched departments successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<DepartmentRes>> GetById(long id)
         {
-            var department = await _service.GetById(id);
-            if (department == null)
-                return NotFound(new { message = "Department not found" });
+            try
+            {
+                var department = await _service.GetById(id);
+                if (department == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Department not found"));
 
-            return Ok(
-                ApiResponse<DepartmentRes>.SuccessResponse(
-                    department,
-                    "Fetched department successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<DepartmentRes>.SuccessResponse(
+                        department,
+                        "Fetched department successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -74,13 +93,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<DepartmentRes>.SuccessResponse(created, "Created employee successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<DepartmentRes>.SuccessResponse(
+                        created,
+                        "Created department successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -99,13 +128,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Department not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Department not found"));
 
-            return Ok(
-                ApiResponse<DepartmentRes>.SuccessResponse(updated, "Updated categroy successfully")
-            );
+                return Ok(
+                    ApiResponse<DepartmentRes>.SuccessResponse(
+                        updated,
+                        "Updated department successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

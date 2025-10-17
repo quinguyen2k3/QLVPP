@@ -4,8 +4,6 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
@@ -23,49 +21,77 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<ProductRes>>> GetAll()
         {
-            var products = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<ProductRes>>.SuccessResponse(
-                    products,
-                    "Fetched products successfully"
-                )
-            );
+            try
+            {
+                var products = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<ProductRes>>.SuccessResponse(
+                        products,
+                        "Fetched products successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<ProductRes>>> GetAllActivated()
         {
-            var products = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<ProductRes>>.SuccessResponse(
-                    products,
-                    "Fetched products successfully"
-                )
-            );
+            try
+            {
+                var products = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<ProductRes>>.SuccessResponse(
+                        products,
+                        "Fetched products successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetByWareHouse")]
         public async Task<ActionResult<List<ProductRes>>> GetAllByWarehouse()
         {
-            var products = await _service.GetByWarehouse();
-            return Ok(
-                ApiResponse<List<ProductRes>>.SuccessResponse(
-                    products,
-                    "Fetched products successfully"
-                )
-            );
+            try
+            {
+                var products = await _service.GetByWarehouse();
+                return Ok(
+                    ApiResponse<List<ProductRes>>.SuccessResponse(
+                        products,
+                        "Fetched products successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<ProductRes>> GetById(long id)
         {
-            var product = await _service.GetById(id);
-            if (product == null)
-                return NotFound(new { message = "Product not found" });
+            try
+            {
+                var product = await _service.GetById(id);
+                if (product == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Product not found"));
 
-            return Ok(
-                ApiResponse<ProductRes>.SuccessResponse(product, "Fetched product successfully")
-            );
+                return Ok(
+                    ApiResponse<ProductRes>.SuccessResponse(product, "Fetched product successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -83,20 +109,24 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<ProductRes>.SuccessResponse(created, "Created product successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<ProductRes>.SuccessResponse(created, "Created product successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
-        public async Task<ActionResult<DepartmentRes>> Update(
-            long id,
-            [FromBody] ProductReq request
-        )
+        public async Task<ActionResult<ProductRes>> Update(long id, [FromBody] ProductReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -108,13 +138,20 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Product not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Product not found"));
 
-            return Ok(
-                ApiResponse<ProductRes>.SuccessResponse(updated, "Updated product successfully")
-            );
+                return Ok(
+                    ApiResponse<ProductRes>.SuccessResponse(updated, "Updated product successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

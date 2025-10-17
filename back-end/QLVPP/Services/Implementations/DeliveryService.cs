@@ -20,6 +20,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<DeliveryRes> Create(DeliveryReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+
+            if (latestSnapshotDate != null && request.DeliveryDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create delivery note on date ({request.DeliveryDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                );
+            }
             var delivery = _mapper.Map<Delivery>(request);
             delivery.Status = DeliveryStatus.Pending;
 
@@ -50,6 +58,15 @@ namespace QLVPP.Services.Implementations
 
         public async Task<DeliveryRes?> Update(long id, DeliveryReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+
+            if (latestSnapshotDate != null && request.DeliveryDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create delivery note on date ({request.DeliveryDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                );
+            }
+
             var delivery = await _unitOfWork.Delivery.GetById(id);
             if (delivery == null)
                 return null;
@@ -71,6 +88,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<DeliveryRes?> Dispatch(long id, DeliveryReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && request.DeliveryDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create delivery note on date ({request.DeliveryDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                );
+            }
+
             var delivery = await _unitOfWork.Delivery.GetById(id);
             if (delivery == null)
             {
@@ -87,7 +112,7 @@ namespace QLVPP.Services.Implementations
             foreach (var item in delivery.DeliveryDetails)
             {
                 var inventory = await _unitOfWork.Inventory.GetByKey(
-                    request.WarehouseId,
+                    delivery.WarehouseId,
                     item.ProductId
                 );
                 if (inventory == null || inventory.Quantity < item.Quantity)
@@ -102,7 +127,6 @@ namespace QLVPP.Services.Implementations
             }
 
             delivery.Status = DeliveryStatus.Complete;
-
             await _unitOfWork.Delivery.Update(delivery);
 
             await _unitOfWork.SaveChanges();

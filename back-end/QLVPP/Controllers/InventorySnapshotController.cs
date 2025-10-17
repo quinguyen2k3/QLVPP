@@ -17,57 +17,85 @@ namespace QLVPP.Controllers
         [HttpGet("GetByWarehouse")]
         public async Task<ActionResult<List<InventorySnapshotRes>>> GetByWarehouse()
         {
-            var snapshots = await _service.GetByWarehouse();
-            return Ok(
-                ApiResponse<List<InventorySnapshotRes>>.SuccessResponse(
-                    snapshots,
-                    "Fetched snapshot successfully"
-                )
-            );
+            try
+            {
+                var snapshots = await _service.GetByWarehouse();
+                return Ok(
+                    ApiResponse<List<InventorySnapshotRes>>.SuccessResponse(
+                        snapshots,
+                        "Fetched snapshot successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<InventorySnapshotRes>> GetById(long id)
         {
-            var snapshot = await _service.GetById(id);
-            if (snapshot == null)
-                return NotFound(new { message = "Snapshot not found" });
+            try
+            {
+                var snapshot = await _service.GetById(id);
+                if (snapshot == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Snapshot not found"));
 
-            return Ok(
-                ApiResponse<InventorySnapshotRes>.SuccessResponse(
-                    snapshot,
-                    "Fetched snapshot successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<InventorySnapshotRes>.SuccessResponse(
+                        snapshot,
+                        "Fetched snapshot successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
         public async Task<ActionResult<InventorySnapshotRes>> Create()
         {
-            var created = await _service.Create();
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<InventorySnapshotRes>.SuccessResponse(
-                    created,
-                    "Created product successfully"
-                )
-            );
+            try
+            {
+                var created = await _service.Create();
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<InventorySnapshotRes>.SuccessResponse(
+                        created,
+                        "Created snapshot successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Close/{id:long}")]
         public async Task<ActionResult<InventorySnapshotRes>> Close(long id)
         {
-            var closed = await _service.Close(id);
-            if (closed == null)
-                return NotFound(new { message = "Snapshot not found" });
+            try
+            {
+                var closed = await _service.Close(id);
+                if (closed == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Snapshot not found"));
 
-            return Ok(
-                ApiResponse<InventorySnapshotRes>.SuccessResponse(
-                    closed,
-                    "Close snapshot successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<InventorySnapshotRes>.SuccessResponse(
+                        closed,
+                        "Close snapshot successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

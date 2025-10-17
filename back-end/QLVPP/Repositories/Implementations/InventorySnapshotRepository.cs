@@ -46,5 +46,13 @@ namespace QLVPP.Repositories.Implementations
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<DateOnly?> GetLatestSnapshotDate()
+        {
+            return await _context
+                .InventorySnapshots.OrderByDescending(s => s.SnapshotDate)
+                .Select(s => (DateOnly?)s.SnapshotDate)
+                .FirstOrDefaultAsync();
+        }
     }
 }

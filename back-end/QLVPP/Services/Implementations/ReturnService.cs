@@ -44,6 +44,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<ReturnRes> Create(ReturnReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && request.ReturnDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot receive items on date ({request.ReturnDate:dd/MM/yyyy}) as it falls within a closed accounting period."
+                );
+            }
+
             var delivery = await _unitOfWork.Delivery.GetById(request.DeliveryId);
             if (delivery == null)
             {
@@ -93,6 +101,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<ReturnRes?> Update(long id, ReturnReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && request.ReturnDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot receive items on date ({request.ReturnDate:dd/MM/yyyy}) as it falls within a closed accounting period."
+                );
+            }
+
             var returnNote = await _unitOfWork.Return.GetById(id);
             if (returnNote == null)
                 return null;
@@ -141,6 +157,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<ReturnRes?> Returned(long id, ReturnReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && request.ReturnDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot receive items on date ({request.ReturnDate:dd/MM/yyyy}) as it falls within a closed accounting period."
+                );
+            }
+
             var returnNote = await _unitOfWork.Return.GetById(id);
             if (returnNote == null)
                 return null;

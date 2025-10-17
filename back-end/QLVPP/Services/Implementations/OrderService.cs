@@ -20,6 +20,14 @@ namespace QLVPP.Services.Implementations
 
         public async Task<OrderRes> Create(OrderReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+
+            if (latestSnapshotDate != null && request.OrderDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create order note on date ({request.OrderDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                );
+            }
             var order = _mapper.Map<Order>(request);
             order.Status = OrderStatus.Pending;
 
@@ -50,6 +58,15 @@ namespace QLVPP.Services.Implementations
 
         public async Task<OrderRes?> Update(long id, OrderReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+
+            if (latestSnapshotDate != null && request.OrderDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create order note on date ({request.OrderDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                );
+            }
+
             var order = await _unitOfWork.Order.GetById(id);
             if (order == null)
                 return null;
@@ -90,48 +107,83 @@ namespace QLVPP.Services.Implementations
 
         public async Task<OrderRes?> Received(long id, OrderReq request)
         {
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && request.OrderDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot receive items on date ({request.OrderDate:dd/MM/yyyy}) as it falls within a closed accounting period."
+                );
+            }
+
             var order = await _unitOfWork.Order.GetById(id);
             if (order == null)
+            {
                 return null;
+            }
 
             if (order.Status == OrderStatus.Complete)
             {
-                throw new InvalidOperationException(
-                    "Order has already been completed and cannot receive more items."
-                );
+                throw new InvalidOperationException("Order has already been completed.");
             }
 
             foreach (var item in request.Items)
             {
-                var detail = order.OrderDetails.FirstOrDefault(d => d.ProductId == item.ProductId);
-                if (detail != null && item.Received > 0)
+                if (item.Received <= 0)
+                    continue;
+
+                var orderDetail = order.OrderDetails.FirstOrDefault(d =>
+                    d.ProductId == item.ProductId
+                );
+                if (orderDetail == null)
                 {
-                    detail.Received += item.Received;
-
-                    var inventory = await _unitOfWork.Inventory.GetByKey(
-                        request.WarehouseId,
-                        detail.ProductId
+                    throw new InvalidOperationException(
+                        $"Product with ID {item.ProductId} not found in this order."
                     );
-
-                    if (inventory == null)
-                    {
-                        throw new InvalidOperationException(
-                            $"Product {detail.ProductId} does not exist in warehouse {request.WarehouseId}."
-                        );
-                    }
-
-                    inventory.Quantity += item.Received;
-                    await _unitOfWork.Inventory.Update(inventory);
                 }
+
+                if (orderDetail.Received + item.Received > orderDetail.Quantity)
+                {
+                    throw new InvalidOperationException(
+                        $"Receiving quantity for product ID {item.ProductId} exceeds the ordered quantity. "
+                            + $"Ordered: {orderDetail.Quantity}, Already Received: {orderDetail.Received}, Attempting to Receive: {item.Received}."
+                    );
+                }
+
+                orderDetail.Received += item.Received;
+
+                var inventory = await _unitOfWork.Inventory.GetByKey(
+                    request.WarehouseId,
+                    orderDetail.ProductId
+                );
+                if (inventory == null)
+                {
+                    inventory = new Inventory
+                    {
+                        ProductId = orderDetail.ProductId,
+                        WarehouseId = request.WarehouseId,
+                        Quantity = 0,
+                    };
+                    await _unitOfWork.Inventory.Add(inventory);
+                }
+                inventory.Quantity += item.Received;
+                await _unitOfWork.Inventory.Update(inventory);
             }
-            if (order.OrderDetails.All(d => d.Received == 0))
-                order.Status = OrderStatus.Pending;
-            else if (order.OrderDetails.All(d => d.Received >= d.Quantity))
+
+            if (order.OrderDetails.All(d => d.Received >= d.Quantity))
+            {
                 order.Status = OrderStatus.Complete;
-            else
+            }
+            else if (order.OrderDetails.Any(d => d.Received > 0))
+            {
                 order.Status = OrderStatus.PartiallyReceived;
+            }
+            else
+            {
+                order.Status = OrderStatus.Pending;
+            }
 
             await _unitOfWork.Order.Update(order);
+
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<OrderRes>(order);

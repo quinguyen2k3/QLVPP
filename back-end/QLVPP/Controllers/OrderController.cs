@@ -4,8 +4,6 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
@@ -23,29 +21,58 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<OrderRes>>> GetAll()
         {
-            var orders = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<OrderRes>>.SuccessResponse(orders, "Fetched orders successfully")
-            );
+            try
+            {
+                var orders = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<OrderRes>>.SuccessResponse(
+                        orders,
+                        "Fetched orders successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<OrderRes>>> GetAllActivated()
         {
-            var orders = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<OrderRes>>.SuccessResponse(orders, "Fetched orders successfully")
-            );
+            try
+            {
+                var orders = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<OrderRes>>.SuccessResponse(
+                        orders,
+                        "Fetched orders successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<OrderRes>> GetById(long id)
         {
-            var order = await _service.GetById(id);
-            if (order == null)
-                return NotFound(new { message = "Order not found" });
+            try
+            {
+                var order = await _service.GetById(id);
+                if (order == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
 
-            return Ok(ApiResponse<OrderRes>.SuccessResponse(order, "Fetched order successfully"));
+                return Ok(
+                    ApiResponse<OrderRes>.SuccessResponse(order, "Fetched order successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -61,13 +88,20 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<OrderRes>.SuccessResponse(created, "Created order successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<OrderRes>.SuccessResponse(created, "Created order successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -83,11 +117,20 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Order not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
 
-            return Ok(ApiResponse<OrderRes>.SuccessResponse(updated, "Updated order successfully"));
+                return Ok(
+                    ApiResponse<OrderRes>.SuccessResponse(updated, "Updated order successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Received/{id:long}")]
@@ -103,13 +146,20 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Received(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Order not found" });
+            try
+            {
+                var updated = await _service.Received(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
 
-            return Ok(
-                ApiResponse<OrderRes>.SuccessResponse(updated, "Received order successfully")
-            );
+                return Ok(
+                    ApiResponse<OrderRes>.SuccessResponse(updated, "Received order successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }
