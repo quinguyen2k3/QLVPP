@@ -21,40 +21,61 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<ReturnRes>>> GetAll()
         {
-            var returnNotes = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<ReturnRes>>.SuccessResponse(
-                    returnNotes,
-                    "Fetched return successfully"
-                )
-            );
+            try
+            {
+                var returnNotes = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<ReturnRes>>.SuccessResponse(
+                        returnNotes,
+                        "Fetched return successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<ReturnRes>>> GetAllActivated()
         {
-            var returnNotes = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<ReturnRes>>.SuccessResponse(
-                    returnNotes,
-                    "Fetched return successfully"
-                )
-            );
+            try
+            {
+                var returnNotes = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<ReturnRes>>.SuccessResponse(
+                        returnNotes,
+                        "Fetched return successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<ReturnRes>> GetById(long id)
         {
-            var returnNote = await _service.GetById(id);
-            if (returnNote == null)
-                return NotFound(new { message = "Return note not found" });
+            try
+            {
+                var returnNote = await _service.GetById(id);
+                if (returnNote == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Return note not found"));
 
-            return Ok(
-                ApiResponse<ReturnRes>.SuccessResponse(
-                    returnNote,
-                    "Fetched return note successfully"
-                )
-            );
+                return Ok(
+                    ApiResponse<ReturnRes>.SuccessResponse(
+                        returnNote,
+                        "Fetched return note successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -70,13 +91,20 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<ReturnRes>.SuccessResponse(created, "Created return successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<ReturnRes>.SuccessResponse(created, "Created return successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -92,13 +120,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Return note not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Return note not found"));
 
-            return Ok(
-                ApiResponse<ReturnRes>.SuccessResponse(updated, "Return note update successfully")
-            );
+                return Ok(
+                    ApiResponse<ReturnRes>.SuccessResponse(
+                        updated,
+                        "Return note update successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Returned/{id:long}")]
@@ -114,11 +152,18 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Returned(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Return note not found" });
+            try
+            {
+                var updated = await _service.Returned(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Return note not found"));
 
-            return Ok(ApiResponse<ReturnRes>.SuccessResponse(updated, "Return note complete"));
+                return Ok(ApiResponse<ReturnRes>.SuccessResponse(updated, "Return note complete"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

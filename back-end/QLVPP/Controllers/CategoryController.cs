@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace QLVPP.Controllers
 {
@@ -24,37 +21,61 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<CategoryRes>>> GetAll()
         {
-            var categories = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<CategoryRes>>.SuccessResponse(
-                    categories,
-                    "Fetched categories successfully"
-                )
-            );
+            try
+            {
+                var categories = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<CategoryRes>>.SuccessResponse(
+                        categories,
+                        "Fetched categories successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<CategoryRes>>> GetAllActivated()
         {
-            var categories = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<CategoryRes>>.SuccessResponse(
-                    categories,
-                    "Fetched categories successfully"
-                )
-            );
+            try
+            {
+                var categories = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<CategoryRes>>.SuccessResponse(
+                        categories,
+                        "Fetched categories successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<CategoryRes>> GetById(long id)
         {
-            var category = await _service.GetById(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            try
+            {
+                var category = await _service.GetById(id);
+                if (category == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Category not found"));
 
-            return Ok(
-                ApiResponse<CategoryRes>.SuccessResponse(category, "Fetched categroy successfully")
-            );
+                return Ok(
+                    ApiResponse<CategoryRes>.SuccessResponse(
+                        category,
+                        "Fetched category successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -72,13 +93,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<CategoryRes>.SuccessResponse(created, "Created category successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<CategoryRes>.SuccessResponse(
+                        created,
+                        "Created category successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -94,13 +125,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Category not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Category not found"));
 
-            return Ok(
-                ApiResponse<CategoryRes>.SuccessResponse(updated, "Updated categroy successfully")
-            );
+                return Ok(
+                    ApiResponse<CategoryRes>.SuccessResponse(
+                        updated,
+                        "Updated category successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

@@ -4,8 +4,6 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
@@ -23,37 +21,61 @@ namespace QLVPP.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<DeliveryRes>>> GetAll()
         {
-            var deliveries = await _service.GetAll();
-            return Ok(
-                ApiResponse<List<DeliveryRes>>.SuccessResponse(
-                    deliveries,
-                    "Fetched deliveries successfully"
-                )
-            );
+            try
+            {
+                var deliveries = await _service.GetAll();
+                return Ok(
+                    ApiResponse<List<DeliveryRes>>.SuccessResponse(
+                        deliveries,
+                        "Fetched deliveries successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetAllActivated")]
         public async Task<ActionResult<List<DeliveryRes>>> GetAllActivated()
         {
-            var deliveries = await _service.GetAllActivated();
-            return Ok(
-                ApiResponse<List<DeliveryRes>>.SuccessResponse(
-                    deliveries,
-                    "Fetched deliveries successfully"
-                )
-            );
+            try
+            {
+                var deliveries = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<DeliveryRes>>.SuccessResponse(
+                        deliveries,
+                        "Fetched deliveries successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpGet("GetById/{id:long}")]
-        public async Task<ActionResult<OrderRes>> GetById(long id)
+        public async Task<ActionResult<DeliveryRes>> GetById(long id)
         {
-            var delivery = await _service.GetById(id);
-            if (delivery == null)
-                return NotFound(new { message = "Delivery not found" });
+            try
+            {
+                var delivery = await _service.GetById(id);
+                if (delivery == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Delivery not found"));
 
-            return Ok(
-                ApiResponse<DeliveryRes>.SuccessResponse(delivery, "Fetched delivery successfully")
-            );
+                return Ok(
+                    ApiResponse<DeliveryRes>.SuccessResponse(
+                        delivery,
+                        "Fetched delivery successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPost("Create")]
@@ -71,13 +93,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var created = await _service.Create(request);
+            try
+            {
+                var created = await _service.Create(request);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = created.Id },
-                ApiResponse<DeliveryRes>.SuccessResponse(created, "Created delivery successfully")
-            );
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = created.Id },
+                    ApiResponse<DeliveryRes>.SuccessResponse(
+                        created,
+                        "Created delivery successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Update/{id:long}")]
@@ -93,17 +125,27 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Update(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Delivery not found" });
+            try
+            {
+                var updated = await _service.Update(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Delivery not found"));
 
-            return Ok(
-                ApiResponse<DeliveryRes>.SuccessResponse(updated, "Delivery order successfully")
-            );
+                return Ok(
+                    ApiResponse<DeliveryRes>.SuccessResponse(updated, "Delivery order successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
 
         [HttpPut("Dispatch/{id:long}")]
-        public async Task<ActionResult<OrderRes>> Received(long id, [FromBody] DeliveryReq request)
+        public async Task<ActionResult<DeliveryRes>> Received(
+            long id,
+            [FromBody] DeliveryReq request
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -115,13 +157,23 @@ namespace QLVPP.Controllers
                 return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
             }
 
-            var updated = await _service.Dispatch(id, request);
-            if (updated == null)
-                return NotFound(new { message = "Delivery not found" });
+            try
+            {
+                var updated = await _service.Dispatch(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Delivery not found"));
 
-            return Ok(
-                ApiResponse<DeliveryRes>.SuccessResponse(updated, "Dispatch supply successfully")
-            );
+                return Ok(
+                    ApiResponse<DeliveryRes>.SuccessResponse(
+                        updated,
+                        "Dispatch supply successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
         }
     }
 }

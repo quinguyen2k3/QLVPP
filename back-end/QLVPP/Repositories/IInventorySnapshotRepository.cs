@@ -7,5 +7,6 @@ namespace QLVPP.Repositories
         Task<List<InventorySnapshot>> GetByWarehouseId(long id);
         Task<bool> ExistsBySnapshotDate(int year, int month);
         Task<InventorySnapshot?> GetLatestByWarehouseId(long id);
+        Task<DateOnly?> GetLatestSnapshotDate();
     }
 }

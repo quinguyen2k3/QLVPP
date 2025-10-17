@@ -12,19 +12,22 @@ namespace QLVPP.Models
 
         [StringLength(15)]
         public string? Phone { get; set; }
-        [StringLength (100)]
+
+        [StringLength(100)]
         public string? Email { get; set; }
 
         [Required]
         [StringLength(25)]
         public string Account { get; set; } = string.Empty;
+
+        [Required]
         [StringLength(200)]
-        public string? Password { get; set; }
+        public string Password { get; set; } = null!;
 
         public long? WarehouseId { get; set; }
 
         [ForeignKey(nameof(WarehouseId))]
-        public Warehouse? Warehouse { get; set; } 
+        public Warehouse? Warehouse { get; set; }
         public long? DepartmentId { get; set; }
 
         [ForeignKey(nameof(DepartmentId))]
