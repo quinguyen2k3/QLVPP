@@ -9,6 +9,7 @@ namespace QLVPP.Models
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
+
         [StringLength(200)]
         public string? Note { get; set; }
         public ICollection<Employee> Employees { get; set; } = new List<Employee>();

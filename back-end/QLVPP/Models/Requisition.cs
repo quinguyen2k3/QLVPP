@@ -1,6 +1,6 @@
-﻿using QLVPP.Constants;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using QLVPP.Constants;
 
 namespace QLVPP.Models
 {
@@ -9,17 +9,19 @@ namespace QLVPP.Models
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
+
         [StringLength(200)]
         public string? Note { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public string? ApprovedBy { get; set; }
-        public string Status { get; set; } = RequisitionStatus.Pending; 
+        public string Status { get; set; } = RequisitionStatus.Pending;
 
         [Required]
         public long EmployeeId { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
         public Employee Employee { get; set; } = null!;
-        public ICollection<RequisitionDetail> RequisitionDetails { get; set; } = new List<RequisitionDetail>();
+        public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
+            new List<RequisitionDetail>();
     }
 }

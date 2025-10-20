@@ -7,6 +7,7 @@ namespace QLVPP.Models
     public class Delivery : BaseEntity
     {
         public DateOnly DeliveryDate { get; set; }
+
         [Required]
         public long DepartmentId { get; set; }
 
@@ -19,7 +20,8 @@ namespace QLVPP.Models
         [ForeignKey(nameof(WarehouseId))]
         public Warehouse Warehouse { get; set; } = null!;
         public string Status { get; set; } = string.Empty;
-        public ICollection<DeliveryDetail> DeliveryDetails { get; set; } = new List<DeliveryDetail>();
+        public ICollection<DeliveryDetail> DeliveryDetails { get; set; } =
+            new List<DeliveryDetail>();
         public ICollection<Return> Returns { get; set; } = new List<Return>();
     }
 }

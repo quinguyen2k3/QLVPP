@@ -20,7 +20,7 @@ namespace QLVPP.Data
                     Phone = "0123456789",
                     Account = "admin",
                     Password = PasswordHasher.HashPassword(defaultPassword),
-                    CreatedBy = "system"
+                    CreatedBy = "system",
                 };
 
                 context.Employees.Add(admin);
@@ -32,7 +32,6 @@ namespace QLVPP.Data
                 logger.LogWarning("Password: {Password}", defaultPassword);
                 logger.LogWarning("Please log in and change the password immediately!");
                 logger.LogWarning("============================================");
-
             }
         }
     }

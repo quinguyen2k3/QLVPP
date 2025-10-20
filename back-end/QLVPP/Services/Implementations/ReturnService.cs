@@ -11,17 +11,11 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ICurrentUserService _currentUserService;
 
-        public ReturnService(
-            IUnitOfWork uniOfWork,
-            IMapper mapper,
-            ICurrentUserService currentUserService
-        )
+        public ReturnService(IUnitOfWork uniOfWork, IMapper mapper)
         {
             _unitOfWork = uniOfWork;
             _mapper = mapper;
-            _currentUserService = currentUserService;
         }
 
         public async Task<List<ReturnRes>> GetAll()
@@ -208,6 +202,76 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<ReturnRes>(returnNote);
+        }
+
+        public async Task<bool> Delete(long id)
+        {
+            var returnNote = await _unitOfWork.Return.GetById(id);
+            if (returnNote == null)
+            {
+                return false;
+            }
+
+            if (returnNote.Status == ReturnStatus.Cancelled)
+            {
+                throw new InvalidOperationException($"Return '{id}' has already been cancelled.");
+            }
+
+            DateOnly snapshotDate = (DateOnly)
+                await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (today <= snapshotDate)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot cancel the return because the inventory has been finalized for this period."
+                );
+            }
+
+            switch (returnNote.Status)
+            {
+                case OrderStatus.Pending:
+                    break;
+
+                case OrderStatus.Complete:
+                    var returnDetails = returnNote.ReturnDetails;
+                    if (returnDetails == null || !returnDetails.Any())
+                    {
+                        throw new InvalidOperationException(
+                            $"Order '{id}' is complete but has no details to revert stock."
+                        );
+                    }
+
+                    foreach (var detail in returnDetails)
+                    {
+                        var inventory = await _unitOfWork.Inventory.GetByKey(
+                            returnNote.WarehouseId,
+                            detail.ProductId
+                        );
+                        if (inventory == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Inventory record not found for Product ID '{detail.ProductId}' in Warehouse ID '{returnNote.WarehouseId}'."
+                            );
+                        }
+
+                        inventory.Quantity = inventory.Quantity - detail.ReturnedQuantity;
+                        await _unitOfWork.Inventory.Update(inventory);
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Cannot cancel an order with the status '{returnNote.Status}'."
+                    );
+            }
+
+            returnNote.Status = ReturnStatus.Cancelled;
+            returnNote.IsActivated = false;
+
+            await _unitOfWork.SaveChanges();
+
+            return true;
         }
     }
 }

@@ -36,6 +36,29 @@ namespace QLVPP.Services.Implementations
             return response;
         }
 
+        public async Task<bool> Delete(long id)
+        {
+            var requisition = await _unitOfWork.Requisition.GetById(id);
+            if (requisition == null)
+            {
+                return false;
+            }
+
+            if (requisition.Status != RequisitionStatus.Pending)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot delete a requisition with status '{requisition.Status}'. Only pending requisitions can be deleted."
+                );
+            }
+
+            requisition.IsActivated = false;
+            requisition.Status = RequisitionStatus.Cancelled;
+
+            await _unitOfWork.SaveChanges();
+
+            return true;
+        }
+
         public async Task<List<RequisitionRes>> GetAll()
         {
             var requisitions = await _unitOfWork.Requisition.GetAll();
@@ -58,19 +81,23 @@ namespace QLVPP.Services.Implementations
         {
             status = status.ToUpper();
 
+            if (status != RequisitionStatus.Approved && status != RequisitionStatus.Rejected)
+            {
+                throw new ArgumentException(
+                    $"Invalid status update. Only '{RequisitionStatus.Approved}' or '{RequisitionStatus.Rejected}' are allowed."
+                );
+            }
+
             var requisition = await _unitOfWork.Requisition.GetById(id);
             if (requisition == null)
                 return null;
 
-            if (!RequisitionStatus.All.Contains(status))
-            {
-                throw new ArgumentException($"Invalid status: {status}");
-            }
-
             if (requisition.Status is RequisitionStatus.Approved or RequisitionStatus.Rejected)
+            {
                 throw new InvalidOperationException(
                     $"Requisition {id} is already {requisition.Status} and cannot be modified."
                 );
+            }
 
             requisition.Status = status;
 

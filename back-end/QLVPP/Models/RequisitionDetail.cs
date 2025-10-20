@@ -8,6 +8,7 @@ namespace QLVPP.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
+
         [Required]
         public long RequisitionId { get; set; }
 
