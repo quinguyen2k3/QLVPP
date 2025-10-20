@@ -28,6 +28,28 @@ namespace QLVPP.Services.Implementations
                     $"Cannot create order note on date ({request.OrderDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
                 );
             }
+
+            if (request.Items != null && request.Items.Any())
+            {
+                var requestedProductIds = request
+                    .Items.Select(item => item.ProductId)
+                    .Distinct()
+                    .ToList();
+
+                var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
+
+                if (existingProducts.Count() != requestedProductIds.Count)
+                {
+                    var existingProductIds = existingProducts.Select(p => p.Id).ToHashSet();
+                    var invalidProductIds = requestedProductIds.Where(id =>
+                        !existingProductIds.Contains(id)
+                    );
+
+                    throw new InvalidOperationException(
+                        $"One or more products do not exist. Invalid Product IDs: {string.Join(", ", invalidProductIds)}."
+                    );
+                }
+            }
             var order = _mapper.Map<Order>(request);
             order.Status = OrderStatus.Pending;
 
@@ -67,6 +89,28 @@ namespace QLVPP.Services.Implementations
                 );
             }
 
+            if (request.Items != null && request.Items.Any())
+            {
+                var requestedProductIds = request
+                    .Items.Select(item => item.ProductId)
+                    .Distinct()
+                    .ToList();
+
+                var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
+
+                if (existingProducts.Count() != requestedProductIds.Count)
+                {
+                    var existingProductIds = existingProducts.Select(p => p.Id).ToHashSet();
+                    var invalidProductIds = requestedProductIds.Where(id =>
+                        !existingProductIds.Contains(id)
+                    );
+
+                    throw new InvalidOperationException(
+                        $"One or more products do not exist. Invalid Product IDs: {string.Join(", ", invalidProductIds)}."
+                    );
+                }
+            }
+
             var order = await _unitOfWork.Order.GetById(id);
             if (order == null)
                 return null;
@@ -90,16 +134,67 @@ namespace QLVPP.Services.Implementations
         {
             var order = await _unitOfWork.Order.GetById(id);
             if (order == null)
-                return false;
-
-            if (order.Status != OrderStatus.Pending)
             {
-                throw new InvalidOperationException("Only pending orders can be deleted.");
+                return false;
             }
 
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                throw new InvalidOperationException($"Order '{id}' has already been cancelled.");
+            }
+
+            DateOnly snapshotDate = (DateOnly)
+                await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (today <= snapshotDate)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot cancel the order because the inventory has been finalized for this period."
+                );
+            }
+
+            switch (order.Status)
+            {
+                case OrderStatus.Pending:
+                    break;
+
+                case OrderStatus.Complete:
+                    var orderDetails = order.OrderDetails;
+                    if (orderDetails == null || !orderDetails.Any())
+                    {
+                        throw new InvalidOperationException(
+                            $"Order '{id}' is complete but has no details to revert stock."
+                        );
+                    }
+
+                    foreach (var detail in orderDetails)
+                    {
+                        var inventory = await _unitOfWork.Inventory.GetByKey(
+                            order.WarehouseId,
+                            detail.ProductId
+                        );
+                        if (inventory == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Inventory record not found for Product ID '{detail.ProductId}' in Warehouse ID '{order.WarehouseId}'."
+                            );
+                        }
+
+                        inventory.Quantity = inventory.Quantity - detail.Received;
+                        await _unitOfWork.Inventory.Update(inventory);
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Cannot cancel an order with the status '{order.Status}'."
+                    );
+            }
+
+            order.Status = OrderStatus.Cancelled;
             order.IsActivated = false;
 
-            await _unitOfWork.Order.Update(order);
             await _unitOfWork.SaveChanges();
 
             return true;
@@ -157,13 +252,9 @@ namespace QLVPP.Services.Implementations
                 );
                 if (inventory == null)
                 {
-                    inventory = new Inventory
-                    {
-                        ProductId = orderDetail.ProductId,
-                        WarehouseId = request.WarehouseId,
-                        Quantity = 0,
-                    };
-                    await _unitOfWork.Inventory.Add(inventory);
+                    throw new InvalidOperationException(
+                        $"Inventory record not found for Product ID '{item.ProductId}' in Warehouse ID '{order.WarehouseId}'."
+                    );
                 }
                 inventory.Quantity += item.Received;
                 await _unitOfWork.Inventory.Update(inventory);

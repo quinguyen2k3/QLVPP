@@ -11,5 +11,6 @@ namespace QLVPP.Services
         Task<DeliveryRes> Create(DeliveryReq request);
         Task<DeliveryRes?> Update(long id, DeliveryReq request);
         Task<DeliveryRes?> Dispatch(long id, DeliveryReq request);
+        Task<bool> Delete (long id);
     }
 }

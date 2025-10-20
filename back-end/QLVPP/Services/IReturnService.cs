@@ -11,5 +11,6 @@ namespace QLVPP.Services
         Task<ReturnRes> Create(ReturnReq request);
         Task<ReturnRes?> Update(long id, ReturnReq request);
         Task<ReturnRes?> Returned(long id, ReturnReq request);
+        Task<bool> Delete(long id);
     }
 }

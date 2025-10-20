@@ -133,5 +133,72 @@ namespace QLVPP.Services.Implementations
 
             return _mapper.Map<DeliveryRes>(delivery);
         }
+
+        public async Task<bool> Delete(long id)
+        {
+            var delivery = await _unitOfWork.Delivery.GetById(id);
+            if (delivery == null)
+            {
+                return false;
+            }
+            if (delivery.Status == OrderStatus.Cancelled)
+            {
+                throw new InvalidOperationException($"Order '{id}' has already been cancelled.");
+            }
+
+            DateOnly snapshotDate = (DateOnly)
+                await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (today <= snapshotDate)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot cancel the delivery because the inventory has been finalized for this period."
+                );
+            }
+
+            switch (delivery.Status)
+            {
+                case DeliveryStatus.Pending:
+                    break;
+                case DeliveryStatus.Complete:
+                    var deliveryDetails = delivery.DeliveryDetails;
+                    if (deliveryDetails == null || !deliveryDetails.Any())
+                    {
+                        throw new InvalidOperationException(
+                            $"Delivery '{id}' is complete but has no details to revert stock."
+                        );
+                    }
+
+                    foreach (var detail in deliveryDetails)
+                    {
+                        var inventory = await _unitOfWork.Inventory.GetByKey(
+                            delivery.WarehouseId,
+                            detail.ProductId
+                        );
+                        if (inventory == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Inventory record not found for Product ID '{detail.ProductId}' in Warehouse ID '{delivery.WarehouseId}'."
+                            );
+                        }
+
+                        inventory.Quantity = inventory.Quantity + detail.Quantity;
+                        await _unitOfWork.Inventory.Update(inventory);
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        $"Cannot cancel an order with the status '{delivery.Status}'."
+                    );
+            }
+
+            delivery.Status = OrderStatus.Cancelled;
+            delivery.IsActivated = false;
+
+            await _unitOfWork.SaveChanges();
+
+            return true;
+        }
     }
 }

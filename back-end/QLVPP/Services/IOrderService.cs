@@ -11,5 +11,6 @@ namespace QLVPP.Services
         Task<OrderRes> Create(OrderReq request);
         Task<OrderRes?> Update(long id, OrderReq request);
         Task<OrderRes?> Received(long id, OrderReq request);
+        Task<bool> Delete(long id);
     }
 }
