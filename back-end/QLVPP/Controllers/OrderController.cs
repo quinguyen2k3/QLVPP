@@ -56,6 +56,25 @@ namespace QLVPP.Controllers
             }
         }
 
+        [HttpGet("GetByMyself")]
+        public async Task<ActionResult<OrderRes>> GetAllByMyself()
+        {
+            try
+            {
+                var orders = await _service.GetAllActivated();
+                return Ok(
+                    ApiResponse<List<OrderRes>>.SuccessResponse(
+                        orders,
+                        "Fetched orders successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
         [HttpGet("GetById/{id:long}")]
         public async Task<ActionResult<OrderRes>> GetById(long id)
         {

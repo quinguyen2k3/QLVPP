@@ -7,6 +7,7 @@ namespace QLVPP.Services
     {
         Task<List<RequisitionRes>> GetAll();
         Task<List<RequisitionRes>> GetAllActivated();
+        Task<List<RequisitionRes>> GetAllByMyself();
         Task<RequisitionRes?> GetById(long id);
         Task<RequisitionRes> Create(RequisitionReq request);
         Task<RequisitionRes?> Update(long id, string status);

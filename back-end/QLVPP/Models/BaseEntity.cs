@@ -16,11 +16,5 @@ namespace QLVPP.Models
         public DateTime? ModifiedDate { get; set; }
         public string? ModifiedBy { get; set; }
         public bool IsActivated { get; set; }
-
-        public BaseEntity()
-        {
-            CreatedDate = DateTime.Now;
-            IsActivated = true;
-        }
     }
 }

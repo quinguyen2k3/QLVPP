@@ -7,15 +7,23 @@ namespace QLVPP.Repositories.Implementations
     public class OrderRepository : BaseRepository<Order>, IOrderRepository
     {
         private readonly AppDbContext _context;
-        public OrderRepository(AppDbContext context) : base(context)
-        { 
+
+        public OrderRepository(AppDbContext context)
+            : base(context)
+        {
             _context = context;
         }
 
         public async Task<List<Order>> GetAllIsActivated()
         {
-            return await _context.Orders
-                .Where(o => o.IsActivated == true)
+            return await _context.Orders.Where(o => o.IsActivated == true).ToListAsync();
+        }
+
+        public async Task<List<Order>> GetByCreator(string creator)
+        {
+            return await _context
+                .Orders.Where(o => o.CreatedBy == creator)
+                .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
 
@@ -23,9 +31,9 @@ namespace QLVPP.Repositories.Implementations
         {
             var Id = Convert.ToInt64(id);
 
-            return await _context.Orders
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.Product)
+            return await _context
+                .Orders.Include(o => o.OrderDetails)
+                .ThenInclude(d => d.Product)
                 .FirstOrDefaultAsync(o => o.Id == Id);
         }
     }

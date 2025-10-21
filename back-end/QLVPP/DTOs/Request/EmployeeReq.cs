@@ -36,6 +36,7 @@ namespace QLVPP.DTOs.Request
 
         [Required(ErrorMessage = "Department is required")]
         public long DepartmentId { get; set; }
+        public long? WarehouseId { get; set; }
 
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActived { get; set; } = true;

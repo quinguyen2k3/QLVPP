@@ -7,6 +7,7 @@ namespace QLVPP.Services
     {
         Task<List<OrderRes>> GetAll();
         Task<List<OrderRes>> GetAllActivated();
+        Task<List<OrderRes>> GetAllByMyself();
         Task<OrderRes?> GetById(long id);
         Task<OrderRes> Create(OrderReq request);
         Task<OrderRes?> Update(long id, OrderReq request);

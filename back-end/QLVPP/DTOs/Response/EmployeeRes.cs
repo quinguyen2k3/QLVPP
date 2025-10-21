@@ -9,6 +9,7 @@
         public string? Account { get; set; }
         public long? DepartmentId { get; set; }
         public string? DepartmentName { get; set; }
+        public long? WarehouseId { get; set; }
         public bool? IsActivated { get; set; }
     }
 }

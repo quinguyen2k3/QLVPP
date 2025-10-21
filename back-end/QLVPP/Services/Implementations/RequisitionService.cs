@@ -71,6 +71,13 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 
+        public async Task<List<RequisitionRes>> GetAllByMyself()
+        {
+            var curAccount = _currentUserService.GetUserAccount();
+            var requisitions = await _unitOfWork.Requisition.GetByCreator(curAccount);
+            return _mapper.Map<List<RequisitionRes>>(requisitions);
+        }
+
         public async Task<RequisitionRes?> GetById(long id)
         {
             var requisition = await _unitOfWork.Requisition.GetById(id);
