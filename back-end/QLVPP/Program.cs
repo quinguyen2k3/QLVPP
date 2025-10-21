@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,17 +13,25 @@ using QLVPP.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpContextAccessor();
+// ================== Config & Settings ==================
+var configuration = builder.Configuration;
 
-// 🔗 Add DbContext with SQL Server
+// JWT Settings
+var jwtSettings = configuration.GetSection("JwtSec");
+var keyString = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing");
+var key = Encoding.UTF8.GetBytes(keyString);
+
+// ================== Services ==================
+
+// --- DbContext ---
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
 );
 
-// 🔗 Add UnitOfWork
+// --- Repositories / UnitOfWork ---
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// 🔗 Add Services
+// --- Application Services ---
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -40,17 +49,13 @@ builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IInventorySnapshotService, InventorySnapshotService>();
 
-// 🔗 Add AutoMapper
+// --- AutoMapper ---
 builder.Services.AddAutoMapper(typeof(Program));
 
-// ================== JWT Authentication ==================
-var jwtSettings = builder.Configuration.GetSection("JwtSec");
-var keyString =
-    jwtSettings["Key"]
-    ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
+// --- HTTP Context ---
+builder.Services.AddHttpContextAccessor();
 
-var key = Encoding.UTF8.GetBytes(keyString);
-
+// --- JWT Authentication ---
 builder
     .Services.AddAuthentication(options =>
     {
@@ -72,12 +77,17 @@ builder
         };
     });
 
-// ================== Swagger ==================
+// --- Rate Limiting ---
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+// --- Swagger ---
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "QLVPP API", Version = "v1" });
 
-    // Add JWT Authentication to Swagger
     c.AddSecurityDefinition(
         "Bearer",
         new OpenApiSecurityScheme
@@ -109,12 +119,12 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
-// Add controllers
+// --- Controllers ---
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Add seed data
+// ================== Seed Data ==================
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -131,11 +141,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// --- Authentication & Authorization ---
 app.UseAuthentication();
-app.UseMiddleware<AccountAccessMiddleware>();
-app.UseMiddleware<RevokedTokenMiddleware>();
 app.UseAuthorization();
 
+// --- Rate Limiting Middleware ---
+app.UseIpRateLimiting();
+
+// --- Custom Middlewares ---
+app.UseMiddleware<AccountAccessMiddleware>();
+app.UseMiddleware<RevokedTokenMiddleware>();
+
+// --- Map Controllers ---
 app.MapControllers();
 
 app.Run();

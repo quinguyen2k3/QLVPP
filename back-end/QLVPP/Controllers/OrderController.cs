@@ -61,7 +61,7 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var orders = await _service.GetAllActivated();
+                var orders = await _service.GetAllByMyself();
                 return Ok(
                     ApiResponse<List<OrderRes>>.SuccessResponse(
                         orders,
