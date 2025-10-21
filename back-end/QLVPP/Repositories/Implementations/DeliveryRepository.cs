@@ -15,6 +15,14 @@ namespace QLVPP.Repositories.Implementations
             return await _context.Deliveries.Where(d => d.IsActivated == true).ToListAsync();
         }
 
+        public async Task<List<Delivery>> GetByCreator(string creator)
+        {
+            return await _context
+                .Deliveries.Where(d => d.CreatedBy == creator)
+                .OrderByDescending(d => d.CreatedDate)
+                .ToListAsync();
+        }
+
         public override async Task<Delivery?> GetById(object id)
         {
             var Id = Convert.ToInt64(id);

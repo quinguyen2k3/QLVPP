@@ -5,5 +5,6 @@ namespace QLVPP.Repositories
     public interface IRequisitionRepository : IBaseRepository<Requisition>
     {
         Task<List<Requisition>> GetAllIsActivated();
+        Task<List<Requisition>> GetByCreator(string creator);
     }
 }

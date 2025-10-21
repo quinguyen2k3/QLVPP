@@ -7,5 +7,6 @@ namespace QLVPP.Security
     {
         public Task<List<Return>> GetAllIsActivated();
         public Task<int> GetTotalReturnedQuantity(long deliveryId, long productId);
+        public Task<List<Return>> GetByCreator(string creator);
     }
 }

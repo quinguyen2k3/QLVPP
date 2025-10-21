@@ -11,11 +11,17 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<OrderRes> Create(OrderReq request)
@@ -278,6 +284,13 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<OrderRes>(order);
+        }
+
+        public async Task<List<OrderRes>> GetAllByMyself()
+        {
+            var curAccount = _currentUserService.GetUserAccount();
+            var requisitions = await _unitOfWork.Order.GetByCreator(curAccount);
+            return _mapper.Map<List<OrderRes>>(requisitions);
         }
     }
 }
