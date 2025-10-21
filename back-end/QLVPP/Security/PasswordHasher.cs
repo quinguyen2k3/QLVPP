@@ -1,6 +1,4 @@
-﻿using BCrypt.Net;
-
-namespace QLVPP.Security
+﻿namespace QLVPP.Security
 {
     public static class PasswordHasher
     {

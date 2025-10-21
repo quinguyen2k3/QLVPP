@@ -9,6 +9,7 @@ namespace QLVPP.DTOs.Request
 
         [Required(ErrorMessage = "Expected Date is required")]
         public DateOnly ExpectedDate { get; set; }
+        public DateOnly? ActualDate { get; set; }
 
         [Required(ErrorMessage = "Supllier Id is required")]
         public long SupplierId { get; set; }

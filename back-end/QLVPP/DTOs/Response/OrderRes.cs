@@ -7,6 +7,7 @@ namespace QLVPP.DTOs.Response
         public long Id { get; set; }
         public DateOnly OrderDate { get; set; }
         public DateOnly ExpectedDate { get; set; }
+        public DateOnly? ActualDate { get; set; }
         public long SupplierId { get; set; }
         public long WarehouseId { get; set; }
         public bool IsActivated { get; set; }
