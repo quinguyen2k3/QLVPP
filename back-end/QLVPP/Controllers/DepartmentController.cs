@@ -18,12 +18,25 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<DepartmentRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<DepartmentRes>>> GetDepartments(
+            [FromQuery] bool? activated
+        )
         {
             try
             {
-                var departments = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var departments =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<DepartmentRes>>.SuccessResponse(
                         departments,
@@ -37,26 +50,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<DepartmentRes>>> GetAllActivated()
-        {
-            try
-            {
-                var departments = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<DepartmentRes>>.SuccessResponse(
-                        departments,
-                        "Fetched departments successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<DepartmentRes>> GetById(long id)
         {
             try
@@ -78,7 +72,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<DepartmentRes>>> Create(
             [FromBody] DepartmentReq request
         )
@@ -112,7 +106,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<DepartmentRes>> Update(
             long id,
             [FromBody] DepartmentReq request

@@ -28,7 +28,7 @@
             if (!string.IsNullOrEmpty(name))
                 return name;
 
-            throw new InvalidOperationException("User account not found in the current context.");
+            return "SYSTEM";
         }
 
         public bool IsUserAuthenticated()

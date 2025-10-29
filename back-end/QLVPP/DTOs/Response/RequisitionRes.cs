@@ -1,6 +1,4 @@
-﻿using QLVPP.DTOs.Request;
-
-namespace QLVPP.DTOs.Response
+﻿namespace QLVPP.DTOs.Response
 {
     public class RequisitionRes
     {

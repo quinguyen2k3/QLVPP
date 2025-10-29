@@ -11,15 +11,24 @@ namespace QLVPP.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IOnlineUserService _onlineUserService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
 
-        public AuthController(IAuthService authService, IJwtService jwtService)
+        public AuthController(
+            IAuthService authService,
+            IJwtService jwtService,
+            IOnlineUserService onlineUserService,
+            ICurrentUserService currentUserService
+        )
         {
             _authService = authService;
             _jwtService = jwtService;
+            _onlineUserService = onlineUserService;
+            _currentUserService = currentUserService;
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<AuthRes>>> Login([FromBody] AuthReq request)
         {
@@ -47,7 +56,7 @@ namespace QLVPP.Controllers
                     }
                     return Unauthorized(ApiResponse<AuthRes>.ErrorResponse("Unauthenticated"));
                 }
-
+                await _onlineUserService.AddUser(result.UserId.ToString());
                 return Ok(ApiResponse<AuthRes>.SuccessResponse(result, "Login successful"));
             }
             catch (Exception ex)
@@ -56,7 +65,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Refresh-Token")]
+        [HttpPost("refresh-token")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshToken()
         {
@@ -75,12 +84,15 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Logout")]
+        [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout([FromBody] LogoutReq request)
         {
             try
             {
+                var userId = _currentUserService.GetUserId();
+                await _onlineUserService.RemoveUser(userId.ToString());
+
                 await _authService.LogoutAsync(request, Request, Response);
                 return Ok(ApiResponse<string>.SuccessResponse(string.Empty, "Logout successful."));
             }
@@ -90,7 +102,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Change-Password")]
+        [HttpPost("change-password")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassReq request)
         {
@@ -118,6 +130,13 @@ namespace QLVPP.Controllers
             {
                 return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
+        }
+
+        [HttpGet("online-users")]
+        public async Task<IActionResult> GetOnlineCount()
+        {
+            var count = await _onlineUserService.GetOnlineUserCount();
+            return Ok(ApiResponse<int>.SuccessResponse(count, "Fetch online user successfully"));
         }
     }
 }

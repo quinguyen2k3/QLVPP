@@ -5,16 +5,16 @@ using QLVPP.Services;
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
-    public class InventorySnapshotController : ControllerBase
+    public class SnapshotController : ControllerBase
     {
         private readonly IInventorySnapshotService _service;
 
-        public InventorySnapshotController(IInventorySnapshotService service)
+        public SnapshotController(IInventorySnapshotService service)
         {
             _service = service;
         }
 
-        [HttpGet("GetByWarehouse")]
+        [HttpGet("my-warehouse")]
         public async Task<ActionResult<List<InventorySnapshotRes>>> GetByWarehouse()
         {
             try
@@ -33,7 +33,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<InventorySnapshotRes>> GetById(long id)
         {
             try
@@ -55,7 +55,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<InventorySnapshotRes>> Create()
         {
             try
@@ -76,7 +76,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Close/{id:long}")]
+        [HttpPut("{id:long}/closing")]
         public async Task<ActionResult<InventorySnapshotRes>> Close(long id)
         {
             try

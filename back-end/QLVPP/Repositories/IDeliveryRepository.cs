@@ -1,4 +1,5 @@
-﻿using QLVPP.Models;
+﻿using QLVPP.DTOs.Projection;
+using QLVPP.Models;
 
 namespace QLVPP.Repositories
 {

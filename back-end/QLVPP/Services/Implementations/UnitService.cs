@@ -10,11 +10,18 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cacheService;
 
-        public UnitService(IUnitOfWork unitOfWork, IMapper mapper)
+        private const string CacheKey_GetAll = "units:all";
+        private const string CacheKey_GetAllActivated = "units:activated";
+
+        private string CacheKey_GetById(long id) => $"units:{id}";
+
+        public UnitService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _cacheService = cacheService;
         }
 
         public async Task<UnitRes> Create(UnitReq request)
@@ -24,25 +31,48 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Unit.Add(unit);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches();
+
             return _mapper.Map<UnitRes>(unit);
         }
 
         public async Task<List<UnitRes>> GetAll()
         {
-            var units = await _unitOfWork.Unit.GetAll();
-            return _mapper.Map<List<UnitRes>>(units);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAll,
+                async () =>
+                {
+                    var units = await _unitOfWork.Unit.GetAll();
+                    return _mapper.Map<List<UnitRes>>(units);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<List<UnitRes>> GetAllActivated()
         {
-            var units = await _unitOfWork.Unit.GetAllIsActivated();
-            return _mapper.Map<List<UnitRes>>(units);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAllActivated,
+                async () =>
+                {
+                    var units = await _unitOfWork.Unit.GetAllIsActivated();
+                    return _mapper.Map<List<UnitRes>>(units);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<UnitRes?> GetById(long id)
         {
-            var unit = await _unitOfWork.Unit.GetById(id);
-            return unit == null ? null : _mapper.Map<UnitRes>(unit);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetById(id),
+                async () =>
+                {
+                    var unit = await _unitOfWork.Unit.GetById(id);
+                    return unit == null ? null : _mapper.Map<UnitRes>(unit);
+                },
+                TimeSpan.FromMinutes(30)
+            );
         }
 
         public async Task<UnitRes?> Update(long id, UnitReq request)
@@ -56,7 +86,20 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Unit.Update(unit);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches();
+
             return _mapper.Map<UnitRes>(unit);
+        }
+
+        private async Task ClearCaches(long? id = null)
+        {
+            await _cacheService.Remove(CacheKey_GetAll);
+            await _cacheService.Remove(CacheKey_GetAllActivated);
+
+            if (id.HasValue)
+            {
+                await _cacheService.Remove(CacheKey_GetById(id.Value));
+            }
         }
     }
 }

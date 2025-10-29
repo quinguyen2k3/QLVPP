@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class RequisitionDetail
+    public class RequisitionDetail : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public int Quantity { get; set; }
+        public string? Purpose { get; set; }
 
         [Required]
         public long RequisitionId { get; set; }
@@ -20,10 +19,5 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; } = null!;
-
-        [Required]
-        public int Quantity { get; set; }
-
-        public string? Purpose { get; set; }
     }
 }

@@ -10,11 +10,17 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cacheService;
+        private const string CacheKey_GetAll = "warehouses:all";
+        private const string CacheKey_GetAllActivated = "warehouses:activated";
 
-        public WarehouseService(IUnitOfWork unitOfWork, IMapper mapper)
+        private string CacheKey_GetById(long id) => $"warehouses:{id}";
+
+        public WarehouseService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         public async Task<WarehouseRes> Create(WarehouseReq request)
@@ -24,25 +30,48 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Warehouse.Add(warehouse);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches();
+
             return _mapper.Map<WarehouseRes>(warehouse);
         }
 
         public async Task<List<WarehouseRes>> GetAll()
         {
-            var warehouse = await _unitOfWork.Warehouse.GetAll();
-            return _mapper.Map<List<WarehouseRes>>(warehouse);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAll,
+                async () =>
+                {
+                    var warehouse = await _unitOfWork.Warehouse.GetAll();
+                    return _mapper.Map<List<WarehouseRes>>(warehouse);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<List<WarehouseRes>> GetAllActivated()
         {
-            var warehouse = await _unitOfWork.Warehouse.GetAllIsActivated();
-            return _mapper.Map<List<WarehouseRes>>(warehouse);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAllActivated,
+                async () =>
+                {
+                    var warehouse = await _unitOfWork.Warehouse.GetAllIsActivated();
+                    return _mapper.Map<List<WarehouseRes>>(warehouse);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<WarehouseRes?> GetById(long id)
         {
-            var warehouse = await _unitOfWork.Warehouse.GetById(id);
-            return warehouse == null ? null : _mapper.Map<WarehouseRes>(warehouse);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetById(id),
+                async () =>
+                {
+                    var warehouse = await _unitOfWork.Warehouse.GetById(id);
+                    return warehouse == null ? null : _mapper.Map<WarehouseRes>(warehouse);
+                },
+                TimeSpan.FromMinutes(30)
+            );
         }
 
         public async Task<WarehouseRes?> Update(long id, WarehouseReq request)
@@ -56,7 +85,20 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Warehouse.Update(warehouse);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches(id);
+
             return _mapper.Map<WarehouseRes>(warehouse);
+        }
+
+        private async Task ClearCaches(long? id = null)
+        {
+            await _cacheService.Remove(CacheKey_GetAll);
+            await _cacheService.Remove(CacheKey_GetAllActivated);
+
+            if (id.HasValue)
+            {
+                await _cacheService.Remove(CacheKey_GetById(id.Value));
+            }
         }
     }
 }

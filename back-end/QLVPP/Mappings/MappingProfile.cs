@@ -35,6 +35,7 @@ namespace QLVPP.Mappings
             CreateMap<RequisitionReq, Requisition>()
                 .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items));
             CreateMap<RequisitionItemReq, RequisitionDetail>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
             CreateMap<Requisition, RequisitionRes>()
@@ -61,6 +62,7 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
             CreateMap<OrderItemReq, OrderDetail>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
                 .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
@@ -77,6 +79,7 @@ namespace QLVPP.Mappings
             CreateMap<DeliveryReq, Delivery>()
                 .ForMember(dest => dest.DeliveryDetails, opt => opt.MapFrom(src => src.Items));
             CreateMap<DeliveryItemReq, DeliveryDetail>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
             CreateMap<Delivery, DeliveryRes>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.DeliveryDetails));
@@ -89,6 +92,7 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.ReturnDetails, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
             CreateMap<ReturnItemReq, ReturnDetail>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(
                     dest => dest.DamagedQuantity,
                     opt => opt.MapFrom(src => src.DamagedQuantity)

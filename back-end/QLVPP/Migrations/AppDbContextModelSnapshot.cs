@@ -52,8 +52,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -162,8 +161,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -234,11 +232,11 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.InvalidToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
@@ -548,8 +546,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -622,8 +619,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("ReturnDate")
                         .HasColumnType("date");
@@ -730,8 +726,8 @@ namespace QLVPP.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActivated")
                         .HasColumnType("bit");
@@ -748,8 +744,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -791,8 +786,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -829,8 +823,7 @@ namespace QLVPP.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

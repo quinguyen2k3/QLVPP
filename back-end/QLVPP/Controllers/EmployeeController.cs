@@ -18,12 +18,23 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<EmployeeRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<EmployeeRes>>> GetEmployees([FromQuery] bool? activated)
         {
             try
             {
-                var employees = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var employees =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<EmployeeRes>>.SuccessResponse(
                         employees,
@@ -37,26 +48,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<EmployeeRes>>> GetAllActivated()
-        {
-            try
-            {
-                var employees = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<EmployeeRes>>.SuccessResponse(
-                        employees,
-                        "Fetched employees successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<EmployeeRes>> GetById(long id)
         {
             try
@@ -78,7 +70,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<EmployeeRes>>> Create(
             [FromBody] EmployeeReq request
         )
@@ -112,7 +104,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<EmployeeRes>> Update(long id, [FromBody] EmployeeReq request)
         {
             if (!ModelState.IsValid)

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using QLVPP.DTOs.Response;
 
 namespace QLVPP.DTOs.Request
 {
@@ -11,7 +13,7 @@ namespace QLVPP.DTOs.Request
         public DateOnly ExpectedDate { get; set; }
         public DateOnly? ActualDate { get; set; }
 
-        [Required(ErrorMessage = "Supllier Id is required")]
+        [Required(ErrorMessage = "Supplier Id is required")]
         public long SupplierId { get; set; }
 
         [Required(ErrorMessage = "Warehouse Id is required")]

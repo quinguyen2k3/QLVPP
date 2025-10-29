@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("Return")]
-    public class Return : BaseEntity
+    public class Return : AuditableEntity
     {
         [Required]
         public long DepartmentId { get; set; }
@@ -30,7 +30,7 @@ namespace QLVPP.Models
         [Required]
         public string Status { get; set; } = string.Empty;
 
-        [StringLength(200, ErrorMessage = "Note cannot be longer than 200 characters.")]
+        [Column(TypeName = "nvarchar(max)")]
         public string? Note { get; set; }
         public ICollection<ReturnDetail> ReturnDetails { get; set; } = new List<ReturnDetail>();
     }

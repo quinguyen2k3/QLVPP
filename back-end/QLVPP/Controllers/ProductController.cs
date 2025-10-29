@@ -18,12 +18,23 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<ProductRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<ProductRes>>> GetProducts([FromQuery] bool? activated)
         {
             try
             {
-                var products = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var products =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<ProductRes>>.SuccessResponse(
                         products,
@@ -37,26 +48,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<ProductRes>>> GetAllActivated()
-        {
-            try
-            {
-                var products = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<ProductRes>>.SuccessResponse(
-                        products,
-                        "Fetched products successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetByWareHouse")]
+        [HttpGet("my-warehouse")]
         public async Task<ActionResult<List<ProductRes>>> GetAllByWarehouse()
         {
             try
@@ -75,7 +67,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<ProductRes>> GetById(long id)
         {
             try
@@ -94,7 +86,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<ProductRes>>> Create(
             [FromBody] ProductReq request
         )
@@ -125,7 +117,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<ProductRes>> Update(long id, [FromBody] ProductReq request)
         {
             if (!ModelState.IsValid)

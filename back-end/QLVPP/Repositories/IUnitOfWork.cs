@@ -19,6 +19,7 @@ namespace QLVPP.Repositories
         IDeliveryRepository Delivery { get; }
         IReturnRepository Return { get; }
         IInventorySnapshotRepository InventorySnapshot { get; }
+        IReportRepository Report { get; }
         Task<int> SaveChanges();
     }
 }

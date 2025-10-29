@@ -11,11 +11,17 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cacheService;
+        private const string CacheKey_GetAll = "employees:all";
+        private const string CacheKey_GetAllActivated = "employees:activated";
 
-        public EmployeeService(IUnitOfWork unitOfWork, IMapper mapper)
+        private string CacheKey_GetById(long id) => $"employees:{id}";
+
+        public EmployeeService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         public async Task<EmployeeRes> Create(EmployeeReq request)
@@ -31,25 +37,48 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Employee.Add(employee);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches();
+
             return _mapper.Map<EmployeeRes>(employee);
         }
 
         public async Task<List<EmployeeRes>> GetAll()
         {
-            var employees = await _unitOfWork.Employee.GetAll();
-            return _mapper.Map<List<EmployeeRes>>(employees);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAll,
+                async () =>
+                {
+                    var employees = await _unitOfWork.Employee.GetAll();
+                    return _mapper.Map<List<EmployeeRes>>(employees);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<List<EmployeeRes>> GetAllActivated()
         {
-            var employees = await _unitOfWork.Employee.GetAllIsActivated();
-            return _mapper.Map<List<EmployeeRes>>(employees);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAllActivated,
+                async () =>
+                {
+                    var employees = await _unitOfWork.Employee.GetAllIsActivated();
+                    return _mapper.Map<List<EmployeeRes>>(employees);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<EmployeeRes?> GetById(long id)
         {
-            var employee = await _unitOfWork.Employee.GetById(id);
-            return employee == null ? null : _mapper.Map<EmployeeRes>(employee);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetById(id),
+                async () =>
+                {
+                    var employee = await _unitOfWork.Employee.GetById(id);
+                    return employee == null ? null : _mapper.Map<EmployeeRes>(employee);
+                },
+                TimeSpan.FromMinutes(30)
+            );
         }
 
         public async Task<EmployeeRes?> Update(long id, EmployeeReq request)
@@ -72,7 +101,20 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Employee.Update(employee);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches(id);
+
             return _mapper.Map<EmployeeRes>(employee);
+        }
+
+        private async Task ClearCaches(long? id = null)
+        {
+            await _cacheService.Remove(CacheKey_GetAll);
+            await _cacheService.Remove(CacheKey_GetAllActivated);
+
+            if (id.HasValue)
+            {
+                await _cacheService.Remove(CacheKey_GetById(id.Value));
+            }
         }
     }
 }

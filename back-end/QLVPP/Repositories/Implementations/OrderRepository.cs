@@ -16,7 +16,11 @@ namespace QLVPP.Repositories.Implementations
 
         public async Task<List<Order>> GetAllIsActivated()
         {
-            return await _context.Orders.Where(o => o.IsActivated == true).ToListAsync();
+            return await _context
+                .Orders.Where(o => o.IsActivated == true)
+                .OrderByDescending(o => o.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<List<Order>> GetByCreator(string creator)
@@ -24,6 +28,7 @@ namespace QLVPP.Repositories.Implementations
             return await _context
                 .Orders.Where(o => o.CreatedBy == creator)
                 .OrderByDescending(o => o.CreatedDate)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

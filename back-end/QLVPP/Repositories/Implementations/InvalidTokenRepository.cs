@@ -7,7 +7,9 @@ namespace QLVPP.Repositories.Implementations
     public class InvalidTokenRepository : BaseRepository<InvalidToken>, IInvalidTokenRepository
     {
         private readonly AppDbContext _context;
-        public InvalidTokenRepository(AppDbContext context) : base(context)
+
+        public InvalidTokenRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }
@@ -19,9 +21,7 @@ namespace QLVPP.Repositories.Implementations
 
         public async Task<InvalidToken?> GetById(string jti)
         {
-            return await _context.InvalidTokens
-                .FirstOrDefaultAsync(i => i.Jti == jti);
+            return await _context.InvalidTokens.FirstOrDefaultAsync(i => i.Jti == jti);
         }
-
     }
 }

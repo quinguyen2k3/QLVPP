@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class Product : BaseEntity
+    public class Product : AuditableEntity
     {
         [Required]
         [StringLength(20)]

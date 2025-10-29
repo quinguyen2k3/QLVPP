@@ -18,12 +18,23 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<UnitRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<UnitRes>>> GetUnits([FromQuery] bool? activated)
         {
             try
             {
-                var units = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var units =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<UnitRes>>.SuccessResponse(units, "Fetched units successfully")
                 );
@@ -34,23 +45,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<UnitRes>>> GetAllActivated()
-        {
-            try
-            {
-                var units = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<UnitRes>>.SuccessResponse(units, "Fetched units successfully")
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<UnitRes>> GetById(long id)
         {
             try
@@ -67,7 +62,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<UnitRes>>> Create([FromBody] UnitReq request)
         {
             if (!ModelState.IsValid)
@@ -96,7 +91,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<UnitRes>> Update(long id, [FromBody] UnitReq request)
         {
             if (!ModelState.IsValid)

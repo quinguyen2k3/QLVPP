@@ -4,12 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("RefreshToken")]
-    public class RefreshToken
+    public class RefreshToken : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
-
         [Required]
         public string Token { get; set; } = string.Empty;
 

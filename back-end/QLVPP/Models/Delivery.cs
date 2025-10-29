@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("Delivery")]
-    public class Delivery : BaseEntity
+    public class Delivery : AuditableEntity
     {
         public DateOnly DeliveryDate { get; set; }
 

@@ -18,12 +18,23 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<OrderRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<OrderRes>>> GetOrders([FromQuery] bool? activated)
         {
             try
             {
-                var orders = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var orders =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<OrderRes>>.SuccessResponse(
                         orders,
@@ -37,26 +48,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<OrderRes>>> GetAllActivated()
-        {
-            try
-            {
-                var orders = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<OrderRes>>.SuccessResponse(
-                        orders,
-                        "Fetched orders successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetByMyself")]
+        [HttpGet("my")]
         public async Task<ActionResult<OrderRes>> GetAllByMyself()
         {
             try
@@ -75,7 +67,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<OrderRes>> GetById(long id)
         {
             try
@@ -94,7 +86,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<OrderRes>>> Create([FromBody] OrderReq request)
         {
             if (!ModelState.IsValid)
@@ -123,7 +115,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<OrderRes>> Update(long id, [FromBody] OrderReq request)
         {
             if (!ModelState.IsValid)
@@ -152,7 +144,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Received/{id:long}")]
+        [HttpPut("{id:long}/receipt")]
         public async Task<ActionResult<OrderRes>> Received(long id, [FromBody] OrderReq request)
         {
             if (!ModelState.IsValid)
@@ -181,7 +173,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpDelete("Delete/{id:long}")]
+        [HttpDelete("{id:long}")]
         public async Task<ActionResult<bool>> Delete(long id)
         {
             try

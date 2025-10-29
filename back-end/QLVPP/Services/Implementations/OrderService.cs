@@ -58,8 +58,8 @@ namespace QLVPP.Services.Implementations
             }
             var order = _mapper.Map<Order>(request);
             order.Status = OrderStatus.Pending;
-
             await _unitOfWork.Order.Add(order);
+
             await _unitOfWork.SaveChanges();
 
             var response = _mapper.Map<OrderRes>(order);
@@ -131,6 +131,7 @@ namespace QLVPP.Services.Implementations
             _mapper.Map(request, order);
 
             await _unitOfWork.Order.Update(order);
+
             await _unitOfWork.SaveChanges();
 
             return _mapper.Map<OrderRes>(order);

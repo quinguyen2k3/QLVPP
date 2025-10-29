@@ -4,7 +4,7 @@ namespace QLVPP.DTOs.Request
 {
     public class ReturnItemReq
     {
-        [Required(ErrorMessage = "AssetLoanId is required")]
+        [Required(ErrorMessage = "ProductId is required")]
         public long ProductId { set; get; }
 
         [Required(ErrorMessage = "ReturnQuantity is required")]

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QLVPP.Constants;
 using QLVPP.Data;
 using QLVPP.Models;
 
@@ -18,7 +19,10 @@ namespace QLVPP.Repositories.Implementations
 
         public async Task<List<InventorySnapshot>> GetByWarehouseId(long id)
         {
-            return await _context.InventorySnapshots.Where(i => i.WarehouseId == id).ToListAsync();
+            return await _context
+                .InventorySnapshots.Where(i => i.WarehouseId == id)
+                .OrderByDescending(i => i.CreatedDate)
+                .ToListAsync();
         }
 
         public override async Task<InventorySnapshot?> GetById(object id)
@@ -34,7 +38,9 @@ namespace QLVPP.Repositories.Implementations
         public async Task<bool> ExistsBySnapshotDate(int year, int month)
         {
             return await _context.InventorySnapshots.AnyAsync(s =>
-                s.SnapshotDate.Year == year && s.SnapshotDate.Month == month
+                s.SnapshotDate.Year == year
+                && s.SnapshotDate.Month == month
+                && s.Status == InventorySnapshotStatus.Complete
             );
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QLVPP.Constants;
 using QLVPP.Data;
+using QLVPP.DTOs.Projection;
 using QLVPP.DTOs.Response;
 using QLVPP.Models;
 
@@ -16,35 +17,56 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
+        public override async Task<List<Product>> GetAll()
+        {
+            return await _context
+                .Products.Include(p => p.Inventory)
+                .OrderByDescending(p => p.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         public override async Task<Product?> GetById(object id)
         {
             long longId = Convert.ToInt64(id);
             return await _context
                 .Products.Include(p => p.Inventory)
                 .ThenInclude(p => p.Warehouse)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == longId);
         }
 
         public async Task<List<Product>> GetAllIsActivated()
         {
-            return await _context.Products.Where(p => p.IsActivated == true).ToListAsync();
+            return await _context
+                .Products.Where(p => p.IsActivated == true)
+                .OrderByDescending(p => p.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<List<Product>> GetByIds(IEnumerable<long> ids)
         {
-            return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
+            return await _context
+                .Products.Where(p => ids.Contains(p.Id))
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<List<Product>> GetByWarehouseId(long id)
         {
-            return await _context
-                .Inventories.Where(inventory => inventory.WarehouseId == id)
-                .Select(inventory => inventory.Product)
-                .Distinct()
+            var products = await _context
+                .Products.Where(p => p.Inventory.WarehouseId == id)
+                .Include(p => p.Inventory)
+                .Include(p => p.Unit)
+                .Include(p => p.Category)
+                .AsNoTracking()
                 .ToListAsync();
+
+            return products;
         }
 
-        public Task<List<ProductReportRes>> GetTotalIn(
+        public Task<List<ProductReportProj>> GetTotalIn(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate
@@ -58,7 +80,7 @@ namespace QLVPP.Repositories.Implementations
                     && d.Order.Status == OrderStatus.Complete
                 )
                 .GroupBy(d => new { d.ProductId, d.Product.Name })
-                .Select(g => new ProductReportRes
+                .Select(g => new ProductReportProj
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.Name,
@@ -67,7 +89,7 @@ namespace QLVPP.Repositories.Implementations
             return query.AsNoTracking().ToListAsync();
         }
 
-        public Task<List<ProductReportRes>> GetTotalOut(
+        public Task<List<ProductReportProj>> GetTotalOut(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate
@@ -81,7 +103,7 @@ namespace QLVPP.Repositories.Implementations
                     && d.Delivery.Status == DeliveryStatus.Complete
                 )
                 .GroupBy(d => new { d.ProductId, ProductName = d.Product.Name })
-                .Select(g => new ProductReportRes
+                .Select(g => new ProductReportProj
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.ProductName,
@@ -91,7 +113,7 @@ namespace QLVPP.Repositories.Implementations
             return query.AsNoTracking().ToListAsync();
         }
 
-        public async Task<List<ProductReportRes>> GetTotalReturnAsync(
+        public async Task<List<ProductReportProj>> GetTotalReturnAsync(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate
@@ -105,7 +127,7 @@ namespace QLVPP.Repositories.Implementations
                     && rd.Return.Status == ReturnStatus.Complete
                 )
                 .GroupBy(rd => new { rd.ProductId, rd.Product.Name })
-                .Select(g => new ProductReportRes
+                .Select(g => new ProductReportProj
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.Name,

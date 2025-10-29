@@ -20,7 +20,6 @@ namespace QLVPP.Data
                     Phone = "0123456789",
                     Account = "admin",
                     Password = PasswordHasher.HashPassword(defaultPassword),
-                    CreatedBy = "system",
                 };
 
                 context.Employees.Add(admin);

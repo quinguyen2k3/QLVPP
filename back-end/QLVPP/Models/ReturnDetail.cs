@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("ReturnDetail")]
-    public class ReturnDetail
+    public class ReturnDetail : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public int ReturnedQuantity { get; set; }
+        public int DamagedQuantity { get; set; }
+
+        [StringLength(200, ErrorMessage = "Note cannot be longer than 200 characters.")]
+        public string? Note { get; set; }
 
         [Required]
         public long ReturnId { get; set; }
@@ -21,11 +23,5 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; } = null!;
-
-        public int ReturnedQuantity { get; set; }
-        public int DamagedQuantity { get; set; }
-
-        [StringLength(200, ErrorMessage = "Note cannot be longer than 200 characters.")]
-        public string? Note { get; set; }
     }
 }
