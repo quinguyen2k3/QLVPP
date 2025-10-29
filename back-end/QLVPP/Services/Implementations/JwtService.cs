@@ -11,6 +11,7 @@ namespace QLVPP.Services.Implementations
 {
     public class JwtService : IJwtService
     {
+        private const string _refreshToken = "REFRESH_TOKEN";
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
@@ -22,11 +23,10 @@ namespace QLVPP.Services.Implementations
 
         public async Task<string> GenerateAccessTokenAsync(Employee employee, HttpResponse response)
         {
-            var jwtSettings = _configuration.GetSection("JwtSec");
-            var secretKey =
-                jwtSettings["Key"]
-                ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var jwtKey =
+                _configuration["Jwt:Key"]
+                ?? throw new ArgumentNullException("JWT_KEY is missing. Check .env file.");
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>
             {
@@ -36,12 +36,22 @@ namespace QLVPP.Services.Implementations
                 new Claim("warehouseId", employee.WarehouseId.ToString() ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
-            var expiresInMinutes = jwtSettings.GetValue<int>("ExpiresInMinutes");
+
+            var jwtIssuer =
+                _configuration["Jwt:Issuer"]
+                ?? throw new ArgumentNullException("JWT_ISSUER is missing. Check .env file.");
+            var jwtAudience =
+                _configuration["Jwt:Audience"]
+                ?? throw new ArgumentNullException("JWT_AUDIENCE is missing. Check .env file.");
+            var jwtExpires = int.TryParse(_configuration["Jwt:ExpireMinutes"], out var expires)
+                ? expires
+                : 30;
+
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+                issuer: jwtIssuer,
+                audience: jwtAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(expiresInMinutes),
+                expires: DateTime.Now.AddMinutes(jwtExpires),
                 signingCredentials: credentials
             );
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
@@ -66,7 +76,7 @@ namespace QLVPP.Services.Implementations
                 SameSite = SameSiteMode.Strict,
                 Expires = refreshTokenEntity.ExpiredAt,
             };
-            response.Cookies.Append("REFRESH_TOKEN", refreshToken, cookieOptions);
+            response.Cookies.Append(_refreshToken, refreshToken, cookieOptions);
 
             await _unitOfWork.SaveChanges();
             return accessToken;
@@ -154,7 +164,7 @@ namespace QLVPP.Services.Implementations
 
         public async Task<string> RenewAccessTokenAsync(HttpRequest request, HttpResponse response)
         {
-            var refreshToken = request.Cookies["REFRESH_TOKEN"];
+            var refreshToken = request.Cookies[_refreshToken];
             if (string.IsNullOrEmpty(refreshToken))
                 throw new UnauthorizedAccessException("Invalid refresh token");
             var refreshTokenEntity = await _unitOfWork.RefreshToken.GetByTokenAsync(refreshToken);
@@ -162,7 +172,7 @@ namespace QLVPP.Services.Implementations
                 refreshTokenEntity == null
                 || refreshTokenEntity.IsRevoked
                 || refreshTokenEntity.IsUsed
-                || refreshTokenEntity.ExpiredAt <= DateTime.UtcNow
+                || refreshTokenEntity.ExpiredAt <= DateTime.Now
             )
             {
                 throw new UnauthorizedAccessException("Invalid refresh token");
@@ -199,7 +209,7 @@ namespace QLVPP.Services.Implementations
             HttpResponse response
         )
         {
-            var refreshToken = request.Cookies["REFRESH_TOKEN"];
+            var refreshToken = request.Cookies[_refreshToken];
             if (string.IsNullOrEmpty(refreshToken))
                 throw new UnauthorizedAccessException("Refresh token is missing or invalid.");
 
@@ -213,7 +223,7 @@ namespace QLVPP.Services.Implementations
             refreshTokenEntity.IsRevoked = true;
             await _unitOfWork.RefreshToken.Update(refreshTokenEntity);
 
-            response.Cookies.Delete("REFRESH_TOKEN");
+            response.Cookies.Delete(_refreshToken);
 
             var claims = GetClaims(accessToken);
             var account = claims.FirstOrDefault(c => c.Type == "account")?.Value ?? "unknown";
@@ -226,13 +236,13 @@ namespace QLVPP.Services.Implementations
             if (!long.TryParse(expUnix, out var expSeconds))
                 throw new Exception("Invalid expiration claim in token.");
 
-            var expiration = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
+            var expiration = DateTimeOffset.FromUnixTimeSeconds(expSeconds).DateTime;
 
             var invalidToken = new InvalidToken
             {
                 Jti = jti,
                 Expiration = expiration,
-                RevokedAt = DateTime.UtcNow,
+                RevokedAt = DateTime.Now,
                 RevokedBy = account,
             };
 

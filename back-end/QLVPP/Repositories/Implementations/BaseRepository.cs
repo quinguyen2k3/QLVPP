@@ -10,7 +10,13 @@ namespace QLVPP.Repositories.Implementations
 
         public virtual async Task Add(T entity) => await _context.Set<T>().AddAsync(entity);
 
-        public virtual void Delete(T entity) => _context.Set<T>().Remove(entity);
+        public virtual async Task Delete(T entity) => _context.Set<T>().Remove(entity);
+
+        public async Task<bool> ExistById(object id)
+        {
+            long longId = Convert.ToInt64(id);
+            return await _context.Set<T>().AnyAsync(e => EF.Property<long>(e, "Id") == longId);
+        }
 
         public virtual async Task<List<T>> GetAll() =>
             await _context

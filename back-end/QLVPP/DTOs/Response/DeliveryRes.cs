@@ -4,6 +4,7 @@
     {
         public long Id { get; set; }
         public string? Note { get; set; }
+
         public long DepartmentId { get; set; }
         public long WarehouseId { get; set; }
         public DateOnly DeliveryDate { get; set; }

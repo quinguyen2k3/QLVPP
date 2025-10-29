@@ -18,12 +18,25 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<DeliveryRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<List<DeliveryRes>>> GetDeliveries(
+            [FromQuery] bool? activated
+        )
         {
             try
             {
-                var deliveries = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var deliveries =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<DeliveryRes>>.SuccessResponse(
                         deliveries,
@@ -37,26 +50,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<DeliveryRes>>> GetAllActivated()
-        {
-            try
-            {
-                var deliveries = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<DeliveryRes>>.SuccessResponse(
-                        deliveries,
-                        "Fetched deliveries successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetByMyself")]
+        [HttpGet("my")]
         public async Task<ActionResult<DeliveryRes>> GetAllByMyself()
         {
             try
@@ -75,7 +69,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<DeliveryRes>> GetById(long id)
         {
             try
@@ -97,7 +91,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<DeliveryRes>>> Create(
             [FromBody] DeliveryReq request
         )
@@ -131,7 +125,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<DeliveryRes>> Update(long id, [FromBody] DeliveryReq request)
         {
             if (!ModelState.IsValid)
@@ -160,7 +154,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Dispatch/{id:long}")]
+        [HttpPut("dispatch/{id:long}")]
         public async Task<ActionResult<DeliveryRes>> Received(
             long id,
             [FromBody] DeliveryReq request
@@ -195,7 +189,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpDelete("Delete/{id:long}")]
+        [HttpDelete("{id:long}")]
         public async Task<ActionResult<bool>> Delete(long id)
         {
             try

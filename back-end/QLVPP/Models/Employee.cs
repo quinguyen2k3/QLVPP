@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("Employee")]
-    public class Employee : BaseEntity
+    public class Employee : AuditableEntity
     {
         [Required]
         [StringLength(100)]

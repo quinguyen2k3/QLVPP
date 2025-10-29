@@ -8,17 +8,19 @@ namespace QLVPP.Repositories.Implementations
     {
         private readonly AppDbContext _context;
 
-        public DepartmentRepository(AppDbContext context) : base(context)
+        public DepartmentRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }
 
         public async Task<List<Department>> GetAllIsActivated()
         {
-            return await _context.Departments
-                                .Where(c => c.IsActivated == true)
-                                .OrderByDescending(c => c.CreatedBy)
-                                .ToListAsync();
+            return await _context
+                .Departments.Where(c => c.IsActivated == true)
+                .OrderByDescending(c => c.CreatedBy)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

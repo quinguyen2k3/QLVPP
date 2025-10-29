@@ -110,7 +110,7 @@ namespace QLVPP.Services.Implementations
 
             if (status == RequisitionStatus.Approved)
             {
-                requisition.ApprovedDate = DateTime.UtcNow;
+                requisition.ApprovedDate = DateTime.Now;
                 requisition.ApprovedBy = _currentUserService.GetUserAccount();
             }
 

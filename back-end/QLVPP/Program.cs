@@ -10,28 +10,52 @@ using QLVPP.Repositories;
 using QLVPP.Repositories.Implementations;
 using QLVPP.Services;
 using QLVPP.Services.Implementations;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// ================== Config & Settings ==================
 var configuration = builder.Configuration;
 
-// JWT Settings
-var jwtSettings = configuration.GetSection("JwtSec");
-var keyString = jwtSettings["Key"] ?? throw new ArgumentNullException("JwtSettings:Key is missing");
-var key = Encoding.UTF8.GetBytes(keyString);
+// ================== Database Connection ==================
+var connectionString =
+    configuration.GetConnectionString("DefaultConnection")
+    ?? throw new ArgumentNullException("Connection string is missing in appsettings.json");
 
-// ================== Services ==================
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
-// --- DbContext ---
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-);
+// ================== Redis ==================
+var redisHost = configuration["Redis:Host"] ?? "localhost";
+var redisPort = configuration["Redis:Port"] ?? "6379";
+var redisPassword = configuration["Redis:Password"] ?? "";
 
-// --- Repositories / UnitOfWork ---
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configOptions = new ConfigurationOptions
+    {
+        EndPoints = { $"{redisHost}:{redisPort}" },
+        Password = redisPassword,
+        AbortOnConnectFail = false,
+    };
+    return ConnectionMultiplexer.Connect(configOptions);
+});
+
+// ================== JWT ==================
+var jwtKey =
+    configuration["Jwt:Key"]
+    ?? throw new ArgumentNullException("Jwt:Key is missing in appsettings.json");
+var jwtIssuer =
+    configuration["Jwt:Issuer"]
+    ?? throw new ArgumentNullException("Jwt:Issuer is missing in appsettings.json");
+var jwtAudience =
+    configuration["Jwt:Audience"]
+    ?? throw new ArgumentNullException("Jwt:Audience is missing in appsettings.json");
+
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+// ================== Routing ==================
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+// ================== Dependency Injection ==================
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// --- Application Services ---
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -48,14 +72,14 @@ builder.Services.AddScoped<IInvalidTokenService, InvalidTokenService>();
 builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IInventorySnapshotService, InventorySnapshotService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IOnlineUserService, OnlineUserService>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
-// --- AutoMapper ---
 builder.Services.AddAutoMapper(typeof(Program));
-
-// --- HTTP Context ---
 builder.Services.AddHttpContextAccessor();
 
-// --- JWT Authentication ---
+// ================== Authentication ==================
 builder
     .Services.AddAuthentication(options =>
     {
@@ -70,20 +94,20 @@ builder
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = key,
             ClockSkew = TimeSpan.Zero,
         };
     });
 
-// --- Rate Limiting ---
+// ================== Rate Limiting ==================
 builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-// --- Swagger ---
+// ================== Swagger ==================
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "QLVPP API", Version = "v1" });
@@ -113,13 +137,12 @@ builder.Services.AddSwaggerGen(c =>
                         Id = "Bearer",
                     },
                 },
-                new string[] { }
+                Array.Empty<string>()
             },
         }
     );
 });
 
-// --- Controllers ---
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -140,19 +163,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// --- Authentication & Authorization ---
 app.UseAuthentication();
 app.UseAuthorization();
-
-// --- Rate Limiting Middleware ---
 app.UseIpRateLimiting();
-
-// --- Custom Middlewares ---
 app.UseMiddleware<AccountAccessMiddleware>();
 app.UseMiddleware<RevokedTokenMiddleware>();
-
-// --- Map Controllers ---
 app.MapControllers();
 
 app.Run();

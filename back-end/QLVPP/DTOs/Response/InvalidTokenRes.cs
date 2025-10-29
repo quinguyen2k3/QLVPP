@@ -1,4 +1,6 @@
-﻿namespace QLVPP.DTOs.Response
+﻿using System.Text.Json.Serialization;
+
+namespace QLVPP.DTOs.Response
 {
     public class InvalidTokenRes
     {

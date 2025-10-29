@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace QLVPP.Models
 {
     [Table("Warehouse")]
-    public class Warehouse : BaseEntity
+    public class Warehouse : AuditableEntity
     {
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(200)]
+        [Column(TypeName = "nvarchar(max)")]
         public string? Note { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         public ICollection<Delivery> Deliveries { get; set; } = new List<Delivery>();

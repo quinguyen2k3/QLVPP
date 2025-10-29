@@ -8,30 +8,32 @@ namespace QLVPP.Repositories.Implementations
     {
         private readonly AppDbContext _context;
 
-        public EmployeeRepository(AppDbContext context) : base(context)
+        public EmployeeRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }
 
         public async Task<List<Employee>> GetAllIsActivated()
         {
-            return await _context.Employees
-                                .Where(e => e.IsActivated == true)
-                                .OrderByDescending(e => e.CreatedBy)
-                                .ToListAsync();
+            return await _context
+                .Employees.Where(e => e.IsActivated == true)
+                .OrderByDescending(e => e.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Employee?> GetByAccount(string account)
         {
-            return await _context.Employees
-                .FirstOrDefaultAsync(e => e.Account == account);
+            return await _context.Employees.FirstOrDefaultAsync(e => e.Account == account);
         }
 
         public override async Task<List<Employee>> GetAll()
         {
-            return await _context.Employees
-                .Include(e => e.Department)
-                .OrderByDescending(e => e.CreatedDate) 
+            return await _context
+                .Employees.Include(e => e.Department)
+                .OrderByDescending(e => e.CreatedDate)
+                .AsNoTracking()
                 .ToListAsync();
         }
     }

@@ -3,11 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class DeliveryDetail
+    public class DeliveryDetail : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public int Quantity { get; set; }
 
         [Required]
         public long DeliveryId { get; set; }
@@ -20,8 +18,5 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; } = null!;
-
-        [Required]
-        public int Quantity { get; set; }
     }
 }

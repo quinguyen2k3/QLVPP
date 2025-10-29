@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class InventorySnapshot : BaseEntity
+    public class InventorySnapshot : AuditableEntity
     {
         [Required]
         public DateOnly SnapshotDate { get; set; }

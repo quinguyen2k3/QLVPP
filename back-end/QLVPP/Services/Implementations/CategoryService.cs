@@ -10,29 +10,57 @@ namespace QLVPP.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cacheService;
 
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+        private const string CacheKey_GetAll = "categories:all";
+        private const string CacheKey_GetAllActivated = "categories:activated";
+
+        private string CacheKey_GetById(long id) => $"categories:{id}";
+
+        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cacheService = cacheService;
         }
 
         public async Task<List<CategoryRes>> GetAll()
         {
-            var categories = await _unitOfWork.Category.GetAll();
-            return _mapper.Map<List<CategoryRes>>(categories);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAll,
+                async () =>
+                {
+                    var categories = await _unitOfWork.Category.GetAll();
+                    return _mapper.Map<List<CategoryRes>>(categories);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<List<CategoryRes>> GetAllActivated()
         {
-            var categories = await _unitOfWork.Category.GetAllIsActivated();
-            return _mapper.Map<List<CategoryRes>>(categories);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetAllActivated,
+                async () =>
+                {
+                    var categories = await _unitOfWork.Category.GetAllIsActivated();
+                    return _mapper.Map<List<CategoryRes>>(categories);
+                },
+                TimeSpan.FromHours(1)
+            );
         }
 
         public async Task<CategoryRes?> GetById(long id)
         {
-            var category = await _unitOfWork.Category.GetById(id);
-            return category == null ? null : _mapper.Map<CategoryRes>(category);
+            return await _cacheService.GetOrSet(
+                CacheKey_GetById(id),
+                async () =>
+                {
+                    var category = await _unitOfWork.Category.GetById(id);
+                    return category == null ? null : _mapper.Map<CategoryRes>(category);
+                },
+                TimeSpan.FromMinutes(30)
+            );
         }
 
         public async Task<CategoryRes> Create(CategoryReq request)
@@ -41,6 +69,8 @@ namespace QLVPP.Services.Implementations
 
             await _unitOfWork.Category.Add(category);
             await _unitOfWork.SaveChanges();
+
+            await ClearCaches();
 
             return _mapper.Map<CategoryRes>(category);
         }
@@ -56,7 +86,20 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Category.Update(category);
             await _unitOfWork.SaveChanges();
 
+            await ClearCaches();
+
             return _mapper.Map<CategoryRes>(category);
+        }
+
+        private async Task ClearCaches(long? id = null)
+        {
+            await _cacheService.Remove(CacheKey_GetAll);
+            await _cacheService.Remove(CacheKey_GetAllActivated);
+
+            if (id.HasValue)
+            {
+                await _cacheService.Remove(CacheKey_GetById(id.Value));
+            }
         }
     }
 }

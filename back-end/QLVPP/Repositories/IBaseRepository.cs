@@ -7,5 +7,7 @@
         Task<T?> GetById(object id);
         Task Add(T entity);
         Task Update(T entity);
+        Task Delete(T entity);
+        Task<bool> ExistById(object id);
     }
 }

@@ -54,10 +54,8 @@ namespace QLVPP.Services.Implementations
             );
             var allProducts = await _unitOfWork.Product.GetByWarehouseId(warehouseId);
             var openingBalances =
-                prevSnapshot?.SnapshotDetails.ToDictionary(
-                    x => (long)x.ProductId,
-                    x => x.ClosingQty
-                ) ?? new Dictionary<long, int>();
+                prevSnapshot?.SnapshotDetails.ToDictionary(x => x.ProductId, x => x.ClosingQty)
+                ?? new Dictionary<long, int>();
 
             var snapshotDetails = new List<SnapshotDetail>();
             foreach (var product in allProducts)
@@ -77,9 +75,9 @@ namespace QLVPP.Services.Implementations
                     {
                         ProductId = productId,
                         OpeningQty = openingQty,
-                        TotalIn = (int)inQty,
-                        TotalOut = (int)outQty,
-                        ClosingQty = (int)closingQty,
+                        TotalIn = inQty,
+                        TotalOut = outQty,
+                        ClosingQty = closingQty,
                     }
                 );
             }

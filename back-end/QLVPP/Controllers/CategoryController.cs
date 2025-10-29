@@ -18,12 +18,25 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<List<CategoryRes>>>> GetCategories(
+            [FromQuery] bool? activated
+        )
         {
             try
             {
-                var categories = await _service.GetAll();
+                if (activated.HasValue && !activated.Value)
+                {
+                    return BadRequest(
+                        ApiResponse<string>.ErrorResponse(
+                            "Invalid query: activated cannot be false."
+                        )
+                    );
+                }
+
+                var categories =
+                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+
                 return Ok(
                     ApiResponse<List<CategoryRes>>.SuccessResponse(
                         categories,
@@ -37,26 +50,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("GetAllActivated")]
-        public async Task<ActionResult<List<CategoryRes>>> GetAllActivated()
-        {
-            try
-            {
-                var categories = await _service.GetAllActivated();
-                return Ok(
-                    ApiResponse<List<CategoryRes>>.SuccessResponse(
-                        categories,
-                        "Fetched categories successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpGet("GetById/{id:long}")]
+        [HttpGet("{id:long}")]
         public async Task<ActionResult<CategoryRes>> GetById(long id)
         {
             try
@@ -78,7 +72,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<CategoryRes>>> Create(
             [FromBody] CategoryReq request
         )
@@ -112,7 +106,7 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("Update/{id:long}")]
+        [HttpPut("{id:long}")]
         public async Task<ActionResult<CategoryRes>> Update(long id, [FromBody] CategoryReq request)
         {
             if (!ModelState.IsValid)

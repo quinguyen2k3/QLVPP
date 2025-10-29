@@ -21,6 +21,7 @@ namespace QLVPP.Repositories.Implementations
         public IDeliveryRepository Delivery { get; private set; }
         public IReturnRepository Return { get; private set; }
         public IInventorySnapshotRepository InventorySnapshot { get; private set; }
+        public IReportRepository Report { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -41,6 +42,7 @@ namespace QLVPP.Repositories.Implementations
             Delivery = new DeliveryRepository(context);
             Return = new ReturnRepository(context);
             InventorySnapshot = new InventorySnapshotRepository(context);
+            Report = new ReportRepository(context);
             _context = context;
         }
 

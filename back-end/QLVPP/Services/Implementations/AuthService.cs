@@ -51,6 +51,7 @@ namespace QLVPP.Services.Implementations
                 AccessToken = token,
                 IsActivated = true,
                 Authenticated = true,
+                UserId = employee.Id,
             };
         }
 

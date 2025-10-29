@@ -43,20 +43,20 @@ namespace QLVPP.Data
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<BaseEntity>();
+            var entries = ChangeTracker.Entries<AuditableEntity>();
 
             foreach (var entry in entries)
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedDate = DateTime.Now;
                     entry.Entity.CreatedBy = _currentUserService.GetUserAccount();
+                    entry.Entity.CreatedDate = DateTime.Now;
                     entry.Entity.IsActivated = true;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    entry.Entity.ModifiedDate = DateTime.Now;
                     entry.Entity.ModifiedBy = _currentUserService.GetUserAccount();
+                    entry.Entity.ModifiedDate = DateTime.Now;
                 }
             }
 
