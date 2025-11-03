@@ -11,9 +11,9 @@ namespace QLVPP.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IOnlineUserService _onlineUserService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
+        private readonly IOnlineUserService _onlineUserService;
 
         public AuthController(
             IAuthService authService,
@@ -24,8 +24,8 @@ namespace QLVPP.Controllers
         {
             _authService = authService;
             _jwtService = jwtService;
-            _onlineUserService = onlineUserService;
             _currentUserService = currentUserService;
+            _onlineUserService = onlineUserService;
         }
 
         [HttpPost("login")]
@@ -56,7 +56,6 @@ namespace QLVPP.Controllers
                     }
                     return Unauthorized(ApiResponse<AuthRes>.ErrorResponse("Unauthenticated"));
                 }
-                await _onlineUserService.AddUser(result.UserId.ToString());
                 return Ok(ApiResponse<AuthRes>.SuccessResponse(result, "Login successful"));
             }
             catch (Exception ex)
@@ -91,7 +90,6 @@ namespace QLVPP.Controllers
             try
             {
                 var userId = _currentUserService.GetUserId();
-                await _onlineUserService.RemoveUser(userId.ToString());
 
                 await _authService.LogoutAsync(request, Request, Response);
                 return Ok(ApiResponse<string>.SuccessResponse(string.Empty, "Logout successful."));

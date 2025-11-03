@@ -6,7 +6,7 @@ namespace QLVPP.Repositories
     {
         Task Add(Inventory entity);
         Task Update(Inventory entity);
-        Task Delete (Inventory entity);
+        Task Delete(Inventory entity);
         Task<Inventory?> GetByKey(long warehouseId, long productId);
         Task<Inventory?> GetByProductId(long productId);
     }

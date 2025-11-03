@@ -18,7 +18,7 @@ namespace QLVPP.Repositories.Implementations
         {
             return await _context
                 .Departments.Where(c => c.IsActivated == true)
-                .OrderByDescending(c => c.CreatedBy)
+                .OrderByDescending(c => c.CreatedDate)
                 .AsNoTracking()
                 .ToListAsync();
         }

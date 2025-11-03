@@ -30,7 +30,8 @@ namespace QLVPP.Repositories.Implementations
             long longId = Convert.ToInt64(id);
 
             return await _context
-                .InventorySnapshots.Include(s => s.SnapshotDetails)
+                .InventorySnapshots.Include(s => s.Warehouse)
+                .Include(s => s.SnapshotDetails)
                 .ThenInclude(sd => sd.Product)
                 .FirstOrDefaultAsync(s => s.Id == longId);
         }

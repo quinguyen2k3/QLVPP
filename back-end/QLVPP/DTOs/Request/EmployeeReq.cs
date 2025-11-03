@@ -29,10 +29,10 @@ namespace QLVPP.DTOs.Request
         )]
         public string Account { get; set; } = string.Empty;
 
-        [StringLength(
-            100,
-            MinimumLength = 6,
-            ErrorMessage = "Password must be between 6 and 100 characters"
+        [Required(ErrorMessage = "The Password field is required.")]
+        [RegularExpression(
+            "^.{8,}$",
+            ErrorMessage = "Password must be at least 8 characters long."
         )]
         public string? Password { get; set; }
 

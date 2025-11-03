@@ -14,16 +14,19 @@ namespace QLVPP.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtService _jwtService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IOnlineUserService _onlineUserService;
 
         public AuthService(
             IUnitOfWork unitOfWork,
             IJwtService jwtService,
-            ICurrentUserService currentUserService
+            ICurrentUserService currentUserService,
+            IOnlineUserService onlineUserService
         )
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
             _currentUserService = currentUserService;
+            _onlineUserService = onlineUserService;
         }
 
         public async Task<AuthRes> AuthenticateAsync(AuthReq request, HttpResponse httpResponse)
@@ -46,12 +49,13 @@ namespace QLVPP.Services.Implementations
 
             var token = await _jwtService.GenerateAccessTokenAsync(employee, httpResponse);
 
+            await _onlineUserService.AddUser(employee.Id.ToString());
+
             return new AuthRes
             {
                 AccessToken = token,
                 IsActivated = true,
                 Authenticated = true,
-                UserId = employee.Id,
             };
         }
 
@@ -63,6 +67,7 @@ namespace QLVPP.Services.Implementations
         {
             if (request == null)
                 throw new Exception("Request is invalid");
+            await _onlineUserService.AddUser(_currentUserService.GetUserId().ToString());
             await _jwtService.RevokeTokenAsync(request.AccessToken, httpRequest, httpResponse);
         }
 
