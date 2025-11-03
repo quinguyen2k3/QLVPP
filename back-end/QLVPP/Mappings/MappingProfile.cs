@@ -117,7 +117,11 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
 
             CreateMap<InventorySnapshot, InventorySnapshotRes>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.SnapshotDetails));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.SnapshotDetails))
+                .ForMember(
+                    dest => dest.WarehouseName,
+                    opt => opt.MapFrom(src => src.Warehouse.Name)
+                );
             CreateMap<SnapshotDetail, InventorySnapshotItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
         }

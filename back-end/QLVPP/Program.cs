@@ -74,6 +74,7 @@ builder.Services.AddScoped<IReturnService, ReturnService>();
 builder.Services.AddScoped<IInventorySnapshotService, InventorySnapshotService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IOnlineUserService, OnlineUserService>();
+
 builder.Services.AddSingleton<ICacheService, CacheService>();
 
 builder.Services.AddAutoMapper(typeof(Program));
