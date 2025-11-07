@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QLVPP.Constants;
+using QLVPP.Constants.Status;
 using QLVPP.Data;
 using QLVPP.DTOs.Projection;
 using QLVPP.Models;
@@ -12,10 +12,10 @@ namespace QLVPP.Repositories.Implementations
     {
         private readonly AppDbContext _context = context;
 
-        public async Task<List<Delivery>> GetAllIsActivated()
+        public async Task<List<Delivery>> GetByWarehouseId(long id)
         {
             return await _context
-                .Deliveries.Where(d => d.IsActivated == true)
+                .Deliveries.Where(d => d.WarehouseId == id)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }

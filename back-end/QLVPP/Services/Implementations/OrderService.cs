@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using QLVPP.Constants;
+using QLVPP.Constants.Status;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Models;
@@ -66,15 +66,10 @@ namespace QLVPP.Services.Implementations
             return response;
         }
 
-        public async Task<List<OrderRes>> GetAll()
+        public async Task<List<OrderRes>> GetByWarehouse()
         {
-            var requisitions = await _unitOfWork.Order.GetAll();
-            return _mapper.Map<List<OrderRes>>(requisitions);
-        }
-
-        public async Task<List<OrderRes>> GetAllActivated()
-        {
-            var requisitions = await _unitOfWork.Order.GetAllIsActivated();
+            var warehouseId = _currentUserService.GetWarehouseId();
+            var requisitions = await _unitOfWork.Order.GetByWarehouseId(warehouseId);
             return _mapper.Map<List<OrderRes>>(requisitions);
         }
 
@@ -152,9 +147,8 @@ namespace QLVPP.Services.Implementations
 
             DateOnly snapshotDate = (DateOnly)
                 await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
-            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 
-            if (today <= snapshotDate)
+            if (order.OrderDate <= snapshotDate)
             {
                 throw new InvalidOperationException(
                     $"Cannot cancel the order because the inventory has been finalized for this period."

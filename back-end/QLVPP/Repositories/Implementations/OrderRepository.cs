@@ -14,19 +14,19 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<Order>> GetAllIsActivated()
+        public async Task<List<Order>> GetByCreator(string creator)
         {
             return await _context
-                .Orders.Where(o => o.IsActivated == true)
+                .Orders.Where(o => o.CreatedBy == creator)
                 .OrderByDescending(o => o.CreatedDate)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<List<Order>> GetByCreator(string creator)
+        public async Task<List<Order>> GetByWarehouseId(long id)
         {
             return await _context
-                .Orders.Where(o => o.CreatedBy == creator)
+                .Orders.Where(o => o.WarehouseId == id)
                 .OrderByDescending(o => o.CreatedDate)
                 .AsNoTracking()
                 .ToListAsync();

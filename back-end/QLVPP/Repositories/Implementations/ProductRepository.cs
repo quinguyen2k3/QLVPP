@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QLVPP.Constants;
+using QLVPP.Constants.Status;
 using QLVPP.Data;
 using QLVPP.DTOs.Projection;
-using QLVPP.DTOs.Response;
 using QLVPP.Models;
 
 namespace QLVPP.Repositories.Implementations
@@ -84,7 +83,7 @@ namespace QLVPP.Repositories.Implementations
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.Name,
-                    Quantity = g.Sum(x => x.Quantity),
+                    Quantity = g.Sum(x => x.Received),
                 });
             return query.AsNoTracking().ToListAsync();
         }
