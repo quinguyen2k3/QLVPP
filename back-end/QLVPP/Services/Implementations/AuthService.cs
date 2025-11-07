@@ -67,7 +67,7 @@ namespace QLVPP.Services.Implementations
         {
             if (request == null)
                 throw new Exception("Request is invalid");
-            await _onlineUserService.AddUser(_currentUserService.GetUserId().ToString());
+            await _onlineUserService.RemoveUser(_currentUserService.GetUserId().ToString());
             await _jwtService.RevokeTokenAsync(request.AccessToken, httpRequest, httpResponse);
         }
 
