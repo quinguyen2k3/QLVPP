@@ -10,7 +10,7 @@ namespace QLVPP.Models
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [Column(TypeName = "nvarchar(max)")] 
+        [Column(TypeName = "nvarchar(max)")]
         public string? Note { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public string? ApprovedBy { get; set; }
