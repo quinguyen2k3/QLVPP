@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using QLVPP.Constants;
+using QLVPP.Constants.Status;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Models;
@@ -44,15 +44,10 @@ namespace QLVPP.Services.Implementations
             return response;
         }
 
-        public async Task<List<DeliveryRes>> GetAll()
+        public async Task<List<DeliveryRes>> GetByWarehouse()
         {
-            var deliveries = await _unitOfWork.Delivery.GetAll();
-            return _mapper.Map<List<DeliveryRes>>(deliveries);
-        }
-
-        public async Task<List<DeliveryRes>> GetAllActivated()
-        {
-            var deliveries = await _unitOfWork.Delivery.GetAllIsActivated();
+            var warehouseId = _currentUserService.GetWarehouseId();
+            var deliveries = await _unitOfWork.Delivery.GetByWarehouseId(warehouseId);
             return _mapper.Map<List<DeliveryRes>>(deliveries);
         }
 

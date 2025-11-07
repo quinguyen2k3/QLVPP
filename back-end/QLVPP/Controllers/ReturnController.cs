@@ -19,21 +19,11 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ReturnRes>>> GetReturns([FromQuery] bool? activated)
+        public async Task<ActionResult<List<ReturnRes>>> GetReturns()
         {
             try
             {
-                if (activated.HasValue && !activated.Value)
-                {
-                    return BadRequest(
-                        ApiResponse<string>.ErrorResponse(
-                            "Invalid query: activated cannot be false."
-                        )
-                    );
-                }
-
-                var returnNotes =
-                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+                var returnNotes = await _service.GetByWarehouse();
 
                 return Ok(
                     ApiResponse<List<ReturnRes>>.SuccessResponse(

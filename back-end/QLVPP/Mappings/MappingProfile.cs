@@ -77,6 +77,7 @@ namespace QLVPP.Mappings
             CreateMap<InvalidToken, InvalidTokenRes>();
 
             CreateMap<DeliveryReq, Delivery>()
+                .ForMember(dest => dest.Status, otp => otp.Ignore())
                 .ForMember(dest => dest.DeliveryDetails, opt => opt.MapFrom(src => src.Items));
             CreateMap<DeliveryItemReq, DeliveryDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

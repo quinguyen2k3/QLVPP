@@ -19,21 +19,11 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<OrderRes>>> GetOrders([FromQuery] bool? activated)
+        public async Task<ActionResult<List<OrderRes>>> GetOrders()
         {
             try
             {
-                if (activated.HasValue && !activated.Value)
-                {
-                    return BadRequest(
-                        ApiResponse<string>.ErrorResponse(
-                            "Invalid query: activated cannot be false."
-                        )
-                    );
-                }
-
-                var orders =
-                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+                var orders = await _service.GetByWarehouse();
 
                 return Ok(
                     ApiResponse<List<OrderRes>>.SuccessResponse(

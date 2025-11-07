@@ -19,23 +19,11 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DeliveryRes>>> GetDeliveries(
-            [FromQuery] bool? activated
-        )
+        public async Task<ActionResult<List<DeliveryRes>>> GetDeliveries()
         {
             try
             {
-                if (activated.HasValue && !activated.Value)
-                {
-                    return BadRequest(
-                        ApiResponse<string>.ErrorResponse(
-                            "Invalid query: activated cannot be false."
-                        )
-                    );
-                }
-
-                var deliveries =
-                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+                var deliveries = await _service.GetByWarehouse();
 
                 return Ok(
                     ApiResponse<List<DeliveryRes>>.SuccessResponse(

@@ -1,4 +1,4 @@
-﻿namespace QLVPP.Constants
+﻿namespace QLVPP.Constants.Status
 {
     public class DeliveryStatus
     {
