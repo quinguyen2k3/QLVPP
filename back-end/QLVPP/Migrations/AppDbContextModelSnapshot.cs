@@ -59,78 +59,6 @@ namespace QLVPP.Migrations
                     b.ToTable("Category");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Delivery", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("DeliveryDate")
-                        .HasColumnType("date");
-
-                    b.Property<long>("DepartmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsActivated")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("WarehouseId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("Delivery");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.DeliveryDetail", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("DeliveryId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("DeliveryDetails");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Department", b =>
                 {
                     b.Property<long>("Id")
@@ -317,90 +245,6 @@ namespace QLVPP.Migrations
                     b.ToTable("InventorySnapshots");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Order", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateOnly?>("ActualDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("ExpectedDate")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsActivated")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateOnly>("OrderDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("SupplierId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("WarehouseId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SupplierId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.OrderDetail", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("OrderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Received")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UnitPrice")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderDetail");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Product", b =>
                 {
                     b.Property<long>("Id")
@@ -515,9 +359,6 @@ namespace QLVPP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ApprovedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("ApprovedDate")
                         .HasColumnType("datetime2");
 
@@ -528,7 +369,7 @@ namespace QLVPP.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("EmployeeId")
+                    b.Property<long>("CurrentApproverId")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsActivated")
@@ -540,21 +381,27 @@ namespace QLVPP.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Note")
+                    b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("OriginalApproverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RequesterId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("CurrentApproverId");
+
+                    b.HasIndex("OriginalApproverId");
+
+                    b.HasIndex("RequesterId");
 
                     b.ToTable("Requisitions");
                 });
@@ -710,6 +557,184 @@ namespace QLVPP.Migrations
                     b.ToTable("SnapshotDetails");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.StockIn", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ApproverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("RequesterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StockInDate")
+                        .HasColumnType("date");
+
+                    b.Property<long>("SupplierId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("RequesterId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("StockIn");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockInDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<long>("StockInId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UnitPrice")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("StockInId");
+
+                    b.ToTable("StockInDetail");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockOut", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ApproverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("DeliveryDate")
+                        .HasColumnType("date");
+
+                    b.Property<long>("DepartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ReceiverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("RequesterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("WarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RequesterId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("StockOut");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockOutDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("StockOutDetail");
+                });
+
             modelBuilder.Entity("QLVPP.Models.Supplier", b =>
                 {
                     b.Property<long>("Id")
@@ -754,6 +779,100 @@ namespace QLVPP.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Supplier");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.Transfer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ApproveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ApproverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("FromWarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ReceiverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("RequesterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<long>("ToWarehouseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("TransferredDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("FromWarehouseId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RequesterId");
+
+                    b.HasIndex("ToWarehouseId");
+
+                    b.ToTable("Transfers");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.TransferDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TransferId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TransferId");
+
+                    b.ToTable("TransferDetails");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Unit", b =>
@@ -830,44 +949,6 @@ namespace QLVPP.Migrations
                     b.ToTable("Warehouse");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Delivery", b =>
-                {
-                    b.HasOne("QLVPP.Models.Department", "Department")
-                        .WithMany("Deliveries")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Deliveries")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-
-                    b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.DeliveryDetail", b =>
-                {
-                    b.HasOne("QLVPP.Models.Delivery", "Delivery")
-                        .WithMany("DeliveryDetails")
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Product", "Product")
-                        .WithMany("DeliveryDetails")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Delivery");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Employee", b =>
                 {
                     b.HasOne("QLVPP.Models.Department", "Department")
@@ -913,44 +994,6 @@ namespace QLVPP.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Order", b =>
-                {
-                    b.HasOne("QLVPP.Models.Supplier", "Supplier")
-                        .WithMany("Orders")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
-                        .WithMany("Orders")
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-
-                    b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.OrderDetail", b =>
-                {
-                    b.HasOne("QLVPP.Models.Order", "Order")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QLVPP.Models.Product", "Product")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Product", b =>
                 {
                     b.HasOne("QLVPP.Models.Category", "Category")
@@ -981,13 +1024,29 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Requisition", b =>
                 {
-                    b.HasOne("QLVPP.Models.Employee", "Employee")
-                        .WithMany("Requisitions")
-                        .HasForeignKey("EmployeeId")
+                    b.HasOne("QLVPP.Models.Employee", "CurrentApprover")
+                        .WithMany("RequisitionsToCurrentlyApprove")
+                        .HasForeignKey("CurrentApproverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Employee");
+                    b.HasOne("QLVPP.Models.Employee", "OriginalApprover")
+                        .WithMany("RequisitionsToOriginallyApprove")
+                        .HasForeignKey("OriginalApproverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Employee", "Requester")
+                        .WithMany("RequisitionsCreated")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CurrentApprover");
+
+                    b.Navigation("OriginalApprover");
+
+                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("QLVPP.Models.RequisitionDetail", b =>
@@ -1011,7 +1070,7 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Return", b =>
                 {
-                    b.HasOne("QLVPP.Models.Delivery", "Delivery")
+                    b.HasOne("QLVPP.Models.StockOut", "Delivery")
                         .WithMany("Returns")
                         .HasForeignKey("DeliveryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1074,16 +1133,179 @@ namespace QLVPP.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.StockIn", b =>
+                {
+                    b.HasOne("QLVPP.Models.Employee", "Approver")
+                        .WithMany("StockInsApproved")
+                        .HasForeignKey("ApproverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Employee", "Requester")
+                        .WithMany("StockInsRequested")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Supplier", "Supplier")
+                        .WithMany("Orders")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
+                        .WithMany("Orders")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("Supplier");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockInDetail", b =>
+                {
+                    b.HasOne("QLVPP.Models.Product", "Product")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.StockIn", "StockIn")
+                        .WithMany("StockInDetails")
+                        .HasForeignKey("StockInId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("StockIn");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockOut", b =>
+                {
+                    b.HasOne("QLVPP.Models.Employee", "Approver")
+                        .WithMany("DeliveriesApproved")
+                        .HasForeignKey("ApproverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Department", "Department")
+                        .WithMany("Deliveries")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Employee", "Receiver")
+                        .WithMany("DeliveriesReceived")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Employee", "Requester")
+                        .WithMany("DeliveriesRequested")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
+                        .WithMany("Deliveries")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockOutDetail", b =>
+                {
+                    b.HasOne("QLVPP.Models.StockOut", "Delivery")
+                        .WithMany("StockOutDetails")
+                        .HasForeignKey("DeliveryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Product", "Product")
+                        .WithMany("StockOutDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Delivery");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.Transfer", b =>
+                {
+                    b.HasOne("QLVPP.Models.Employee", "Approver")
+                        .WithMany("TransfersApproved")
+                        .HasForeignKey("ApproverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Warehouse", "FromWarehouse")
+                        .WithMany("TransfersFrom")
+                        .HasForeignKey("FromWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Employee", "Receiver")
+                        .WithMany("TransfersReceived")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Employee", "Requester")
+                        .WithMany("TransfersRequested")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Warehouse", "ToWarehouse")
+                        .WithMany("TransfersTo")
+                        .HasForeignKey("ToWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("FromWarehouse");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("ToWarehouse");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.TransferDetail", b =>
+                {
+                    b.HasOne("QLVPP.Models.Product", "Product")
+                        .WithMany("TransferDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLVPP.Models.Transfer", "Transfer")
+                        .WithMany("TransferDetail")
+                        .HasForeignKey("TransferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Transfer");
+                });
+
             modelBuilder.Entity("QLVPP.Models.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.Delivery", b =>
-                {
-                    b.Navigation("DeliveryDetails");
-
-                    b.Navigation("Returns");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Department", b =>
@@ -1097,9 +1319,29 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Employee", b =>
                 {
+                    b.Navigation("DeliveriesApproved");
+
+                    b.Navigation("DeliveriesReceived");
+
+                    b.Navigation("DeliveriesRequested");
+
                     b.Navigation("RefreshTokens");
 
-                    b.Navigation("Requisitions");
+                    b.Navigation("RequisitionsCreated");
+
+                    b.Navigation("RequisitionsToCurrentlyApprove");
+
+                    b.Navigation("RequisitionsToOriginallyApprove");
+
+                    b.Navigation("StockInsApproved");
+
+                    b.Navigation("StockInsRequested");
+
+                    b.Navigation("TransfersApproved");
+
+                    b.Navigation("TransfersReceived");
+
+                    b.Navigation("TransfersRequested");
                 });
 
             modelBuilder.Entity("QLVPP.Models.InventorySnapshot", b =>
@@ -1107,15 +1349,8 @@ namespace QLVPP.Migrations
                     b.Navigation("SnapshotDetails");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.Order", b =>
-                {
-                    b.Navigation("OrderDetails");
-                });
-
             modelBuilder.Entity("QLVPP.Models.Product", b =>
                 {
-                    b.Navigation("DeliveryDetails");
-
                     b.Navigation("Inventory")
                         .IsRequired();
 
@@ -1126,6 +1361,10 @@ namespace QLVPP.Migrations
                     b.Navigation("ReturnDetails");
 
                     b.Navigation("SnapshotDetails");
+
+                    b.Navigation("StockOutDetails");
+
+                    b.Navigation("TransferDetails");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Requisition", b =>
@@ -1138,9 +1377,26 @@ namespace QLVPP.Migrations
                     b.Navigation("ReturnDetails");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.StockIn", b =>
+                {
+                    b.Navigation("StockInDetails");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.StockOut", b =>
+                {
+                    b.Navigation("Returns");
+
+                    b.Navigation("StockOutDetails");
+                });
+
             modelBuilder.Entity("QLVPP.Models.Supplier", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.Transfer", b =>
+                {
+                    b.Navigation("TransferDetail");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Unit", b =>
@@ -1161,6 +1417,10 @@ namespace QLVPP.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Returns");
+
+                    b.Navigation("TransfersFrom");
+
+                    b.Navigation("TransfersTo");
                 });
 #pragma warning restore 612, 618
         }

@@ -32,7 +32,28 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(DepartmentId))]
         public Department Department { get; set; } = null!;
-        public ICollection<Requisition> Requisitions { get; set; } = new List<Requisition>();
+
+        [InverseProperty("Requester")]
+        public ICollection<Requisition> RequisitionsCreated { get; set; } = new List<Requisition>();
+
+        [InverseProperty("OriginalApprover")]
+        public ICollection<Requisition> RequisitionsToOriginallyApprove { get; set; } =
+            new List<Requisition>();
+
+        [InverseProperty("CurrentApprover")]
+        public ICollection<Requisition> RequisitionsToCurrentlyApprove { get; set; } =
+            new List<Requisition>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+        public ICollection<StockOut> DeliveriesRequested { get; set; } = new List<StockOut>();
+        public ICollection<StockOut> DeliveriesApproved { get; set; } = new List<StockOut>();
+        public ICollection<StockOut> DeliveriesReceived { get; set; } = new List<StockOut>();
+
+        public ICollection<Transfer> TransfersRequested { get; set; } = new List<Transfer>();
+        public ICollection<Transfer> TransfersApproved { get; set; } = new List<Transfer>();
+        public ICollection<Transfer> TransfersReceived { get; set; } = new List<Transfer>();
+
+        public ICollection<StockIn> StockInsRequested { get; set; } = new List<StockIn>();
+        public ICollection<StockIn> StockInsApproved { get; set; } = new List<StockIn>();
     }
 }

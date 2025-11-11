@@ -22,13 +22,14 @@ namespace QLVPP.Extensions
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IRequisitionService, RequisitionService>();
             services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IStockInService, StockInService>();
             services.AddScoped<IInvalidTokenService, InvalidTokenService>();
-            services.AddScoped<IDeliveryService, DeliveryService>();
+            services.AddScoped<IStockOutService, StockOutService>();
             services.AddScoped<IReturnService, ReturnService>();
             services.AddScoped<IInventorySnapshotService, InventorySnapshotService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IOnlineUserService, OnlineUserService>();
+            services.AddScoped<ITransferService, TransferService>();
 
             services.AddSingleton<ICacheService, CacheService>();
 

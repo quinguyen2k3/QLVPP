@@ -25,7 +25,7 @@ namespace QLVPP.Repositories.Implementations
                 join delivery in _context.Deliveries on detail.DeliveryId equals delivery.Id
                 where
                     delivery.WarehouseId == warehouseId
-                    && delivery.Status == DeliveryStatus.Complete
+                    && delivery.Status == StockOutStatus.Approved
                     && delivery.DeliveryDate >= startDate
                     && delivery.DeliveryDate <= endDate
                 select new TransactionItemProj

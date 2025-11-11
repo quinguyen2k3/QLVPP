@@ -33,13 +33,25 @@ namespace QLVPP.Mappings
             CreateMap<WarehouseReq, Warehouse>();
 
             CreateMap<RequisitionReq, Requisition>()
+                .ForMember(
+                    dest => dest.CurrentApproverId,
+                    opt => opt.MapFrom(src => src.ApproverId)
+                )
+                .ForMember(
+                    dest => dest.OriginalApproverId,
+                    opt => opt.MapFrom(src => src.ApproverId)
+                )
                 .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items));
             CreateMap<RequisitionItemReq, RequisitionDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
             CreateMap<Requisition, RequisitionRes>()
-                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.Name))
+                .ForMember(
+                    dest => dest.ApprovedBy,
+                    opt => opt.MapFrom(src => src.CurrentApprover.Name)
+                )
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Requester.Name))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails));
             CreateMap<RequisitionDetail, RequisitionItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
@@ -58,33 +70,31 @@ namespace QLVPP.Mappings
                 );
             CreateMap<ProductReq, Product>();
 
-            CreateMap<OrderReq, Order>()
-                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.Items))
+            CreateMap<StockInReq, StockIn>()
+                .ForMember(dest => dest.StockInDetails, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
-            CreateMap<OrderItemReq, OrderDetail>()
+            CreateMap<StockInItemReq, StockInDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
-                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
-                .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice));
 
-            CreateMap<Order, OrderRes>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderDetails));
-            CreateMap<OrderDetail, OrderItemRes>()
+            CreateMap<StockIn, StockInRes>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.StockInDetails));
+            CreateMap<StockInDetail, StockInItemRes>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
-                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
-                .ForMember(dest => dest.Received, opt => opt.MapFrom(src => src.Received));
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice));
 
             CreateMap<InvalidToken, InvalidTokenRes>();
 
-            CreateMap<DeliveryReq, Delivery>()
+            CreateMap<StockOutReq, StockOut>()
                 .ForMember(dest => dest.Status, otp => otp.Ignore())
-                .ForMember(dest => dest.DeliveryDetails, opt => opt.MapFrom(src => src.Items));
-            CreateMap<DeliveryItemReq, DeliveryDetail>()
+                .ForMember(dest => dest.StockOutDetails, opt => opt.MapFrom(src => src.Items));
+            CreateMap<StockOutReqItem, StockOutDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
-            CreateMap<Delivery, DeliveryRes>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.DeliveryDetails));
-            CreateMap<DeliveryDetail, DeliveryItemRes>()
+            CreateMap<StockOut, StockOutRes>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.StockOutDetails));
+            CreateMap<StockOutDetail, StockOutResItem>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Product.Unit.Name))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity));
@@ -125,6 +135,15 @@ namespace QLVPP.Mappings
                 );
             CreateMap<SnapshotDetail, InventorySnapshotItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+
+            CreateMap<TransferReq, Transfer>()
+                .ForMember(dest => dest.Status, otp => otp.Ignore())
+                .ForMember(dest => dest.TransferDetail, opt => opt.MapFrom(src => src.Items));
+            CreateMap<TransferReqDetail, StockOutDetail>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<Transfer, TransferRes>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.TransferDetail));
+            CreateMap<TransferDetail, TransferResDetail>();
         }
     }
 }

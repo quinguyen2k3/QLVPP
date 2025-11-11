@@ -32,14 +32,16 @@ namespace QLVPP.Models
 
         [ForeignKey(nameof(CategoryId))]
         public Category Category { get; set; } = null!;
-        public ICollection<DeliveryDetail> DeliveryDetails { get; set; } =
-            new List<DeliveryDetail>();
-        public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public ICollection<StockOutDetail> StockOutDetails { get; set; } =
+            new List<StockOutDetail>();
+        public ICollection<StockInDetail> OrderDetails { get; set; } = new List<StockInDetail>();
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
         public ICollection<SnapshotDetail> SnapshotDetails { get; set; } =
             new List<SnapshotDetail>();
         public ICollection<ReturnDetail> ReturnDetails { get; set; } = new List<ReturnDetail>();
+        public ICollection<TransferDetail> TransferDetails { get; set; } =
+            new List<TransferDetail>();
         public Inventory Inventory { get; set; } = null!;
     }
 }

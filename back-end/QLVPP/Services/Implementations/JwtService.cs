@@ -34,6 +34,7 @@ namespace QLVPP.Services.Implementations
                 new Claim("name", employee.Name ?? ""),
                 new Claim("account", employee.Account ?? ""),
                 new Claim("warehouseId", employee.WarehouseId.ToString() ?? ""),
+                new Claim("departmentId", employee.DepartmentId.ToString() ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 

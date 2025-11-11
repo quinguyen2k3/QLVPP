@@ -16,12 +16,13 @@ namespace QLVPP.Repositories.Implementations
         public IWarehouseRepository Warehouse { get; private set; }
         public IRequisitionRepository Requisition { get; private set; }
         public IProductRepository Product { get; private set; }
-        public IOrderRepository Order { get; private set; }
+        public IStockInRepository StockIn { get; private set; }
         public IInventoryRepository Inventory { get; private set; }
-        public IDeliveryRepository Delivery { get; private set; }
+        public IStockOutRepository StockOut { get; private set; }
         public IReturnRepository Return { get; private set; }
         public IInventorySnapshotRepository InventorySnapshot { get; private set; }
         public IReportRepository Report { get; private set; }
+        public ITransferRepository Transfer { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -37,12 +38,13 @@ namespace QLVPP.Repositories.Implementations
             Warehouse = new WarehouseRepository(context);
             Requisition = new RequisitionRepository(context);
             Product = new ProductRepository(context);
-            Order = new OrderRepository(context);
+            StockIn = new StockInRepository(context);
             Inventory = new InventoryRepository(context);
-            Delivery = new DeliveryRepository(context);
+            StockOut = new StockOutRepository(context);
             Return = new ReturnRepository(context);
             InventorySnapshot = new InventorySnapshotRepository(context);
             Report = new ReportRepository(context);
+            Transfer = new TransferRepository(context);
             _context = context;
         }
 

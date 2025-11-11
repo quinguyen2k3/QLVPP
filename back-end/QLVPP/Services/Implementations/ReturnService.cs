@@ -47,7 +47,7 @@ namespace QLVPP.Services.Implementations
                 );
             }
 
-            var delivery = await _unitOfWork.Delivery.GetById(request.DeliveryId);
+            var delivery = await _unitOfWork.StockOut.GetById(request.DeliveryId);
             if (delivery == null)
             {
                 throw new InvalidOperationException(
@@ -57,7 +57,7 @@ namespace QLVPP.Services.Implementations
 
             foreach (var detailReq in request.Items)
             {
-                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                var deliveryDetail = delivery.StockOutDetails.FirstOrDefault(d =>
                     d.ProductId == detailReq.ProductId
                 );
 
@@ -111,7 +111,7 @@ namespace QLVPP.Services.Implementations
             if (returnNote.Status != ReturnStatus.Pending)
                 throw new InvalidOperationException("Only pending return notes can be updated.");
 
-            var delivery = await _unitOfWork.Delivery.GetById(request.DeliveryId);
+            var delivery = await _unitOfWork.StockOut.GetById(request.DeliveryId);
             if (delivery == null)
                 throw new InvalidOperationException(
                     $"Delivery with Id {request.DeliveryId} not found."
@@ -119,7 +119,7 @@ namespace QLVPP.Services.Implementations
 
             foreach (var item in request.Items)
             {
-                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                var deliveryDetail = delivery.StockOutDetails.FirstOrDefault(d =>
                     d.ProductId == item.ProductId
                 );
                 if (deliveryDetail == null)
@@ -167,14 +167,14 @@ namespace QLVPP.Services.Implementations
             if (returnNote.Status != ReturnStatus.Pending)
                 throw new InvalidOperationException("Only pending return notes can be completed.");
 
-            var delivery = await _unitOfWork.Delivery.GetById(returnNote.DeliveryId);
+            var delivery = await _unitOfWork.StockOut.GetById(returnNote.DeliveryId);
             if (delivery == null)
                 throw new InvalidOperationException(
                     $"Delivery #{returnNote.DeliveryId} not found."
                 );
             foreach (var detail in returnNote.ReturnDetails)
             {
-                var deliveryDetail = delivery.DeliveryDetails.FirstOrDefault(d =>
+                var deliveryDetail = delivery.StockOutDetails.FirstOrDefault(d =>
                     d.Id == detail.ProductId
                 );
                 if (deliveryDetail == null)
@@ -231,10 +231,10 @@ namespace QLVPP.Services.Implementations
 
             switch (returnNote.Status)
             {
-                case OrderStatus.Pending:
+                case StockInStatus.Pending:
                     break;
 
-                case OrderStatus.Complete:
+                case StockInStatus.Approve:
                     var returnDetails = returnNote.ReturnDetails;
                     if (returnDetails == null || !returnDetails.Any())
                     {

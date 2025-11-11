@@ -18,24 +18,12 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<RequisitionRes>>> GetRequisitions(
-            [FromQuery] bool? activated
-        )
+        [HttpGet("pending-approval")]
+        public async Task<ActionResult<List<RequisitionRes>>> GetRequisitionsPendingApproval()
         {
             try
             {
-                if (activated.HasValue && !activated.Value)
-                {
-                    return BadRequest(
-                        ApiResponse<string>.ErrorResponse(
-                            "Invalid query: activated cannot be false."
-                        )
-                    );
-                }
-
-                var requisitions =
-                    activated == true ? await _service.GetAllActivated() : await _service.GetAll();
+                var requisitions = await _service.GetPendingForMyApproval();
 
                 return Ok(
                     ApiResponse<List<RequisitionRes>>.SuccessResponse(
@@ -148,6 +136,41 @@ namespace QLVPP.Controllers
                     ApiResponse<RequisitionRes>.SuccessResponse(
                         updated,
                         "Updated requisition successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPut("forward/{id:long}")]
+        public async Task<ActionResult<RequisitionRes>> Forward(
+            long id,
+            [FromBody] ForwardReq request
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+
+            try
+            {
+                var updated = await _service.Forward(id, request);
+                if (updated == null)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
+
+                return Ok(
+                    ApiResponse<RequisitionRes>.SuccessResponse(
+                        updated,
+                        "Forward requisition successfully"
                     )
                 );
             }
