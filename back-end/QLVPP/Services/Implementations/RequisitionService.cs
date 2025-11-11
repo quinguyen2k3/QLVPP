@@ -28,6 +28,7 @@ namespace QLVPP.Services.Implementations
         {
             var requisition = _mapper.Map<Requisition>(request);
             requisition.Status = RequisitionStatus.Pending;
+            requisition.RequesterId = _currentUserService.GetUserId();
 
             await _unitOfWork.Requisition.Add(requisition);
             await _unitOfWork.SaveChanges();
@@ -59,15 +60,10 @@ namespace QLVPP.Services.Implementations
             return true;
         }
 
-        public async Task<List<RequisitionRes>> GetAll()
+        public async Task<List<RequisitionRes>> GetPendingForMyApproval()
         {
-            var requisitions = await _unitOfWork.Requisition.GetAll();
-            return _mapper.Map<List<RequisitionRes>>(requisitions);
-        }
-
-        public async Task<List<RequisitionRes>> GetAllActivated()
-        {
-            var requisitions = await _unitOfWork.Requisition.GetAllIsActivated();
+            var curUserId = _currentUserService.GetUserId();
+            var requisitions = await _unitOfWork.Requisition.GetByCurrentApproverId(curUserId);
             return _mapper.Map<List<RequisitionRes>>(requisitions);
         }
 
@@ -111,8 +107,35 @@ namespace QLVPP.Services.Implementations
             if (status == RequisitionStatus.Approved)
             {
                 requisition.ApprovedDate = DateTime.Now;
-                requisition.ApprovedBy = _currentUserService.GetUserAccount();
             }
+
+            await _unitOfWork.Requisition.Update(requisition);
+            await _unitOfWork.SaveChanges();
+
+            return _mapper.Map<RequisitionRes>(requisition);
+        }
+
+        public async Task<RequisitionRes?> Forward(long id, ForwardReq request)
+        {
+            var requisition = await _unitOfWork.Requisition.GetById(id);
+            if (requisition == null)
+            {
+                return null;
+            }
+
+            if (requisition.Status != RequisitionStatus.Pending)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot forward a requisition with status '{requisition.Status}'. Only pending requisitions can be forwarded."
+                );
+            }
+
+            if (requisition.CurrentApproverId == request.ApproverId)
+            {
+                throw new ArgumentException("Requisition is already assigned to this approver.");
+            }
+
+            requisition.CurrentApproverId = request.ApproverId;
 
             await _unitOfWork.Requisition.Update(requisition);
             await _unitOfWork.SaveChanges();

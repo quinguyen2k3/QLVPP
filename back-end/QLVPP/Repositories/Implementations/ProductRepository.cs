@@ -73,17 +73,17 @@ namespace QLVPP.Repositories.Implementations
         {
             var query = _context
                 .OrderDetails.Where(d =>
-                    d.Order.WarehouseId == warehouseId
-                    && d.Order.OrderDate >= startDate
-                    && d.Order.OrderDate <= endDate
-                    && d.Order.Status == OrderStatus.Complete
+                    d.StockIn.WarehouseId == warehouseId
+                    && d.StockIn.StockInDate >= startDate
+                    && d.StockIn.StockInDate <= endDate
+                    && d.StockIn.Status == StockInStatus.Approve
                 )
                 .GroupBy(d => new { d.ProductId, d.Product.Name })
                 .Select(g => new ProductReportProj
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.Name,
-                    Quantity = g.Sum(x => x.Received),
+                    Quantity = g.Sum(x => x.Quantity),
                 });
             return query.AsNoTracking().ToListAsync();
         }
@@ -99,7 +99,7 @@ namespace QLVPP.Repositories.Implementations
                     d.Delivery.WarehouseId == warehouseId
                     && d.Delivery.DeliveryDate >= startDate
                     && d.Delivery.DeliveryDate <= endDate
-                    && d.Delivery.Status == DeliveryStatus.Complete
+                    && d.Delivery.Status == StockOutStatus.Approved
                 )
                 .GroupBy(d => new { d.ProductId, ProductName = d.Product.Name })
                 .Select(g => new ProductReportProj

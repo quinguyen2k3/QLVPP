@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QLVPP.Constants.Status;
 using QLVPP.Data;
 using QLVPP.Models;
 
@@ -14,18 +15,23 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<Requisition>> GetAllIsActivated()
-        {
-            return await _context
-                .Requisitions.Where(r => r.IsActivated == true)
-                .OrderByDescending(r => r.CreatedDate)
-                .ToListAsync();
-        }
-
         public async Task<List<Requisition>> GetByCreator(string creator)
         {
             return await _context
                 .Requisitions.Where(r => r.CreatedBy == creator)
+                .OrderByDescending(r => r.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<List<Requisition>> GetByCurrentApproverId(long id)
+        {
+            return await _context
+                .Requisitions.Where(r =>
+                    r.IsActivated == true
+                    && r.CurrentApproverId == id
+                    && r.Status == RequisitionStatus.Pending
+                )
                 .OrderByDescending(r => r.CreatedDate)
                 .AsNoTracking()
                 .ToListAsync();

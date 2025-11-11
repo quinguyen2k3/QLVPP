@@ -7,20 +7,31 @@ namespace QLVPP.Models
     public class Requisition : AuditableEntity
     {
         [Required]
-        [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public long RequesterId { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public string? Note { get; set; }
-        public DateTime? ApprovedDate { get; set; }
-        public string? ApprovedBy { get; set; }
-        public string Status { get; set; } = RequisitionStatus.Pending;
+        [ForeignKey("RequesterId")]
+        public Employee Requester { get; set; } = null!;
 
         [Required]
-        public long EmployeeId { get; set; }
+        public long OriginalApproverId { get; set; }
 
-        [ForeignKey(nameof(EmployeeId))]
-        public Employee Employee { get; set; } = null!;
+        [ForeignKey("OriginalApproverId")]
+        public Employee OriginalApprover { get; set; } = null!;
+
+        [Required]
+        public long CurrentApproverId { get; set; }
+
+        [ForeignKey("CurrentApproverId")]
+        public Employee CurrentApprover { get; set; } = null!;
+
+        [Required]
+        [StringLength(50)]
+        public string Status { get; set; } = RequisitionStatus.Pending;
+
+        public DateTime? ApprovedDate { get; set; }
+
+        public string? Notes { get; set; }
+
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
     }

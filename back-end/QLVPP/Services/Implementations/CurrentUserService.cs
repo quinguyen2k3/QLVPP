@@ -46,5 +46,16 @@
 
             throw new InvalidOperationException("Warehouse ID not found for the current user.");
         }
+
+        public long GetDepartmentId()
+        {
+            var departmentClaim = _httpContextAccessor
+                .HttpContext?.User?.FindFirst("departmentId")
+                ?.Value;
+            if (long.TryParse(departmentClaim, out var id))
+                return id;
+
+            throw new InvalidOperationException("Department ID not found for the current user.");
+        }
     }
 }

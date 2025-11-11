@@ -14,12 +14,13 @@ namespace QLVPP.Repositories
         IWarehouseRepository Warehouse { get; }
         IRequisitionRepository Requisition { get; }
         IProductRepository Product { get; }
-        IOrderRepository Order { get; }
+        IStockInRepository StockIn { get; }
         IInventoryRepository Inventory { get; }
-        IDeliveryRepository Delivery { get; }
+        IStockOutRepository StockOut { get; }
         IReturnRepository Return { get; }
         IInventorySnapshotRepository InventorySnapshot { get; }
         IReportRepository Report { get; }
+        ITransferRepository Transfer { get; }
         Task<int> SaveChanges();
     }
 }

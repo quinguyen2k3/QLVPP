@@ -22,7 +22,7 @@ namespace QLVPP.Models
         public long DeliveryId { get; set; }
 
         [ForeignKey(nameof(DeliveryId))]
-        public Delivery Delivery { get; set; } = null!;
+        public StockOut Delivery { get; set; } = null!;
 
         [Required]
         public DateOnly ReturnDate { get; set; }

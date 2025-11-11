@@ -25,10 +25,10 @@ namespace QLVPP.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Employee> Employees { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Delivery> Deliveries { get; set; }
-        public DbSet<DeliveryDetail> DeliveryDetails { get; set; }
+        public DbSet<StockIn> StockIns { get; set; }
+        public DbSet<StockInDetail> OrderDetails { get; set; }
+        public DbSet<StockOut> Deliveries { get; set; }
+        public DbSet<StockOutDetail> DeliveryDetails { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
@@ -40,6 +40,8 @@ namespace QLVPP.Data
         public DbSet<ReturnDetail> ReturnDetails { get; set; }
         public DbSet<InventorySnapshot> InventorySnapshots { get; set; }
         public DbSet<SnapshotDetail> SnapshotDetails { get; set; }
+        public DbSet<Transfer> Transfers { get; set; }
+        public DbSet<TransferDetail> TransferDetails { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -76,6 +78,90 @@ namespace QLVPP.Data
                     .HasForeignKey(r => r.DeliveryId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder
+                .Entity<Transfer>()
+                .HasOne(t => t.FromWarehouse)
+                .WithMany(w => w.TransfersFrom)
+                .HasForeignKey(t => t.FromWarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Transfer>()
+                .HasOne(t => t.ToWarehouse)
+                .WithMany(w => w.TransfersTo)
+                .HasForeignKey(t => t.ToWarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Requisition>()
+                .HasOne(r => r.Requester)
+                .WithMany(e => e.RequisitionsCreated)
+                .HasForeignKey(r => r.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Requisition>()
+                .HasOne(r => r.OriginalApprover)
+                .WithMany(e => e.RequisitionsToOriginallyApprove)
+                .HasForeignKey(r => r.OriginalApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StockOut>()
+                .HasOne(d => d.Requester)
+                .WithMany(e => e.DeliveriesRequested)
+                .HasForeignKey(d => d.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StockOut>()
+                .HasOne(d => d.Approver)
+                .WithMany(e => e.DeliveriesApproved)
+                .HasForeignKey(d => d.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StockOut>()
+                .HasOne(d => d.Receiver)
+                .WithMany(e => e.DeliveriesReceived)
+                .HasForeignKey(d => d.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Transfer>()
+                .HasOne(t => t.Requester)
+                .WithMany(e => e.TransfersRequested)
+                .HasForeignKey(t => t.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Transfer>()
+                .HasOne(t => t.Approver)
+                .WithMany(e => e.TransfersApproved)
+                .HasForeignKey(t => t.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<Transfer>()
+                .HasOne(t => t.Receiver)
+                .WithMany(e => e.TransfersReceived)
+                .HasForeignKey(t => t.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StockIn>()
+                .HasOne(s => s.Requester)
+                .WithMany(e => e.StockInsRequested)
+                .HasForeignKey(s => s.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StockIn>()
+                .HasOne(s => s.Approver)
+                .WithMany(e => e.StockInsApproved)
+                .HasForeignKey(s => s.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

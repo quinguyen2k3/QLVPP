@@ -4,6 +4,7 @@
     {
         long GetUserId();
         long GetWarehouseId();
+        long GetDepartmentId();
         string GetUserAccount();
         bool IsUserAuthenticated();
     }
