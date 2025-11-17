@@ -123,7 +123,7 @@ namespace QLVPP.Repositories.Implementations
                     rd.Return.WarehouseId == warehouseId
                     && rd.Return.ReturnDate >= startDate
                     && rd.Return.ReturnDate <= endDate
-                    && rd.Return.Status == ReturnStatus.Complete
+                    && rd.Return.Status == ReturnStatus.Returned
                 )
                 .GroupBy(rd => new { rd.ProductId, rd.Product.Name })
                 .Select(g => new ProductReportProj

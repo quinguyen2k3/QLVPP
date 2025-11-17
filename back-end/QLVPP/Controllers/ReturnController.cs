@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -18,12 +19,32 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<ReturnRes>>> GetReturns()
+        [HttpGet("warehouse/all")]
+        public async Task<ActionResult<List<ReturnRes>>> GetAllByWarehouse()
         {
             try
             {
                 var returnNotes = await _service.GetByWarehouse();
+
+                return Ok(
+                    ApiResponse<List<ReturnRes>>.SuccessResponse(
+                        returnNotes,
+                        "Fetched return successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+         [HttpGet("warehouse/pending")]
+        public async Task<ActionResult<List<ReturnRes>>> GetPendingByWarehouse()
+        {
+            try
+            {
+                var returnNotes = await _service.GetPendingByWarehouse();
 
                 return Ok(
                     ApiResponse<List<ReturnRes>>.SuccessResponse(
@@ -140,8 +161,8 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("{id:long}/confirm")]
-        public async Task<ActionResult<ReturnRes>> Returned(long id, [FromBody] ReturnReq request)
+        [HttpPut("approve/{id:long}")]
+        public async Task<ActionResult<ReturnRes>> Approve(long id, [FromBody] ReturnReq request)
         {
             if (!ModelState.IsValid)
             {
@@ -155,7 +176,7 @@ namespace QLVPP.Controllers
 
             try
             {
-                var updated = await _service.Returned(id, request);
+                var updated = await _service.Approve(id, request);
                 if (updated == null)
                     return NotFound(ApiResponse<string>.ErrorResponse("Return note not found"));
 

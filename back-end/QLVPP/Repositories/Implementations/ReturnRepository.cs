@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QLVPP.Constants.Status;
 using QLVPP.Data;
 using QLVPP.Models;
 using QLVPP.Security;
@@ -47,6 +48,15 @@ namespace QLVPP.Repositories.Implementations
                     rd.Return.DeliveryId == deliveryId && rd.ProductId == productId
                 )
                 .SumAsync(rd => rd.ReturnedQuantity + rd.DamagedQuantity);
+        }
+
+        public async Task<List<Return>> GetPendingByWarehouseId(long id)
+        {
+            return await _context
+                .Returns.Where(r => r.WarehouseId == id && r.Status == ReturnStatus.Pending)
+                .OrderByDescending(o => o.CreatedDate)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

@@ -150,37 +150,48 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<ReturnRes>(returnNote);
         }
 
-        public async Task<ReturnRes?> Returned(long id, ReturnReq request)
+        public async Task<ReturnRes?> Approve(long id, ReturnReq request)
         {
-            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
-            if (latestSnapshotDate != null && request.ReturnDate <= latestSnapshotDate.Value)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot receive items on date ({request.ReturnDate:dd/MM/yyyy}) as it falls within a closed accounting period."
-                );
-            }
-
             var returnNote = await _unitOfWork.Return.GetById(id);
             if (returnNote == null)
                 return null;
 
             if (returnNote.Status != ReturnStatus.Pending)
-                throw new InvalidOperationException("Only pending return notes can be completed.");
+                throw new InvalidOperationException("Only pending return notes can be approved.");
+
+            returnNote.Status = ReturnStatus.Approved;
+
+            await _unitOfWork.Return.Update(returnNote);
+            await _unitOfWork.SaveChanges();
+
+            return _mapper.Map<ReturnRes>(returnNote);
+        }
+
+        public async Task<ReturnRes?> Return(long id)
+        {
+            var returnNote = await _unitOfWork.Return.GetById(id);
+            if (returnNote == null)
+                return null;
+
+            if (returnNote.Status != ReturnStatus.Approved)
+                throw new InvalidOperationException("Only approved return notes can be completed.");
+
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            if (latestSnapshotDate != null && returnNote.ReturnDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot receive items on date ({returnNote.ReturnDate:dd/MM/yyyy}) as it falls within a closed accounting period."
+                );
+            }
 
             var delivery = await _unitOfWork.StockOut.GetById(returnNote.DeliveryId);
             if (delivery == null)
                 throw new InvalidOperationException(
                     $"Delivery #{returnNote.DeliveryId} not found."
                 );
+
             foreach (var detail in returnNote.ReturnDetails)
             {
-                var deliveryDetail = delivery.StockOutDetails.FirstOrDefault(d =>
-                    d.Id == detail.ProductId
-                );
-                if (deliveryDetail == null)
-                    throw new InvalidOperationException(
-                        $"Delivery detail not found for Product {detail.ProductId}."
-                    );
                 if (detail.ReturnedQuantity > 0)
                 {
                     var inventory = await _unitOfWork.Inventory.GetByKey(
@@ -189,7 +200,7 @@ namespace QLVPP.Services.Implementations
                     );
                     if (inventory == null)
                         throw new InvalidOperationException(
-                            $"Inventory not found for Product {detail.ProductId}."
+                            $"Inventory not found for Product {detail.ProductId} in Warehouse {delivery.WarehouseId}."
                         );
 
                     inventory.Quantity += detail.ReturnedQuantity;
@@ -197,7 +208,7 @@ namespace QLVPP.Services.Implementations
                 }
             }
 
-            returnNote.Status = ReturnStatus.Complete;
+            returnNote.Status = ReturnStatus.Returned;
 
             await _unitOfWork.Return.Update(returnNote);
             await _unitOfWork.SaveChanges();
@@ -279,6 +290,13 @@ namespace QLVPP.Services.Implementations
         {
             var curAccount = _currentUserService.GetUserAccount();
             var returns = await _unitOfWork.Return.GetByCreator(curAccount);
+            return _mapper.Map<List<ReturnRes>>(returns);
+        }
+
+        public async Task<List<ReturnRes>> GetPendingByWarehouse()
+        {
+            var warehouseId = _currentUserService.GetWarehouseId();
+            var returns = await _unitOfWork.Return.GetPendingByWarehouseId(warehouseId);
             return _mapper.Map<List<ReturnRes>>(returns);
         }
     }
