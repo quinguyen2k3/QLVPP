@@ -12,5 +12,6 @@ namespace QLVPP.Services
         Task<TransferRes> Create(TransferReq request);
         Task<TransferRes> Approve(long id, TransferReq request);
         Task<TransferRes> Receive(long id, TransferReq request);
+        Task<bool> Delete(long id);
     }
 }

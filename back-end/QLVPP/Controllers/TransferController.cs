@@ -178,5 +178,25 @@ namespace QLVPP.Controllers
                 return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
+
+        [HttpDelete("{id:long}")]
+        public async Task<ActionResult<bool>> Delete(long id)
+        {
+            try
+            {
+                var deleted = await _service.Delete(id);
+
+                if (deleted == false)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Transfer not found"));
+
+                return Ok(
+                    ApiResponse<bool>.SuccessResponse(deleted, "Transfer delete successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
     }
 }
