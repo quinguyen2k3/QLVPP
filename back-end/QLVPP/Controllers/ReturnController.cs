@@ -39,7 +39,7 @@ namespace QLVPP.Controllers
             }
         }
 
-         [HttpGet("warehouse/pending")]
+        [HttpGet("warehouse/pending")]
         public async Task<ActionResult<List<ReturnRes>>> GetPendingByWarehouse()
         {
             try

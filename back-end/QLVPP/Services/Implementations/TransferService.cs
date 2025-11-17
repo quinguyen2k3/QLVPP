@@ -180,5 +180,33 @@ namespace QLVPP.Services.Implementations
 
             return _mapper.Map<TransferRes>(transfer);
         }
+
+        public async Task<bool> Delete(long id)
+        {
+            var transfer = await _unitOfWork.Transfer.GetById(id);
+            if (transfer == null)
+            {
+                return false;
+            }
+
+            if (transfer.Status == TransferStatus.Received)
+            {
+                throw new InvalidOperationException(
+                    "Cannot cancel a completed transfer. Inventory has already been moved. A reverse transaction must be created."
+                );
+            }
+            if (transfer.Status == TransferStatus.Cancelled)
+            {
+                return true;
+            }
+
+            transfer.IsActivated = false;
+            transfer.Status = TransferStatus.Cancelled;
+
+            await _unitOfWork.Transfer.Update(transfer);
+            var savedChanges = await _unitOfWork.SaveChanges();
+
+            return savedChanges > 0;
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("pending-approval")]
+        [HttpGet("pending")]
         public async Task<ActionResult<List<RequisitionRes>>> GetRequisitionsPendingApproval()
         {
             try
