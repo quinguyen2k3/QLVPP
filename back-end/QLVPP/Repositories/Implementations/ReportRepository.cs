@@ -40,7 +40,7 @@ namespace QLVPP.Repositories.Implementations
                 join ret in _context.Returns on detail.ReturnId equals ret.Id
                 where
                     ret.WarehouseId == warehouseId
-                    && ret.Status == ReturnStatus.Complete
+                    && ret.Status == ReturnStatus.Returned
                     && ret.ReturnDate >= startDate
                     && ret.ReturnDate <= endDate
                 select new TransactionItemProj
