@@ -30,6 +30,7 @@ namespace QLVPP.Extensions
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IOnlineUserService, OnlineUserService>();
             services.AddScoped<ITransferService, TransferService>();
+            services.AddScoped<IStockTakeService, StockTakeService>();
 
             services.AddSingleton<ICacheService, CacheService>();
 

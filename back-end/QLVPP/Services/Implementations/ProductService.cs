@@ -73,6 +73,13 @@ namespace QLVPP.Services.Implementations
             if (product == null)
                 return null;
 
+            if (product.Inventory.WarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update or approve a record from another warehouse."
+                );
+            }
+
             _mapper.Map(request, product);
 
             var oldInventory = await _unitOfWork.Inventory.GetByProductId(id);

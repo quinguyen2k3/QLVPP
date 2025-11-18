@@ -41,6 +41,13 @@ namespace QLVPP.Services.Implementations
                 throw new KeyNotFoundException($"Transfer with ID {id} not found.");
             }
 
+            if (transfer.FromWarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update or approve a record from another warehouse."
+                );
+            }
+
             if (transfer.Status != TransferStatus.Pending)
             {
                 throw new InvalidOperationException(
