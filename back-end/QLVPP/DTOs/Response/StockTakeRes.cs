@@ -1,6 +1,6 @@
 using QLVPP.DTOs.Request;
 
-namespace QLVPP.DSto.Response
+namespace QLVPP.DTOs.Response
 {
     public class StockTakeRes
     {

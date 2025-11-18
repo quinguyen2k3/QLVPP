@@ -144,6 +144,20 @@ namespace QLVPP.Mappings
             CreateMap<Transfer, TransferRes>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.TransferDetail));
             CreateMap<TransferDetail, TransferResDetail>();
+
+            CreateMap<StockTakeReq, StockTake>()
+                .ForMember(dest => dest.PerformedById, opt => opt.MapFrom(src => src.PerformanceId))
+                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Items))
+                .ForMember(dest => dest.WarehouseId, opt => opt.Ignore());
+            CreateMap<StockTakeDetail, StockTakeReqItem>();
+
+            CreateMap<StockTake, StockTakeRes>()
+                .ForMember(
+                    dest => dest.PerformanceId,
+                    opt => opt.MapFrom(src => src.PerformedById)
+                );
+            CreateMap<StockTakeDetail, StockTakeResItem>()
+                .ForMember(dest => dest.Difference, opt => opt.MapFrom(src => src.Difference));
         }
     }
 }

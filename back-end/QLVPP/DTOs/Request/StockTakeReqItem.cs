@@ -1,4 +1,4 @@
-namespace QLVPP.DTOs
+namespace QLVPP.DTOs.Request
 {
     public class StockTakeReqItem
     {
