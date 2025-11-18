@@ -42,6 +42,8 @@ namespace QLVPP.Data
         public DbSet<SnapshotDetail> SnapshotDetails { get; set; }
         public DbSet<Transfer> Transfers { get; set; }
         public DbSet<TransferDetail> TransferDetails { get; set; }
+        public DbSet<StockTake> StockTakes { get; set; }
+        public DbSet<StockTakeDetail> StockTakeDetails { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
