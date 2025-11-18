@@ -253,7 +253,7 @@ namespace QLVPP.Services.Implementations
 
             stockIn.Status = StockInStatus.Approve;
             stockIn.ApproverId = _currentUserService.GetUserId();
-            stockIn.ApprovedDate = DateTime.Now;
+            stockIn.ApprovedDate = DateTime.Now.Date;
 
             await _unitOfWork.StockIn.Update(stockIn);
             await _unitOfWork.SaveChanges();
