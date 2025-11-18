@@ -42,6 +42,8 @@ namespace QLVPP.Models
         public ICollection<ReturnDetail> ReturnDetails { get; set; } = new List<ReturnDetail>();
         public ICollection<TransferDetail> TransferDetails { get; set; } =
             new List<TransferDetail>();
+        public ICollection<StockTakeDetail> StockTakeDetails { get; set; } =
+            new List<StockTakeDetail>();
         public Inventory Inventory { get; set; } = null!;
     }
 }

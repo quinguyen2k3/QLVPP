@@ -26,9 +26,9 @@ namespace QLVPP.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<StockIn> StockIns { get; set; }
-        public DbSet<StockInDetail> OrderDetails { get; set; }
-        public DbSet<StockOut> Deliveries { get; set; }
-        public DbSet<StockOutDetail> DeliveryDetails { get; set; }
+        public DbSet<StockInDetail> StockInDetails { get; set; }
+        public DbSet<StockOut> StockOuts { get; set; }
+        public DbSet<StockOutDetail> StockOutDetails { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
@@ -42,6 +42,8 @@ namespace QLVPP.Data
         public DbSet<SnapshotDetail> SnapshotDetails { get; set; }
         public DbSet<Transfer> Transfers { get; set; }
         public DbSet<TransferDetail> TransferDetails { get; set; }
+        public DbSet<StockTake> StockTakes { get; set; }
+        public DbSet<StockTakeDetail> StockTakeDetails { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

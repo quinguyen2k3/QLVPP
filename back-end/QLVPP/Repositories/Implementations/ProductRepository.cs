@@ -72,7 +72,7 @@ namespace QLVPP.Repositories.Implementations
         )
         {
             var query = _context
-                .OrderDetails.Where(d =>
+                .StockInDetails.Where(d =>
                     d.StockIn.WarehouseId == warehouseId
                     && d.StockIn.StockInDate >= startDate
                     && d.StockIn.StockInDate <= endDate
@@ -95,7 +95,7 @@ namespace QLVPP.Repositories.Implementations
         )
         {
             var query = _context
-                .DeliveryDetails.Where(d =>
+                .StockOutDetails.Where(d =>
                     d.Delivery.WarehouseId == warehouseId
                     && d.Delivery.DeliveryDate >= startDate
                     && d.Delivery.DeliveryDate <= endDate

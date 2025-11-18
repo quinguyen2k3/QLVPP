@@ -21,8 +21,8 @@ namespace QLVPP.Repositories.Implementations
         )
         {
             var deliveredItems =
-                from detail in _context.DeliveryDetails
-                join delivery in _context.Deliveries on detail.DeliveryId equals delivery.Id
+                from detail in _context.StockOutDetails
+                join delivery in _context.StockOuts on detail.DeliveryId equals delivery.Id
                 where
                     delivery.WarehouseId == warehouseId
                     && delivery.Status == StockOutStatus.Approved

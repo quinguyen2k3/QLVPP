@@ -23,5 +23,6 @@ namespace QLVPP.Models
         public ICollection<Transfer> TransfersFrom { get; set; } = new List<Transfer>();
 
         public ICollection<Transfer> TransfersTo { get; set; } = new List<Transfer>();
+        public ICollection<StockTake> StockTake { get; set;} = new List<StockTake>();
     }
 }

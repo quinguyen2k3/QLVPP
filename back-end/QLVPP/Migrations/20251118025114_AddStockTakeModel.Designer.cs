@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118025114_AddStockTakeModel")]
+    partial class AddStockTakeModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -759,9 +762,6 @@ namespace QLVPP.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("PerformedById")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -771,8 +771,6 @@ namespace QLVPP.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PerformedById");
 
                     b.HasIndex("WarehouseId");
 
@@ -1319,19 +1317,11 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.StockTake", b =>
                 {
-                    b.HasOne("QLVPP.Models.Employee", "PerformedBy")
-                        .WithMany("StockTakesPerformed")
-                        .HasForeignKey("PerformedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("QLVPP.Models.Warehouse", "Warehouse")
                         .WithMany("StockTake")
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("PerformedBy");
 
                     b.Navigation("Warehouse");
                 });
@@ -1443,8 +1433,6 @@ namespace QLVPP.Migrations
                     b.Navigation("StockInsApproved");
 
                     b.Navigation("StockInsRequested");
-
-                    b.Navigation("StockTakesPerformed");
 
                     b.Navigation("TransfersApproved");
 
