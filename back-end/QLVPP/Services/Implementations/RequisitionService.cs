@@ -106,7 +106,7 @@ namespace QLVPP.Services.Implementations
 
             if (status == RequisitionStatus.Approved)
             {
-                requisition.ApprovedDate = DateTime.Now;
+                requisition.ApprovedDate = DateTime.Now.Date;
             }
 
             await _unitOfWork.Requisition.Update(requisition);

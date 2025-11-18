@@ -76,7 +76,7 @@ namespace QLVPP.Services.Implementations
             var currentUserId = _currentUserService.GetUserId();
 
             transfer.Status = TransferStatus.Approved;
-            transfer.ApproveDate = DateTime.Now;
+            transfer.ApproveDate = DateTime.Now.Date;
             transfer.ApproverId = currentUserId;
 
             await _unitOfWork.Transfer.Update(transfer);
