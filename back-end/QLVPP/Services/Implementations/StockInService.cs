@@ -116,6 +116,13 @@ namespace QLVPP.Services.Implementations
             if (stockIn == null)
                 return null;
 
+            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update or approve a record from another warehouse."
+                );
+            }
+
             if (stockIn.Status != StockInStatus.Pending)
             {
                 throw new InvalidOperationException(
@@ -207,6 +214,13 @@ namespace QLVPP.Services.Implementations
             var stockIn = await _unitOfWork.StockIn.GetById(id);
             if (stockIn == null)
                 return null;
+
+            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update or approve a record from another warehouse."
+                );
+            }
 
             if (latestSnapshotDate != null && stockIn.StockInDate <= latestSnapshotDate.Value)
             {
