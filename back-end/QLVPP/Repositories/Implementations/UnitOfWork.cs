@@ -23,6 +23,7 @@ namespace QLVPP.Repositories.Implementations
         public IInventorySnapshotRepository InventorySnapshot { get; private set; }
         public IReportRepository Report { get; private set; }
         public ITransferRepository Transfer { get; private set; }
+        public IStockTakeRepository StockTake { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -45,6 +46,7 @@ namespace QLVPP.Repositories.Implementations
             InventorySnapshot = new InventorySnapshotRepository(context);
             Report = new ReportRepository(context);
             Transfer = new TransferRepository(context);
+            StockTake = new StockTakeRepository(context);
             _context = context;
         }
 

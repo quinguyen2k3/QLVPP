@@ -21,6 +21,7 @@ namespace QLVPP.Repositories
         IInventorySnapshotRepository InventorySnapshot { get; }
         IReportRepository Report { get; }
         ITransferRepository Transfer { get; }
+        IStockTakeRepository StockTake { get; }
         Task<int> SaveChanges();
     }
 }
