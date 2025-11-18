@@ -14,7 +14,7 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<StockOut>> GetPendingByWarehouseId(long id)
         {
             return await _context
-                .Deliveries.Where(d => d.WarehouseId == id && d.Status == StockOutStatus.Pending)
+                .StockOuts.Where(d => d.WarehouseId == id && d.Status == StockOutStatus.Pending)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
@@ -22,7 +22,7 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<StockOut>> GetByCreator(string creator)
         {
             return await _context
-                .Deliveries.Where(d => d.CreatedBy == creator && d.IsActivated == true)
+                .StockOuts.Where(d => d.CreatedBy == creator && d.IsActivated == true)
                 .OrderByDescending(d => d.CreatedDate)
                 .ToListAsync();
         }
@@ -32,7 +32,7 @@ namespace QLVPP.Repositories.Implementations
             var Id = Convert.ToInt64(id);
 
             return await _context
-                .Deliveries.Include(r => r.StockOutDetails)
+                .StockOuts.Include(r => r.StockOutDetails)
                 .ThenInclude(d => d.Product)
                 .ThenInclude(p => p.Unit)
                 .FirstOrDefaultAsync(r => r.Id == Id);
@@ -41,7 +41,7 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<StockOut>> GetApprovedByDepartmentId(long id)
         {
             return await _context
-                .Deliveries.Where(d => d.DepartmentId == id && d.Status == StockOutStatus.Approved)
+                .StockOuts.Where(d => d.DepartmentId == id && d.Status == StockOutStatus.Approved)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
@@ -49,7 +49,7 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<StockOut>> GetByWarehouseId(long id)
         {
             return await _context
-                .Deliveries.Where(d => d.WarehouseId == id && d.IsActivated == true)
+                .StockOuts.Where(d => d.WarehouseId == id && d.IsActivated == true)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
