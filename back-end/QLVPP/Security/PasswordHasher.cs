@@ -1,15 +1,19 @@
-﻿namespace QLVPP.Security
+﻿using static BCrypt.Net.BCrypt;
+
+namespace QLVPP.Security
 {
     public static class PasswordHasher
     {
+        private const int WorkFactor = 12;
+
         public static string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
+            return EnhancedHashPassword(password, workFactor: WorkFactor);
         }
 
         public static bool VerifyPassword(string password, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            return Verify(password, hashedPassword);
         }
     }
 }
