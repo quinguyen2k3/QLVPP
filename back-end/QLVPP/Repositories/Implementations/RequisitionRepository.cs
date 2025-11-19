@@ -24,25 +24,13 @@ namespace QLVPP.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<List<Requisition>> GetByCurrentApproverId(long id)
-        {
-            return await _context
-                .Requisitions.Where(r =>
-                    r.IsActivated == true
-                    && r.CurrentApproverId == id
-                    && r.Status == RequisitionStatus.Pending
-                )
-                .OrderByDescending(r => r.CreatedDate)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
         public override async Task<Requisition?> GetById(object id)
         {
             var Id = Convert.ToInt64(id);
 
             return await _context
-                .Requisitions.Include(r => r.RequisitionDetails)
+                .Requisitions.Include(r => r.ApprovalSteps)
+                .Include(r => r.RequisitionDetails)
                 .ThenInclude(d => d.Product)
                 .ThenInclude(p => p.Unit)
                 .FirstOrDefaultAsync(r => r.Id == Id);

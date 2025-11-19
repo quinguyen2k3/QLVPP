@@ -11,7 +11,8 @@ builder
     .AddCachingServices(configuration)
     .AddIdentityServices(configuration)
     .AddApplicationServices()
-    .AddPresentationServices(configuration);
+    .AddPresentationServices(configuration)
+    .AddCustomMappings();
 
 builder.Services.AddControllers();
 

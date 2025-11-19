@@ -60,13 +60,6 @@ namespace QLVPP.Services.Implementations
             return true;
         }
 
-        public async Task<List<RequisitionRes>> GetPendingForMyApproval()
-        {
-            var curUserId = _currentUserService.GetUserId();
-            var requisitions = await _unitOfWork.Requisition.GetByCurrentApproverId(curUserId);
-            return _mapper.Map<List<RequisitionRes>>(requisitions);
-        }
-
         public async Task<List<RequisitionRes>> GetAllByMyself()
         {
             var curAccount = _currentUserService.GetUserAccount();
@@ -82,6 +75,8 @@ namespace QLVPP.Services.Implementations
 
         public async Task<RequisitionRes?> Update(long id, string status)
         {
+            var approverId = _currentUserService.GetUserId();
+
             status = status.ToUpper();
 
             if (status != RequisitionStatus.Approved && status != RequisitionStatus.Rejected)
@@ -102,40 +97,33 @@ namespace QLVPP.Services.Implementations
                 );
             }
 
-            requisition.Status = status;
+            var step = requisition
+                .ApprovalSteps.Where(s =>
+                    s.AssignedToId == approverId && s.Status == RequisitionStatus.Pending
+                )
+                .OrderBy(s => s.StepOrder)
+                .FirstOrDefault();
 
-            if (status == RequisitionStatus.Approved)
-            {
-                requisition.ApprovedDate = DateTime.Now.Date;
-            }
-
-            await _unitOfWork.Requisition.Update(requisition);
-            await _unitOfWork.SaveChanges();
-
-            return _mapper.Map<RequisitionRes>(requisition);
-        }
-
-        public async Task<RequisitionRes?> Forward(long id, ForwardReq request)
-        {
-            var requisition = await _unitOfWork.Requisition.GetById(id);
-            if (requisition == null)
-            {
-                return null;
-            }
-
-            if (requisition.Status != RequisitionStatus.Pending)
-            {
+            if (step == null)
                 throw new InvalidOperationException(
-                    $"Cannot forward a requisition with status '{requisition.Status}'. Only pending requisitions can be forwarded."
+                    "No pending approval step found for this approver."
                 );
-            }
 
-            if (requisition.CurrentApproverId == request.ApproverId)
+            step.Status = status;
+            step.ApprovedAt = DateTime.Now;
+            await _unitOfWork.ApprovalStep.Update(step);
+
+            if (status == RequisitionStatus.Rejected)
             {
-                throw new ArgumentException("Requisition is already assigned to this approver.");
+                requisition.Status = RequisitionStatus.Rejected;
             }
-
-            requisition.CurrentApproverId = request.ApproverId;
+            else
+            {
+                if (requisition.ApprovalSteps.All(s => s.Status == RequisitionStatus.Approved))
+                {
+                    requisition.Status = RequisitionStatus.Approved;
+                }
+            }
 
             await _unitOfWork.Requisition.Update(requisition);
             await _unitOfWork.SaveChanges();

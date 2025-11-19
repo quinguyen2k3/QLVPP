@@ -12,27 +12,23 @@ namespace QLVPP.Models
         [ForeignKey("RequesterId")]
         public Employee Requester { get; set; } = null!;
 
-        [Required]
-        public long OriginalApproverId { get; set; }
-
-        [ForeignKey("OriginalApproverId")]
-        public Employee OriginalApprover { get; set; } = null!;
-
-        [Required]
-        public long CurrentApproverId { get; set; }
-
-        [ForeignKey("CurrentApproverId")]
-        public Employee CurrentApprover { get; set; } = null!;
+        [StringLength(500)]
+        public string? Notes { get; set; }
 
         [Required]
         [StringLength(50)]
         public string Status { get; set; } = RequisitionStatus.Pending;
 
-        public DateTime? ApprovedDate { get; set; }
+        [Required]
+        public DateTime RequestDate { get; set; } = DateTime.Now;
 
-        public string? Notes { get; set; }
+        public long? DepartmentId { get; set; }
+
+        [ForeignKey("DepartmentId")]
+        public Department? Department { get; set; }
 
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
+        public ICollection<ApprovalStep> ApprovalSteps { get; set; } = new List<ApprovalStep>();
     }
 }

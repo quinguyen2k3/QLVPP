@@ -44,6 +44,7 @@ namespace QLVPP.Data
         public DbSet<TransferDetail> TransferDetails { get; set; }
         public DbSet<StockTake> StockTakes { get; set; }
         public DbSet<StockTakeDetail> StockTakeDetails { get; set; }
+        public DbSet<ApprovalStep> ApprovalSteps { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -100,13 +101,6 @@ namespace QLVPP.Data
                 .HasOne(r => r.Requester)
                 .WithMany(e => e.RequisitionsCreated)
                 .HasForeignKey(r => r.RequesterId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<Requisition>()
-                .HasOne(r => r.OriginalApprover)
-                .WithMany(e => e.RequisitionsToOriginallyApprove)
-                .HasForeignKey(r => r.OriginalApproverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder
