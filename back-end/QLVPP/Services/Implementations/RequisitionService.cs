@@ -110,7 +110,7 @@ namespace QLVPP.Services.Implementations
                 );
 
             step.Status = status;
-            step.ApprovedAt = DateTime.UtcNow;
+            step.ApprovedAt = DateTime.Now;
             await _unitOfWork.ApprovalStep.Update(step);
 
             if (status == RequisitionStatus.Rejected)
