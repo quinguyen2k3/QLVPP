@@ -29,5 +29,6 @@ namespace QLVPP.Models
 
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
+        public ICollection<ApprovalStep> ApprovalSteps { get; set; } = new List<ApprovalStep>();
     }
 }
