@@ -22,7 +22,7 @@ namespace QLVPP.Models
         [Required]
         public DateTime RequestDate { get; set; } = DateTime.Now;
 
-        public int? DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
 
         [ForeignKey("DepartmentId")]
         public Department? Department { get; set; }
