@@ -22,6 +22,7 @@ namespace QLVPP.Repositories
         IReportRepository Report { get; }
         ITransferRepository Transfer { get; }
         IStockTakeRepository StockTake { get; }
+        IApprovalStepRepository ApprovalStep { get; }
         Task<int> SaveChanges();
     }
 }

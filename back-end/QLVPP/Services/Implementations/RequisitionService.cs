@@ -75,6 +75,8 @@ namespace QLVPP.Services.Implementations
 
         public async Task<RequisitionRes?> Update(long id, string status)
         {
+            var approverId = _currentUserService.GetUserId();
+
             status = status.ToUpper();
 
             if (status != RequisitionStatus.Approved && status != RequisitionStatus.Rejected)
@@ -95,27 +97,32 @@ namespace QLVPP.Services.Implementations
                 );
             }
 
-            requisition.Status = status;
+            var step = requisition
+                .ApprovalSteps.Where(s =>
+                    s.AssignedToId == approverId && s.Status == RequisitionStatus.Pending
+                )
+                .OrderBy(s => s.StepOrder)
+                .FirstOrDefault();
 
-            await _unitOfWork.Requisition.Update(requisition);
-            await _unitOfWork.SaveChanges();
-
-            return _mapper.Map<RequisitionRes>(requisition);
-        }
-
-        public async Task<RequisitionRes?> Forward(long id, ForwardReq request)
-        {
-            var requisition = await _unitOfWork.Requisition.GetById(id);
-            if (requisition == null)
-            {
-                return null;
-            }
-
-            if (requisition.Status != RequisitionStatus.Pending)
-            {
+            if (step == null)
                 throw new InvalidOperationException(
-                    $"Cannot forward a requisition with status '{requisition.Status}'. Only pending requisitions can be forwarded."
+                    "No pending approval step found for this approver."
                 );
+
+            step.Status = status;
+            step.ApprovedAt = DateTime.UtcNow;
+            await _unitOfWork.ApprovalStep.Update(step);
+
+            if (status == RequisitionStatus.Rejected)
+            {
+                requisition.Status = RequisitionStatus.Rejected;
+            }
+            else
+            {
+                if (requisition.ApprovalSteps.All(s => s.Status == RequisitionStatus.Approved))
+                {
+                    requisition.Status = RequisitionStatus.Approved;
+                }
             }
 
             await _unitOfWork.Requisition.Update(requisition);

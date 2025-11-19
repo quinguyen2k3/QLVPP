@@ -125,41 +125,6 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("forward/{id:long}")]
-        public async Task<ActionResult<RequisitionRes>> Forward(
-            long id,
-            [FromBody] ForwardReq request
-        )
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Values.SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
-            }
-
-            try
-            {
-                var updated = await _service.Forward(id, request);
-                if (updated == null)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
-
-                return Ok(
-                    ApiResponse<RequisitionRes>.SuccessResponse(
-                        updated,
-                        "Forward requisition successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
         [HttpDelete("{id:long}")]
         public async Task<ActionResult<bool>> Delete(long id)
         {
