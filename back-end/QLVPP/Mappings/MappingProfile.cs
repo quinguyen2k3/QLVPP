@@ -33,14 +33,22 @@ namespace QLVPP.Mappings
             CreateMap<WarehouseReq, Warehouse>();
 
             CreateMap<RequisitionReq, Requisition>()
-                .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items));
+                .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items))
+                .ForMember(
+                    dest => dest.ApprovalSteps,
+                    opt => opt.MapFrom(src => src.ApprovalSteps)
+                );
             CreateMap<RequisitionItemReq, RequisitionDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
             CreateMap<Requisition, RequisitionRes>()
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Requester.Name))
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails))
+                .ForMember(
+                    dest => dest.ApprovalSteps,
+                    opt => opt.MapFrom(src => src.ApprovalSteps)
+                );
             CreateMap<RequisitionDetail, RequisitionItemRes>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
                 .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Product.Unit.Name))
@@ -146,6 +154,9 @@ namespace QLVPP.Mappings
                 );
             CreateMap<StockTakeDetail, StockTakeResItem>()
                 .ForMember(dest => dest.Difference, opt => opt.MapFrom(src => src.Difference));
+
+            CreateMap<ApprovalStepReq, ApprovalStep>();
+            CreateMap<ApprovalStep, ApprovalStepRes>();
         }
     }
 }
