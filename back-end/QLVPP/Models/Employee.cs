@@ -35,14 +35,6 @@ namespace QLVPP.Models
 
         [InverseProperty("Requester")]
         public ICollection<Requisition> RequisitionsCreated { get; set; } = new List<Requisition>();
-
-        [InverseProperty("OriginalApprover")]
-        public ICollection<Requisition> RequisitionsToOriginallyApprove { get; set; } =
-            new List<Requisition>();
-
-        [InverseProperty("CurrentApprover")]
-        public ICollection<Requisition> RequisitionsToCurrentlyApprove { get; set; } =
-            new List<Requisition>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
         public ICollection<StockOut> DeliveriesRequested { get; set; } = new List<StockOut>();

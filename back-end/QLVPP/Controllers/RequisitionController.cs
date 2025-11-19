@@ -18,26 +18,6 @@ namespace QLVPP.Controllers
             _service = service;
         }
 
-        [HttpGet("pending")]
-        public async Task<ActionResult<List<RequisitionRes>>> GetRequisitionsPendingApproval()
-        {
-            try
-            {
-                var requisitions = await _service.GetPendingForMyApproval();
-
-                return Ok(
-                    ApiResponse<List<RequisitionRes>>.SuccessResponse(
-                        requisitions,
-                        "Fetched requisitions successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
         [HttpGet("my")]
         public async Task<ActionResult<RequisitionRes>> GetAllByMyself()
         {

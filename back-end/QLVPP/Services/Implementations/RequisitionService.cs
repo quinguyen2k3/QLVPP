@@ -60,13 +60,6 @@ namespace QLVPP.Services.Implementations
             return true;
         }
 
-        public async Task<List<RequisitionRes>> GetPendingForMyApproval()
-        {
-            var curUserId = _currentUserService.GetUserId();
-            var requisitions = await _unitOfWork.Requisition.GetByCurrentApproverId(curUserId);
-            return _mapper.Map<List<RequisitionRes>>(requisitions);
-        }
-
         public async Task<List<RequisitionRes>> GetAllByMyself()
         {
             var curAccount = _currentUserService.GetUserAccount();
@@ -104,11 +97,6 @@ namespace QLVPP.Services.Implementations
 
             requisition.Status = status;
 
-            if (status == RequisitionStatus.Approved)
-            {
-                requisition.ApprovedDate = DateTime.Now.Date;
-            }
-
             await _unitOfWork.Requisition.Update(requisition);
             await _unitOfWork.SaveChanges();
 
@@ -129,13 +117,6 @@ namespace QLVPP.Services.Implementations
                     $"Cannot forward a requisition with status '{requisition.Status}'. Only pending requisitions can be forwarded."
                 );
             }
-
-            if (requisition.CurrentApproverId == request.ApproverId)
-            {
-                throw new ArgumentException("Requisition is already assigned to this approver.");
-            }
-
-            requisition.CurrentApproverId = request.ApproverId;
 
             await _unitOfWork.Requisition.Update(requisition);
             await _unitOfWork.SaveChanges();

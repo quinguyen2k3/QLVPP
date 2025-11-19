@@ -33,24 +33,12 @@ namespace QLVPP.Mappings
             CreateMap<WarehouseReq, Warehouse>();
 
             CreateMap<RequisitionReq, Requisition>()
-                .ForMember(
-                    dest => dest.CurrentApproverId,
-                    opt => opt.MapFrom(src => src.ApproverId)
-                )
-                .ForMember(
-                    dest => dest.OriginalApproverId,
-                    opt => opt.MapFrom(src => src.ApproverId)
-                )
                 .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items));
             CreateMap<RequisitionItemReq, RequisitionDetail>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Purpose, opt => opt.MapFrom(src => src.Purpose));
             CreateMap<Requisition, RequisitionRes>()
-                .ForMember(
-                    dest => dest.ApprovedBy,
-                    opt => opt.MapFrom(src => src.CurrentApprover.Name)
-                )
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Requester.Name))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails));
             CreateMap<RequisitionDetail, RequisitionItemRes>()

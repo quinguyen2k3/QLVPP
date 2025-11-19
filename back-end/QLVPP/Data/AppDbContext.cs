@@ -103,13 +103,6 @@ namespace QLVPP.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder
-                .Entity<Requisition>()
-                .HasOne(r => r.OriginalApprover)
-                .WithMany(e => e.RequisitionsToOriginallyApprove)
-                .HasForeignKey(r => r.OriginalApproverId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
                 .Entity<StockOut>()
                 .HasOne(d => d.Requester)
                 .WithMany(e => e.DeliveriesRequested)

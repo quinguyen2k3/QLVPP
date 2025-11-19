@@ -5,7 +5,6 @@ namespace QLVPP.Services
 {
     public interface IRequisitionService
     {
-        Task<List<RequisitionRes>> GetPendingForMyApproval();
         Task<List<RequisitionRes>> GetAllByMyself();
         Task<RequisitionRes?> GetById(long id);
         Task<RequisitionRes> Create(RequisitionReq request);
