@@ -15,6 +15,5 @@ namespace QLVPP.DTOs.Request
         public long DepartmentId { get; set; }
 
         public List<RequisitionItemReq> Items { get; set; } = new();
-        public List<ApprovalStepReq> ApprovalSteps { get; set; } = new();
     }
 }

@@ -10,7 +10,6 @@ namespace QLVPP.Extensions
         {
             var mapperConfig = new MapperConfiguration(cfg =>
             {
-                cfg.AddProfile<ApprovalStepMappingProfile>();
                 cfg.AddProfile<DepartmentMappingProfile>();
                 cfg.AddProfile<EmployeeMappingProfile>();
                 cfg.AddProfile<ProductMappingProfile>();
