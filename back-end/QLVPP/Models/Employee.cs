@@ -53,5 +53,12 @@ namespace QLVPP.Models
         public ICollection<StockIn> StockInsRequested { get; set; } = new List<StockIn>();
         public ICollection<StockIn> StockInsApproved { get; set; } = new List<StockIn>();
         public ICollection<StockTake> StockTakesPerformed { get; set; } = new List<StockTake>();
+
+        public virtual ICollection<ApprovalInstance> RequestedApprovals { get; set; } =
+            new List<ApprovalInstance>();
+        public virtual ICollection<ApprovalStepInstance> AssignedSteps { get; set; } =
+            new List<ApprovalStepInstance>();
+        public virtual ICollection<ApprovalStepInstance> ApprovedSteps { get; set; } =
+            new List<ApprovalStepInstance>();
     }
 }
