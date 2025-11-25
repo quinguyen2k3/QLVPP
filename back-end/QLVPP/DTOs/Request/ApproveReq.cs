@@ -2,12 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QLVPP.DTOs.Request
 {
-    public class ApproveStepReq
+    public class ApproveReq
     {
         [Required]
         public long StepInstanceId { get; set; }
 
-        [StringLength(1000, ErrorMessage = "Ghi chú không quá 1000 ký tự")]
+        [StringLength(1000, ErrorMessage = "Comments cannot exceed 1000 characters")]
         public string? Comments { get; set; }
     }
 }

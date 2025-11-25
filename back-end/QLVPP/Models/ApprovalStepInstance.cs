@@ -12,10 +12,10 @@ namespace QLVPP.Models
         public ApprovalInstance ApprovalInstance { get; set; } = null!;
 
         [Required]
-        public long TemplateStepId { get; set; }
+        public long StepId { get; set; }
 
-        [ForeignKey(nameof(TemplateStepId))]
-        public ApprovalStep TemplateStep { get; set; } = null!;
+        [ForeignKey(nameof(StepId))]
+        public ApprovalStep Step { get; set; } = null!;
 
         [Required]
         public int StepOrder { get; set; }

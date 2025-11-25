@@ -61,8 +61,7 @@ namespace QLVPP.Data
         #endregion
 
         #region Approval Flow
-        public DbSet<ApprovalTemplate> ApprovalTemplates { get; set; }
-        public DbSet<ApprovalStep> ApprovalTemplateSteps { get; set; }
+        public DbSet<ApprovalStep> ApprovalSteps { get; set; }
         public DbSet<ApprovalInstance> ApprovalInstances { get; set; }
         public DbSet<ApprovalStepInstance> ApprovalStepInstances { get; set; }
         public DbSet<ApprovalStepApprover> ApprovalStepApprovers { get; set; }
@@ -216,9 +215,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalStep>()
-                .HasOne(s => s.Template)
+                .HasOne(s => s.Requisition)
                 .WithMany(t => t.Steps)
-                .HasForeignKey(s => s.TemplateId)
+                .HasForeignKey(s => s.RequisitionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
@@ -227,9 +226,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalStepApprover>()
-                .HasOne(a => a.TemplateStep)
+                .HasOne(a => a.Step)
                 .WithMany(s => s.Approvers)
-                .HasForeignKey(a => a.TemplateStepId)
+                .HasForeignKey(a => a.StepId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
@@ -241,35 +240,16 @@ namespace QLVPP.Data
 
             #endregion
 
-            #region ApprovalTemplate → ApprovalInstance
+            #region Requisition → ApprovalInstance
 
             modelBuilder
                 .Entity<ApprovalInstance>()
-                .HasOne(i => i.Template)
-                .WithMany(t => t.Instances)
-                .HasForeignKey(i => i.TemplateId)
+                .HasOne(i => i.Requisition)
+                .WithMany(r => r.Instances)
+                .HasForeignKey(i => i.RequisitionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
-
-            #region ApprovalInstance → Employee & Department
-
-            modelBuilder
-                .Entity<ApprovalInstance>()
-                .HasOne(i => i.Requester)
-                .WithMany(e => e.RequestedApprovals)
-                .HasForeignKey(i => i.RequesterId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<ApprovalInstance>()
-                .HasOne(i => i.RequesterDepartment)
-                .WithMany(d => d.ApprovalInstances)
-                .HasForeignKey(i => i.RequesterDepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-
             #region ApprovalInstance → ApprovalStepInstance
 
             modelBuilder
@@ -285,9 +265,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalStepInstance>()
-                .HasOne(s => s.TemplateStep)
+                .HasOne(s => s.Step)
                 .WithMany()
-                .HasForeignKey(s => s.TemplateStepId)
+                .HasForeignKey(s => s.StepId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
@@ -307,91 +287,6 @@ namespace QLVPP.Data
                 .WithMany(e => e.ProcessedApprovalSteps)
                 .HasForeignKey(s => s.ApprovedById)
                 .OnDelete(DeleteBehavior.Restrict);
-            #endregion
-
-            #region Indexes
-
-            // ApprovalTemplate
-            modelBuilder
-                .Entity<ApprovalTemplate>()
-                .HasIndex(t => t.NoteType)
-                .HasDatabaseName("IX_ApprovalTemplate_NoteType");
-
-            modelBuilder
-                .Entity<ApprovalTemplate>()
-                .HasIndex(t => t.Code)
-                .IsUnique()
-                .HasDatabaseName("UX_ApprovalTemplate_Code")
-                .HasFilter("[Code] IS NOT NULL");
-
-            // ApprovalStep
-            modelBuilder
-                .Entity<ApprovalStep>()
-                .HasIndex(s => s.TemplateId)
-                .HasDatabaseName("IX_ApprovalStep_TemplateId");
-
-            modelBuilder
-                .Entity<ApprovalStep>()
-                .HasIndex(s => new { s.TemplateId, s.StepOrder })
-                .IsUnique()
-                .HasDatabaseName("UX_ApprovalStep_Template_Order");
-
-            // ApprovalStepApprover
-            modelBuilder
-                .Entity<ApprovalStepApprover>()
-                .HasIndex(a => a.TemplateStepId)
-                .HasDatabaseName("IX_ApprovalStepApprover_TemplateStepId");
-
-            modelBuilder
-                .Entity<ApprovalStepApprover>()
-                .HasIndex(a => a.EmployeeId)
-                .HasDatabaseName("IX_ApprovalStepApprover_EmployeeId");
-
-            modelBuilder
-                .Entity<ApprovalStepApprover>()
-                .HasIndex(a => new { a.TemplateStepId, a.EmployeeId })
-                .IsUnique()
-                .HasDatabaseName("UX_ApprovalStepApprover_Step_Employee");
-
-            // ApprovalInstance
-            modelBuilder
-                .Entity<ApprovalInstance>()
-                .HasIndex(i => new { i.NoteType, i.NoteId })
-                .IsUnique()
-                .HasDatabaseName("UX_ApprovalInstance_Note");
-
-            modelBuilder
-                .Entity<ApprovalInstance>()
-                .HasIndex(i => i.Status)
-                .HasDatabaseName("IX_ApprovalInstance_Status");
-
-            modelBuilder
-                .Entity<ApprovalInstance>()
-                .HasIndex(i => i.RequesterId)
-                .HasDatabaseName("IX_ApprovalInstance_RequesterId");
-
-            // ApprovalStepInstance
-            modelBuilder
-                .Entity<ApprovalStepInstance>()
-                .HasIndex(s => s.ApprovalInstanceId)
-                .HasDatabaseName("IX_ApprovalStepInstance_ApprovalInstanceId");
-
-            modelBuilder
-                .Entity<ApprovalStepInstance>()
-                .HasIndex(s => s.Status)
-                .HasDatabaseName("IX_ApprovalStepInstance_Status");
-
-            modelBuilder
-                .Entity<ApprovalStepInstance>()
-                .HasIndex(s => s.AssignedToId)
-                .HasDatabaseName("IX_ApprovalStepInstance_AssignedToId");
-
-            modelBuilder
-                .Entity<ApprovalStepInstance>()
-                .HasIndex(s => new { s.AssignedToId, s.Status })
-                .HasDatabaseName("IX_ApprovalStepInstance_AssignedTo_Status")
-                .HasFilter("[AssignedToId] IS NOT NULL");
-
             #endregion
         }
     }

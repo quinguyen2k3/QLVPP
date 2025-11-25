@@ -4,18 +4,18 @@ namespace QLVPP.DTOs.Request
 {
     public class ApprovalStepReq
     {
-        [Required]
-        [Range(1, 100, ErrorMessage = "Step order must be between 1 and 100")]
-        public int StepOrder { get; set; }
+        [Required(ErrorMessage = "Approval type is required")]
+        [RegularExpression(
+            "SEQUENTIAL|PARALLEL",
+            ErrorMessage = "Approval type must be SEQUENTIAL or PARALLEL"
+        )]
+        public string ApprovalType { get; set; } = "SEQUENTIAL";
 
-        [StringLength(200)]
-        public string? StepName { get; set; }
+        [Range(1, 100, ErrorMessage = "Number of required approvals must be between 1 and 100")]
+        public int? RequiredApprovals { get; set; }
 
-        [Required(ErrorMessage = "Position is required")]
-        public long PositionId { get; set; }
-
-        [Required]
-        [RegularExpression("DEPARTMENT|COMPANY|BRANCH", ErrorMessage = "Scope is not valid")]
-        public string Scope { get; set; } = "DEPARTMENT";
+        [Required(ErrorMessage = "At least one approver is required")]
+        [MinLength(1, ErrorMessage = "At least one approver is required")]
+        public List<ApproverReq> Approvers { get; set; } = new();
     }
 }

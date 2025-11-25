@@ -14,6 +14,14 @@ namespace QLVPP.DTOs.Request
         [Required(ErrorMessage = "IsActivated status is required")]
         public long DepartmentId { get; set; }
 
+        public string ApprovalType { get; set; } = "SEQUENTIAL";
+        public int? RequiredApprovals { get; set; }
+
+        [Required(ErrorMessage = "Approval step is required")]
+        public required ApprovalStepReq ApprovalStep { get; set; }
+
+        [Required(ErrorMessage = "At least one item is required")]
+        [MinLength(1, ErrorMessage = "At least one item is required")]
         public List<RequisitionItemReq> Items { get; set; } = new();
     }
 }

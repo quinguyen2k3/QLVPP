@@ -16,10 +16,5 @@ namespace QLVPP.Models
         public ICollection<StockOut> StockOuts { get; set; } = new List<StockOut>();
         public ICollection<Return> Returns { get; set; } = new List<Return>();
         public ICollection<Requisition> Requisitions { get; set; } = new List<Requisition>();
-
-        public virtual ICollection<ApprovalInstance> ApprovalInstances { get; set; } =
-            new List<ApprovalInstance>();
-        public virtual ICollection<ApprovalStepInstance> ApprovalStepInstances { get; set; } =
-            new List<ApprovalStepInstance>();
     }
 }

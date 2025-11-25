@@ -58,10 +58,6 @@ namespace QLVPP.Models
         public virtual ICollection<ApprovalStepApprover> ApproverInSteps { get; set; } =
             new List<ApprovalStepApprover>();
 
-        [InverseProperty(nameof(ApprovalInstance.Requester))]
-        public virtual ICollection<ApprovalInstance> RequestedApprovals { get; set; } =
-            new List<ApprovalInstance>();
-
         [InverseProperty(nameof(ApprovalStepInstance.AssignedTo))]
         public virtual ICollection<ApprovalStepInstance> AssignedApprovalSteps { get; set; } =
             new List<ApprovalStepInstance>();
