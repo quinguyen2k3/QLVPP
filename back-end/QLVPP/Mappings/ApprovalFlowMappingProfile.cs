@@ -24,8 +24,7 @@ namespace QLVPP.Mappings
             CreateMap<ApprovalStepReq, ApprovalStep>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.TemplateId, opt => opt.Ignore())
-                .ForMember(dest => dest.Template, opt => opt.Ignore())
-                .ForMember(dest => dest.Position, opt => opt.Ignore());
+                .ForMember(dest => dest.Template, opt => opt.Ignore());
 
             #endregion
 
@@ -41,15 +40,7 @@ namespace QLVPP.Mappings
                 );
 
             // ApprovalTemplateStep -> ApprovalStepRes
-            CreateMap<ApprovalStep, ApprovalStepRes>()
-                .ForMember(
-                    dest => dest.PositionName,
-                    opt => opt.MapFrom(src => src.Position != null ? src.Position.Name : "")
-                )
-                .ForMember(
-                    dest => dest.ScopeDisplay,
-                    opt => opt.MapFrom(src => GetScopeDisplay(src.Scope))
-                );
+            CreateMap<ApprovalStep, ApprovalStepRes>();
             #endregion
         }
 

@@ -14,9 +14,5 @@ namespace QLVPP.Models
 
         public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 
-        public virtual ICollection<ApprovalStep> TemplateSteps { get; set; } =
-            new List<ApprovalStep>();
-        public virtual ICollection<ApprovalStepInstance> StepInstances { get; set; } =
-            new List<ApprovalStepInstance>();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251125030142_AddApproverInstanceStepTable")]
+    partial class AddApproverInstanceStepTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,6 +97,9 @@ namespace QLVPP.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<long?>("PositionId")
+                        .HasColumnType("bigint");
+
                     b.Property<int?>("RequiredApprovals")
                         .HasColumnType("int");
 
@@ -108,6 +114,8 @@ namespace QLVPP.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PositionId");
 
                     b.HasIndex("TemplateId")
                         .HasDatabaseName("IX_ApprovalStep_TemplateId");
@@ -209,6 +217,9 @@ namespace QLVPP.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("PositionId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("SequenceInGroup")
                         .HasColumnType("int");
 
@@ -234,6 +245,8 @@ namespace QLVPP.Migrations
                         .HasDatabaseName("IX_ApprovalStepInstance_AssignedToId");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("PositionId");
 
                     b.HasIndex("Status")
                         .HasDatabaseName("IX_ApprovalStepInstance_Status");
@@ -1371,6 +1384,10 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.ApprovalStep", b =>
                 {
+                    b.HasOne("QLVPP.Models.Position", null)
+                        .WithMany("TemplateSteps")
+                        .HasForeignKey("PositionId");
+
                     b.HasOne("QLVPP.Models.ApprovalTemplate", "Template")
                         .WithMany("Steps")
                         .HasForeignKey("TemplateId")
@@ -1421,6 +1438,10 @@ namespace QLVPP.Migrations
                     b.HasOne("QLVPP.Models.Department", null)
                         .WithMany("ApprovalStepInstances")
                         .HasForeignKey("DepartmentId");
+
+                    b.HasOne("QLVPP.Models.Position", null)
+                        .WithMany("StepInstances")
+                        .HasForeignKey("PositionId");
 
                     b.HasOne("QLVPP.Models.ApprovalStep", "TemplateStep")
                         .WithMany()
@@ -1901,6 +1922,10 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Position", b =>
                 {
                     b.Navigation("Employees");
+
+                    b.Navigation("StepInstances");
+
+                    b.Navigation("TemplateSteps");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Product", b =>

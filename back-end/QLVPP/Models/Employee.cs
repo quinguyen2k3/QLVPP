@@ -54,11 +54,20 @@ namespace QLVPP.Models
         public ICollection<StockIn> StockInsApproved { get; set; } = new List<StockIn>();
         public ICollection<StockTake> StockTakesPerformed { get; set; } = new List<StockTake>();
 
+        [InverseProperty(nameof(ApprovalStepApprover.Employee))]
+        public virtual ICollection<ApprovalStepApprover> ApproverInSteps { get; set; } =
+            new List<ApprovalStepApprover>();
+
+        [InverseProperty(nameof(ApprovalInstance.Requester))]
         public virtual ICollection<ApprovalInstance> RequestedApprovals { get; set; } =
             new List<ApprovalInstance>();
-        public virtual ICollection<ApprovalStepInstance> AssignedSteps { get; set; } =
+
+        [InverseProperty(nameof(ApprovalStepInstance.AssignedTo))]
+        public virtual ICollection<ApprovalStepInstance> AssignedApprovalSteps { get; set; } =
             new List<ApprovalStepInstance>();
-        public virtual ICollection<ApprovalStepInstance> ApprovedSteps { get; set; } =
+
+        [InverseProperty(nameof(ApprovalStepInstance.ApprovedBy))]
+        public virtual ICollection<ApprovalStepInstance> ProcessedApprovalSteps { get; set; } =
             new List<ApprovalStepInstance>();
     }
 }

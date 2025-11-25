@@ -21,31 +21,30 @@ namespace QLVPP.Models
         public int StepOrder { get; set; }
 
         [Required]
-        public long PositionId { get; set; }
-
-        [ForeignKey(nameof(PositionId))]
-        public Position Position { get; set; } = null!;
-
-        public long? AssignedToId { get; set; }
+        public long AssignedToId { get; set; }
 
         [ForeignKey(nameof(AssignedToId))]
-        public Employee? AssignedTo { get; set; }
+        public Employee AssignedTo { get; set; } = null!;
 
-        public long? AssignedDepartmentId { get; set; }
+        [StringLength(20)]
+        public string ApprovalType { get; set; } = "SEQUENTIAL";
 
-        [ForeignKey(nameof(AssignedDepartmentId))]
-        public Department? AssignedDepartment { get; set; }
+        public int SequenceInGroup { get; set; } = 1;
+
+        public bool IsMandatory { get; set; } = true;
 
         [Required]
         [StringLength(20)]
         public string Status { get; set; } = "WAITING";
-
         public long? ApprovedById { get; set; }
 
         [ForeignKey(nameof(ApprovedById))]
         public Employee? ApprovedBy { get; set; }
 
         public DateTime? ApprovedDate { get; set; }
+
+        [StringLength(20)]
+        public string? Action { get; set; }
 
         [StringLength(1000)]
         public string? Comments { get; set; }

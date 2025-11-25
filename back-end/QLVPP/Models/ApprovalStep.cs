@@ -18,12 +18,14 @@ namespace QLVPP.Models
         public string? StepName { get; set; }
 
         [Required]
-        public long PositionId { get; set; }
-
-        [ForeignKey(nameof(PositionId))]
-        public Position Position { get; set; } = null!;
-
         [StringLength(20)]
-        public string Scope { get; set; } = "DEPARTMENT";
+        public string ApprovalType { get; set; } = "SEQUENTIAL";
+        public int? RequiredApprovals { get; set; }
+
+        [StringLength(500)]
+        public string? Description { get; set; }
+
+        public virtual ICollection<ApprovalStepApprover> Approvers { get; set; } =
+            new List<ApprovalStepApprover>();
     }
 }

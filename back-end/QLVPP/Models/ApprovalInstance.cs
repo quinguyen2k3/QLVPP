@@ -33,11 +33,9 @@ namespace QLVPP.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "PENDING"; // PENDING, APPROVED, REJECTED, CANCELLED
+        public string Status { get; set; } = "PENDING";
 
         public DateTime? CompletedDate { get; set; }
-
-        // Navigation Properties
         public ICollection<ApprovalStepInstance> StepInstances { get; set; } =
             new List<ApprovalStepInstance>();
     }
