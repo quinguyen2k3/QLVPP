@@ -97,34 +97,6 @@ namespace QLVPP.Services.Implementations
                 );
             }
 
-            var step = requisition
-                .ApprovalSteps.Where(s =>
-                    s.AssignedToId == approverId && s.Status == RequisitionStatus.Pending
-                )
-                .OrderBy(s => s.StepOrder)
-                .FirstOrDefault();
-
-            if (step == null)
-                throw new InvalidOperationException(
-                    "No pending approval step found for this approver."
-                );
-
-            step.Status = status;
-            step.ApprovedAt = DateTime.Now;
-            await _unitOfWork.ApprovalStep.Update(step);
-
-            if (status == RequisitionStatus.Rejected)
-            {
-                requisition.Status = RequisitionStatus.Rejected;
-            }
-            else
-            {
-                if (requisition.ApprovalSteps.All(s => s.Status == RequisitionStatus.Approved))
-                {
-                    requisition.Status = RequisitionStatus.Approved;
-                }
-            }
-
             await _unitOfWork.Requisition.Update(requisition);
             await _unitOfWork.SaveChanges();
 

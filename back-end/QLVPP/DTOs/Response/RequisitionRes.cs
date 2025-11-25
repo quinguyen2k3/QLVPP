@@ -3,17 +3,14 @@
     public class RequisitionRes
     {
         public long Id { get; set; }
-
-        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
         public string? Note { get; set; }
-
         public string Status { get; set; } = string.Empty;
-
         public DateTime? ApprovedDate { get; set; }
         public string? ApprovedBy { get; set; }
-
-        public long EmployeeId { get; set; }
-        public string EmployeeName { get; set; } = string.Empty;
+        public long RequesterId { get; set; }
+        public long DepartmentId { get; set; }
+        public bool IsActivated { get; set; }
         public List<RequisitionItemRes> Items { get; set; } = new();
         public List<ApprovalStepRes> ApprovalSteps { get; set; } = new();
     }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class ApprovalStep : BaseEntity
+    public class ApprovalInstance : BaseEntity
     {
         [Required]
         public long RequisitionId { get; set; }
@@ -11,12 +11,14 @@ namespace QLVPP.Models
         [ForeignKey(nameof(RequisitionId))]
         public Requisition Requisition { get; set; } = null!;
 
+        public int CurrentStepOrder { get; set; } = 1;
+
         [Required]
         [StringLength(20)]
-        public string ApprovalType { get; set; } = "SEQUENTIAL";
-        public int? RequiredApprovals { get; set; }
+        public string Status { get; set; } = "PENDING";
 
-        public virtual ICollection<ApprovalStepApprover> Approvers { get; set; } =
-            new List<ApprovalStepApprover>();
+        public DateTime? CompletedDate { get; set; }
+        public ICollection<ApprovalStepInstance> StepInstances { get; set; } =
+            new List<ApprovalStepInstance>();
     }
 }

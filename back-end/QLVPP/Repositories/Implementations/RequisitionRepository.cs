@@ -29,8 +29,7 @@ namespace QLVPP.Repositories.Implementations
             var Id = Convert.ToInt64(id);
 
             return await _context
-                .Requisitions.Include(r => r.ApprovalSteps)
-                .Include(r => r.RequisitionDetails)
+                .Requisitions.Include(r => r.RequisitionDetails)
                 .ThenInclude(d => d.Product)
                 .ThenInclude(p => p.Unit)
                 .FirstOrDefaultAsync(r => r.Id == Id);

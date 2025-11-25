@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251124071244_AddApprovalFlowModel")]
+    partial class AddApprovalFlowModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,18 @@ namespace QLVPP.Migrations
                     b.Property<int>("CurrentStepOrder")
                         .HasColumnType("int");
 
-                    b.Property<long>("RequisitionId")
+                    b.Property<long>("NoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("NoteType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<long?>("RequesterDepartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RequesterId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Status")
@@ -44,9 +58,24 @@ namespace QLVPP.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<long>("TemplateId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("RequisitionId");
+                    b.HasIndex("RequesterDepartmentId");
+
+                    b.HasIndex("RequesterId")
+                        .HasDatabaseName("IX_ApprovalInstance_RequesterId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_ApprovalInstance_Status");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("NoteType", "NoteId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ApprovalInstance_Note");
 
                     b.ToTable("ApprovalInstances");
                 });
@@ -59,51 +88,36 @@ namespace QLVPP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ApprovalType")
+                    b.Property<long>("PositionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Scope")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("RequiredApprovals")
+                    b.Property<string>("StepName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("StepOrder")
                         .HasColumnType("int");
 
-                    b.Property<long>("RequisitionId")
+                    b.Property<long>("TemplateId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RequisitionId");
+                    b.HasIndex("PositionId");
 
-                    b.ToTable("ApprovalSteps");
-                });
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("IX_ApprovalTemplateStep_TemplateId");
 
-            modelBuilder.Entity("QLVPP.Models.ApprovalStepApprover", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.HasIndex("TemplateId", "StepOrder")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ApprovalTemplateStep_Template_Order");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsMandatory")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<long>("StepId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("StepId");
-
-                    b.ToTable("ApprovalStepApprovers");
+                    b.ToTable("ApprovalTemplateSteps");
                 });
 
             modelBuilder.Entity("QLVPP.Models.ApprovalStepInstance", b =>
@@ -114,17 +128,8 @@ namespace QLVPP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Action")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<long>("ApprovalInstanceId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("ApprovalType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<long?>("ApprovedById")
                         .HasColumnType("bigint");
@@ -132,7 +137,10 @@ namespace QLVPP.Migrations
                     b.Property<DateTime?>("ApprovedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("AssignedToId")
+                    b.Property<long?>("AssignedDepartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("AssignedToId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Comments")
@@ -149,7 +157,83 @@ namespace QLVPP.Migrations
                     b.Property<bool>("IsActivated")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsMandatory")
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("PositionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TemplateStepId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalInstanceId")
+                        .HasDatabaseName("IX_ApprovalStepInstance_ApprovalInstanceId");
+
+                    b.HasIndex("ApprovedById");
+
+                    b.HasIndex("AssignedDepartmentId");
+
+                    b.HasIndex("AssignedToId")
+                        .HasDatabaseName("IX_ApprovalStepInstance_AssignedToId");
+
+                    b.HasIndex("PositionId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_ApprovalStepInstance_Status");
+
+                    b.HasIndex("TemplateStepId");
+
+                    b.HasIndex("ApprovalInstanceId", "StepOrder")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ApprovalStepInstance_Instance_Order");
+
+                    b.HasIndex("AssignedToId", "Status")
+                        .HasDatabaseName("IX_ApprovalStepInstance_AssignedTo_Status")
+                        .HasFilter("[AssignedToId] IS NOT NULL");
+
+                    b.ToTable("ApprovalStepInstances");
+                });
+
+            modelBuilder.Entity("QLVPP.Models.ApprovalTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActivated")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedBy")
@@ -158,31 +242,30 @@ namespace QLVPP.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SequenceInGroup")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("StepId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("StepOrder")
-                        .HasColumnType("int");
+                    b.Property<string>("NoteType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovalInstanceId");
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ApprovalTemplate_Code")
+                        .HasFilter("[Code] IS NOT NULL");
 
-                    b.HasIndex("ApprovedById");
+                    b.HasIndex("NoteType")
+                        .HasDatabaseName("IX_ApprovalTemplate_NoteType");
 
-                    b.HasIndex("AssignedToId");
+                    b.HasIndex("NoteType", "IsDefault")
+                        .HasDatabaseName("IX_ApprovalTemplate_NoteType_IsDefault");
 
-                    b.HasIndex("StepId");
-
-                    b.ToTable("ApprovalStepInstances");
+                    b.ToTable("ApprovalTemplates");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Category", b =>
@@ -1225,43 +1308,47 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.ApprovalInstance", b =>
                 {
-                    b.HasOne("QLVPP.Models.Requisition", "Requisition")
-                        .WithMany("Instances")
-                        .HasForeignKey("RequisitionId")
+                    b.HasOne("QLVPP.Models.Department", "RequesterDepartment")
+                        .WithMany("ApprovalInstances")
+                        .HasForeignKey("RequesterDepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Employee", "Requester")
+                        .WithMany("RequestedApprovals")
+                        .HasForeignKey("RequesterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Requisition");
+                    b.HasOne("QLVPP.Models.ApprovalTemplate", "Template")
+                        .WithMany("Instances")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Requester");
+
+                    b.Navigation("RequesterDepartment");
+
+                    b.Navigation("Template");
                 });
 
             modelBuilder.Entity("QLVPP.Models.ApprovalStep", b =>
                 {
-                    b.HasOne("QLVPP.Models.Requisition", "Requisition")
-                        .WithMany("Steps")
-                        .HasForeignKey("RequisitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Requisition");
-                });
-
-            modelBuilder.Entity("QLVPP.Models.ApprovalStepApprover", b =>
-                {
-                    b.HasOne("QLVPP.Models.Employee", "Employee")
-                        .WithMany("ApproverInSteps")
-                        .HasForeignKey("EmployeeId")
+                    b.HasOne("QLVPP.Models.Position", "Position")
+                        .WithMany("TemplateSteps")
+                        .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("QLVPP.Models.ApprovalStep", "Step")
-                        .WithMany("Approvers")
-                        .HasForeignKey("StepId")
+                    b.HasOne("QLVPP.Models.ApprovalTemplate", "Template")
+                        .WithMany("Steps")
+                        .HasForeignKey("TemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Employee");
+                    b.Navigation("Position");
 
-                    b.Navigation("Step");
+                    b.Navigation("Template");
                 });
 
             modelBuilder.Entity("QLVPP.Models.ApprovalStepInstance", b =>
@@ -1273,19 +1360,29 @@ namespace QLVPP.Migrations
                         .IsRequired();
 
                     b.HasOne("QLVPP.Models.Employee", "ApprovedBy")
-                        .WithMany("ProcessedApprovalSteps")
+                        .WithMany("ApprovedSteps")
                         .HasForeignKey("ApprovedById")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("QLVPP.Models.Department", "AssignedDepartment")
+                        .WithMany("ApprovalStepInstances")
+                        .HasForeignKey("AssignedDepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("QLVPP.Models.Employee", "AssignedTo")
-                        .WithMany("AssignedApprovalSteps")
+                        .WithMany("AssignedSteps")
                         .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("QLVPP.Models.Position", "Position")
+                        .WithMany("StepInstances")
+                        .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("QLVPP.Models.ApprovalStep", "Step")
+                    b.HasOne("QLVPP.Models.ApprovalStep", "TemplateStep")
                         .WithMany()
-                        .HasForeignKey("StepId")
+                        .HasForeignKey("TemplateStepId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1293,9 +1390,13 @@ namespace QLVPP.Migrations
 
                     b.Navigation("ApprovedBy");
 
+                    b.Navigation("AssignedDepartment");
+
                     b.Navigation("AssignedTo");
 
-                    b.Navigation("Step");
+                    b.Navigation("Position");
+
+                    b.Navigation("TemplateStep");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Employee", b =>
@@ -1689,9 +1790,11 @@ namespace QLVPP.Migrations
                     b.Navigation("StepInstances");
                 });
 
-            modelBuilder.Entity("QLVPP.Models.ApprovalStep", b =>
+            modelBuilder.Entity("QLVPP.Models.ApprovalTemplate", b =>
                 {
-                    b.Navigation("Approvers");
+                    b.Navigation("Instances");
+
+                    b.Navigation("Steps");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Category", b =>
@@ -1701,6 +1804,10 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Department", b =>
                 {
+                    b.Navigation("ApprovalInstances");
+
+                    b.Navigation("ApprovalStepInstances");
+
                     b.Navigation("Employees");
 
                     b.Navigation("Requisitions");
@@ -1712,9 +1819,9 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Employee", b =>
                 {
-                    b.Navigation("ApproverInSteps");
+                    b.Navigation("ApprovedSteps");
 
-                    b.Navigation("AssignedApprovalSteps");
+                    b.Navigation("AssignedSteps");
 
                     b.Navigation("DeliveriesApproved");
 
@@ -1722,9 +1829,9 @@ namespace QLVPP.Migrations
 
                     b.Navigation("DeliveriesRequested");
 
-                    b.Navigation("ProcessedApprovalSteps");
-
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("RequestedApprovals");
 
                     b.Navigation("RequisitionsCreated");
 
@@ -1749,6 +1856,10 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Position", b =>
                 {
                     b.Navigation("Employees");
+
+                    b.Navigation("StepInstances");
+
+                    b.Navigation("TemplateSteps");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Product", b =>
@@ -1773,11 +1884,7 @@ namespace QLVPP.Migrations
 
             modelBuilder.Entity("QLVPP.Models.Requisition", b =>
                 {
-                    b.Navigation("Instances");
-
                     b.Navigation("RequisitionDetails");
-
-                    b.Navigation("Steps");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Return", b =>
