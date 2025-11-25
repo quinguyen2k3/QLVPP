@@ -2,12 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QLVPP.DTOs.Request
 {
-    public class ApproveReq
+    public class DelegateReq
     {
         [Required(ErrorMessage = "RequisitionId is required")]
         public long RequisitionId { get; set; }
 
-        [StringLength(1000, ErrorMessage = "Comments cannot exceed 1000 characters")]
+        [Required(ErrorMessage = "DelegateToEmployeeId is required")]
+        public long DelegateToEmployeeId { get; set; }
+
+        [StringLength(1000)]
         public string? Comments { get; set; }
     }
 }
