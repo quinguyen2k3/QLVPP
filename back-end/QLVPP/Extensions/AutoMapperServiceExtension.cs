@@ -19,6 +19,7 @@ namespace QLVPP.Extensions
                 cfg.AddProfile<StockOutMappingProfile>();
                 cfg.AddProfile<StockTakeMappingProfile>();
                 cfg.AddProfile<TransferMappingProfile>();
+                cfg.AddProfile<ApprovalFlowMappingProfile>();
             });
 
             IMapper mapper = mapperConfig.CreateMapper();

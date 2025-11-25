@@ -12,6 +12,6 @@
         public long DepartmentId { get; set; }
         public bool IsActivated { get; set; }
         public List<RequisitionItemRes> Items { get; set; } = new();
-        public List<ApprovalStepRes> ApprovalSteps { get; set; } = new();
+        public ApprovalConfigRes Config { get; set; } = new();
     }
 }

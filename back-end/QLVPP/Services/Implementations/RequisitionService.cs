@@ -26,11 +26,74 @@ namespace QLVPP.Services.Implementations
 
         public async Task<RequisitionRes> Create(RequisitionReq request)
         {
+            var productIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
+
+            var products = await _unitOfWork.Product.GetByIds(productIds);
+
+            var productDict = products.ToDictionary(p => p.Id);
+
+            foreach (var productId in productIds)
+            {
+                if (!productDict.ContainsKey(productId))
+                    throw new KeyNotFoundException($"Cannot find product #{productId}");
+
+                if (!productDict[productId].IsActivated)
+                    throw new InvalidOperationException(
+                        $"Product #{productId} has been deactivated"
+                    );
+            }
+
+            var approverIds = request
+                .Config.Approvers.Select(a => a.EmployeeId)
+                .Distinct()
+                .ToList();
+
+            var approvers = await _unitOfWork.Employee.GetByIds(approverIds);
+
+            var approverDict = approvers.ToDictionary(a => a.Id);
+
+            foreach (var approverId in approverIds)
+            {
+                if (!approverDict.ContainsKey(approverId))
+                    throw new KeyNotFoundException($"Cannot find employee #{approverId}");
+
+                if (!approverDict[approverId].IsActivated)
+                    throw new InvalidOperationException(
+                        $"Employee #{approverId} has been deactivated"
+                    );
+            }
             var requisition = _mapper.Map<Requisition>(request);
             requisition.Status = RequisitionStatus.Pending;
             requisition.RequesterId = _currentUserService.GetUserId();
-
             await _unitOfWork.Requisition.Add(requisition);
+
+            var approvalConfig = requisition.Config;
+            var approvalInstance = new ApprovalProcess
+            {
+                Requisition = requisition,
+                CurrentStepOrder = 1,
+                Status = RequisitionStatus.Pending,
+            };
+            await _unitOfWork.ApprovalProcess.Add(approvalInstance);
+
+            var approvalStepApprovers = approvalConfig.Approvers.ToList();
+            int sequence = 1;
+            foreach (var approverItem in approvalStepApprovers.OrderBy(a => a.Priority))
+            {
+                var stepInstance = new ApprovalTask
+                {
+                    ApprovalInstance = approvalInstance,
+                    Step = approvalConfig,
+                    AssignedToId = approverItem.EmployeeId,
+                    ApprovalType = approvalConfig.ApprovalType,
+                    SequenceInGroup = sequence++,
+                    IsMandatory = approverItem.IsMandatory,
+                    Status = "WAITING",
+                };
+
+                await _unitOfWork.ApprovalTask.Add(stepInstance);
+            }
+
             await _unitOfWork.SaveChanges();
 
             var response = _mapper.Map<RequisitionRes>(requisition);

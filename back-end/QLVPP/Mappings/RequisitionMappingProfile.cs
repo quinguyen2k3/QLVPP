@@ -23,7 +23,7 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => src.DepartmentId))
                 .ForMember(dest => dest.Department, opt => opt.Ignore())
                 .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items))
-                .ForMember(dest => dest.Steps, opt => opt.Ignore())
+                .ForMember(dest => dest.Config, opt => opt.MapFrom(src => src.Config))
                 .ForMember(dest => dest.Instances, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActivated, opt => opt.MapFrom(src => src.IsActivated));
 
@@ -47,7 +47,7 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Notes))
                 .ForMember(dest => dest.IsActivated, opt => opt.MapFrom(src => src.IsActivated))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequisitionDetails))
-                .ForMember(dest => dest.ApprovalSteps, opt => opt.MapFrom(src => src.Steps)); // Set trong Service
+                .ForMember(dest => dest.Config, opt => opt.MapFrom(src => src.Config));
             CreateMap<RequisitionDetail, RequisitionItemRes>()
                 .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))

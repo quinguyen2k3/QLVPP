@@ -36,5 +36,13 @@ namespace QLVPP.Repositories.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<List<Employee>> GetByIds(IEnumerable<long> ids)
+        {
+            return await _context
+                .Employees.Where(e => ids.Contains(e.Id))
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

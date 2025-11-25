@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class ApprovalStepApprover : BaseEntity
+    public class Approver : BaseEntity
     {
         [Required]
-        public long StepId { get; set; }
+        public long ConfigId { get; set; }
 
-        [ForeignKey(nameof(StepId))]
-        public ApprovalStep Step { get; set; } = null!;
+        [ForeignKey(nameof(ConfigId))]
+        public ApprovalConfig Config { get; set; } = null!;
 
         [Required]
         public long EmployeeId { get; set; }

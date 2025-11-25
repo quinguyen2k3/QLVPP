@@ -11,7 +11,7 @@ namespace QLVPP.Mappings
         {
             #region REQUEST -> ENTITY
 
-            CreateMap<ApprovalStepReq, ApprovalStep>()
+            CreateMap<DTOs.Request.ApprovalConfigReq, ApprovalConfig>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.RequisitionId, opt => opt.Ignore()) // Set sau
                 .ForMember(dest => dest.Requisition, opt => opt.Ignore())
@@ -20,13 +20,13 @@ namespace QLVPP.Mappings
                     dest => dest.RequiredApprovals,
                     opt => opt.MapFrom(src => src.RequiredApprovals)
                 )
-                .ForMember(dest => dest.Approvers, opt => opt.Ignore());
+                .ForMember(dest => dest.Approvers, opt => opt.MapFrom(src => src.Approvers));
 
             // ApprovalStepReq -> ApprovalTemplateStep
-            CreateMap<ApproverReq, ApprovalStepApprover>()
+            CreateMap<ApproverReq, Approver>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.StepId, opt => opt.Ignore())
-                .ForMember(dest => dest.Step, opt => opt.Ignore())
+                .ForMember(dest => dest.Config, opt => opt.Ignore())
+                .ForMember(dest => dest.ConfigId, opt => opt.Ignore())
                 .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.EmployeeId))
                 .ForMember(dest => dest.Employee, opt => opt.Ignore())
                 .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority))
@@ -35,7 +35,7 @@ namespace QLVPP.Mappings
             #endregion
 
             #region ENTITY -> RESPONSE
-            CreateMap<ApprovalStep, ApprovalStepRes>()
+            CreateMap<ApprovalConfig, DTOs.Response.ApprovalConfigRes>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.ApprovalType, opt => opt.MapFrom(src => src.ApprovalType))
                 .ForMember(
@@ -52,7 +52,7 @@ namespace QLVPP.Mappings
                 );
 
             // ===== APPROVER RESPONSE =====
-            CreateMap<ApprovalStepApprover, ApproverRes>()
+            CreateMap<Approver, ApproverRes>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.EmployeeId))
                 .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority))
