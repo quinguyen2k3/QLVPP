@@ -4,6 +4,7 @@ namespace QLVPP.Repositories
 {
     public interface IApprovalTaskRepository : IBaseRepository<ApprovalTask>
     {
-        Task<List<ApprovalTask>> GetByProcessIdAndConfigId(long processId, long configId);
+        Task<List<ApprovalTask>> GetByConfigId(long configId);
+        Task<List<ApprovalTask>> GetPendingByEmployeeId(long employeeId);
     }
 }

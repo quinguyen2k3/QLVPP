@@ -24,7 +24,6 @@ namespace QLVPP.Mappings
                 .ForMember(dest => dest.Department, opt => opt.Ignore())
                 .ForMember(dest => dest.RequisitionDetails, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Config, opt => opt.MapFrom(src => src.Config))
-                .ForMember(dest => dest.Process, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActivated, opt => opt.MapFrom(src => src.IsActivated));
 
             CreateMap<RequisitionItemReq, RequisitionDetail>()

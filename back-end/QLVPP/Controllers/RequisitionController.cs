@@ -93,56 +93,6 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("{id:long}")]
-        public async Task<ActionResult<RequisitionRes>> Update(long id, [FromQuery] string status)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Values.SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
-            }
-
-            try
-            {
-                var updated = await _service.Update(id, status);
-                if (updated == null)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
-
-                return Ok(
-                    ApiResponse<RequisitionRes>.SuccessResponse(
-                        updated,
-                        "Updated requisition successfully"
-                    )
-                );
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
-        [HttpDelete("{id:long}")]
-        public async Task<ActionResult<bool>> Delete(long id)
-        {
-            try
-            {
-                var deleted = await _service.Delete(id);
-
-                if (deleted == false)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Return not found"));
-
-                return Ok(ApiResponse<bool>.SuccessResponse(deleted, "Delete return successfully"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
-            }
-        }
-
         [HttpPost("{requisitionId:long}/approve")]
         public async Task<IActionResult> Approve(
             [FromRoute] long requisitionId,

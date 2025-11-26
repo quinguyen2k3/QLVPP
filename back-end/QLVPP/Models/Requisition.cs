@@ -27,7 +27,6 @@ namespace QLVPP.Models
         [ForeignKey("DepartmentId")]
         public Department? Department { get; set; }
         public ApprovalConfig Config { get; set; } = null!;
-        public ApprovalProcess Process { get; set; } = null!;
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
     }

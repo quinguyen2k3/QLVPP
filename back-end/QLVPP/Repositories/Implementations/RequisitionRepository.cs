@@ -30,11 +30,15 @@ namespace QLVPP.Repositories.Implementations
 
             return await _context
                 .Requisitions.Include(r => r.Config)
-                .Include(r => r.Process)
                 .Include(r => r.RequisitionDetails)
                 .ThenInclude(d => d.Product)
                 .ThenInclude(p => p.Unit)
                 .FirstOrDefaultAsync(r => r.Id == Id);
+        }
+
+        public async Task<List<Requisition>> GetByIds(IEnumerable<long> ids)
+        {
+            return await _context.Requisitions.Where(r => ids.Contains(r.Id)).ToListAsync();
         }
     }
 }

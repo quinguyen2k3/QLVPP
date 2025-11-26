@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QLVPP.Constants.Status;
 using QLVPP.Data;
 using QLVPP.Models;
 
@@ -14,16 +15,24 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<ApprovalTask>> GetByProcessIdAndConfigId(
-            long processId,
-            long configId
-        )
+        public async Task<List<ApprovalTask>> GetByConfigId(long configId)
         {
             return await _context
-                .ApprovalTasks.Where(at =>
-                    at.ApprovalInstanceId == processId && at.ConfigId == configId
-                )
+                .ApprovalTasks.Where(at => at.ConfigId == configId)
                 .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<List<ApprovalTask>> GetPendingByEmployeeId(long employeeId)
+        {
+            return await _context
+                .ApprovalTasks.Include(t => t.Config)
+                .ThenInclude(p => p.Requisition)
+                .Where(t =>
+                    t.Status == RequisitionStatus.Pending
+                    && t.AssignedToId == employeeId
+                    && (t.DelegateId == null || t.DelegateId == employeeId)
+                )
                 .ToListAsync();
         }
     }

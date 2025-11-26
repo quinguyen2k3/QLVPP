@@ -6,12 +6,6 @@ namespace QLVPP.Models
     public class ApprovalTask : AuditableEntity
     {
         [Required]
-        public long ApprovalInstanceId { get; set; }
-
-        [ForeignKey(nameof(ApprovalInstanceId))]
-        public ApprovalProcess ApprovalInstance { get; set; } = null!;
-
-        [Required]
         public long ConfigId { get; set; }
 
         [ForeignKey(nameof(ConfigId))]

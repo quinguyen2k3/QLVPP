@@ -36,19 +36,16 @@ namespace QLVPP.Services.Implementations
             if (requisition.Status != RequisitionStatus.Pending)
                 throw new InvalidOperationException("Requisition is no longer pending approval");
 
-            var approvalProcess = requisition.Process;
             var workflow = requisition.Config;
 
-            var currentStepTasks = await _unitOfWork.ApprovalTask.GetByProcessIdAndConfigId(
-                approvalProcess.Id,
-                workflow.Id
-            );
+            var allTasks = await _unitOfWork.ApprovalTask.GetByConfigId(workflow.Id);
 
-            if (!currentStepTasks.Any())
-                throw new InvalidOperationException("No tasks found for the current step");
+            if (!allTasks.Any())
+                throw new InvalidOperationException("Approval tasks not found");
 
-            var myTask = currentStepTasks.FirstOrDefault(t =>
-                t.AssignedToId == employeeId || t.DelegateId == employeeId
+            var myTask = allTasks.FirstOrDefault(t =>
+                (t.AssignedToId == employeeId || t.DelegateId == employeeId)
+                && t.Status == RequisitionStatus.Pending
             );
 
             if (myTask == null)
@@ -58,11 +55,11 @@ namespace QLVPP.Services.Implementations
 
             if (workflow.ApprovalType == ApprovalType.SEQUENTIAL)
             {
-                int nextSequence = currentStepTasks
+                int nextSeq = allTasks
                     .Where(t => t.Status == RequisitionStatus.Pending)
                     .Min(t => t.SequenceInGroup);
 
-                if (myTask.SequenceInGroup != nextSequence)
+                if (myTask.SequenceInGroup != nextSeq)
                     throw new InvalidOperationException(
                         "It is not your turn to approve this requisition"
                     );
@@ -75,38 +72,24 @@ namespace QLVPP.Services.Implementations
 
             await _unitOfWork.ApprovalTask.Update(myTask);
 
-            int currentSequence = approvalProcess.CurrentStepOrder;
+            var approvedTasks = allTasks.Where(t => t.Status == RequisitionStatus.Approved);
+
+            bool isFullyApproved = false;
 
             if (workflow.ApprovalType == ApprovalType.SEQUENTIAL)
             {
-                if (currentStepTasks.All(t => t.Status == RequisitionStatus.Approved))
-                {
-                    int maxSequence = currentStepTasks.Max(t => t.SequenceInGroup);
-                    if (currentSequence < maxSequence)
-                        approvalProcess.CurrentStepOrder++;
-                    else
-                        requisition.Status = RequisitionStatus.Approved;
-                }
+                isFullyApproved = allTasks.All(t => t.Status == RequisitionStatus.Approved);
             }
             else if (workflow.ApprovalType == ApprovalType.PARALLEL)
             {
-                int approvedCount = currentStepTasks.Count(t =>
-                    t.Status == RequisitionStatus.Approved
-                );
-                int required = workflow.RequiredApprovals ?? currentStepTasks.Count;
-
-                if (approvedCount >= required)
-                {
-                    int maxSequence = currentStepTasks.Max(t => t.SequenceInGroup);
-                    if (currentSequence < maxSequence)
-                        approvalProcess.CurrentStepOrder++;
-                    else
-                        requisition.Status = RequisitionStatus.Approved;
-                }
+                int required = workflow.RequiredApprovals ?? allTasks.Count();
+                isFullyApproved = approvedTasks.Count() >= required;
             }
 
+            if (isFullyApproved)
+                requisition.Status = RequisitionStatus.Approved;
+
             await _unitOfWork.Requisition.Update(requisition);
-            await _unitOfWork.ApprovalProcess.Update(approvalProcess);
             await _unitOfWork.SaveChanges();
         }
 
@@ -119,10 +102,10 @@ namespace QLVPP.Services.Implementations
 
             foreach (var productId in productIds)
             {
-                if (!productDict.TryGetValue(productId, out var product))
+                if (!productDict.ContainsKey(productId))
                     throw new KeyNotFoundException($"Cannot find product #{productId}");
 
-                if (!product.IsActivated)
+                if (!productDict[productId].IsActivated)
                     throw new InvalidOperationException(
                         $"Product #{productId} has been deactivated"
                     );
@@ -138,10 +121,10 @@ namespace QLVPP.Services.Implementations
 
             foreach (var approverId in approverIds)
             {
-                if (!approverDict.TryGetValue(approverId, out var employee))
+                if (!approverDict.ContainsKey(approverId))
                     throw new KeyNotFoundException($"Cannot find employee #{approverId}");
 
-                if (!employee.IsActivated)
+                if (!approverDict[approverId].IsActivated)
                     throw new InvalidOperationException(
                         $"Employee #{approverId} has been deactivated"
                     );
@@ -152,57 +135,24 @@ namespace QLVPP.Services.Implementations
             requisition.RequesterId = _currentUserService.GetUserId();
             await _unitOfWork.Requisition.Add(requisition);
 
-            var approvalConfig = requisition.Config;
-            var approvalInstance = new ApprovalProcess
-            {
-                Requisition = requisition,
-                CurrentStepOrder = 1,
-                Status = RequisitionStatus.Pending,
-            };
-            await _unitOfWork.ApprovalProcess.Add(approvalInstance);
-
             int sequence = 1;
-            foreach (var approverItem in approvalConfig.Approvers.OrderBy(a => a.Priority))
+            foreach (var approverItem in request.Config.Approvers.OrderBy(x => x.Priority))
             {
-                var stepInstance = new ApprovalTask
+                var task = new ApprovalTask
                 {
-                    ApprovalInstance = approvalInstance,
-                    Config = approvalConfig,
+                    Config = requisition.Config,
                     AssignedToId = approverItem.EmployeeId,
-                    ApprovalType = approvalConfig.ApprovalType,
+                    ApprovalType = requisition.Config.ApprovalType,
                     SequenceInGroup = sequence++,
                     IsMandatory = approverItem.IsMandatory,
                     Status = RequisitionStatus.Pending,
                 };
 
-                await _unitOfWork.ApprovalTask.Add(stepInstance);
+                await _unitOfWork.ApprovalTask.Add(task);
             }
 
             await _unitOfWork.SaveChanges();
             return _mapper.Map<RequisitionRes>(requisition);
-        }
-
-        public async Task<bool> Delete(long id)
-        {
-            var requisition = await _unitOfWork.Requisition.GetById(id);
-            if (requisition == null)
-            {
-                return false;
-            }
-
-            if (requisition.Status != RequisitionStatus.Pending)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot delete a requisition with status '{requisition.Status}'. Only pending requisitions can be deleted."
-                );
-            }
-
-            requisition.IsActivated = false;
-            requisition.Status = RequisitionStatus.Cancelled;
-
-            await _unitOfWork.SaveChanges();
-
-            return true;
         }
 
         public async Task<List<RequisitionRes>> GetAllByMyself()
@@ -218,34 +168,19 @@ namespace QLVPP.Services.Implementations
             return requisition == null ? null : _mapper.Map<RequisitionRes>(requisition);
         }
 
-        public async Task<RequisitionRes?> Update(long id, string status)
+        public async Task<List<RequisitionRes>> GetPendingRequisitionsForMe()
         {
-            var approverId = _currentUserService.GetUserId();
+            var employeeId = _currentUserService.GetUserId();
 
-            status = status.ToUpper();
+            var tasks = await _unitOfWork.ApprovalTask.GetPendingByEmployeeId(employeeId);
 
-            if (status != RequisitionStatus.Approved && status != RequisitionStatus.Rejected)
-            {
-                throw new ArgumentException(
-                    $"Invalid status update. Only '{RequisitionStatus.Approved}' or '{RequisitionStatus.Rejected}' are allowed."
-                );
-            }
+            var requisitionIds = tasks.Select(t => t.Config.RequisitionId).Distinct().ToList();
 
-            var requisition = await _unitOfWork.Requisition.GetById(id);
-            if (requisition == null)
-                return null;
+            var requisitions = await _unitOfWork.Requisition.GetByIds(requisitionIds);
 
-            if (requisition.Status is RequisitionStatus.Approved or RequisitionStatus.Rejected)
-            {
-                throw new InvalidOperationException(
-                    $"Requisition {id} is already {requisition.Status} and cannot be modified."
-                );
-            }
+            var result = _mapper.Map<List<RequisitionRes>>(requisitions);
 
-            await _unitOfWork.Requisition.Update(requisition);
-            await _unitOfWork.SaveChanges();
-
-            return _mapper.Map<RequisitionRes>(requisition);
+            return result;
         }
     }
 }
