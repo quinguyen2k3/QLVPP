@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class ApprovalInstance : BaseEntity
+    public class ApprovalProcess : BaseEntity
     {
         [Required]
         public long RequisitionId { get; set; }
@@ -18,7 +18,6 @@ namespace QLVPP.Models
         public string Status { get; set; } = "PENDING";
 
         public DateTime? CompletedDate { get; set; }
-        public ICollection<ApprovalStepInstance> StepInstances { get; set; } =
-            new List<ApprovalStepInstance>();
+        public ICollection<ApprovalTask> StepInstances { get; set; } = new List<ApprovalTask>();
     }
 }

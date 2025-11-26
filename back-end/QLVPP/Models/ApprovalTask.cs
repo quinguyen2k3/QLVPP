@@ -3,22 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QLVPP.Models
 {
-    public class ApprovalStepInstance : AuditableEntity
+    public class ApprovalTask : AuditableEntity
     {
         [Required]
         public long ApprovalInstanceId { get; set; }
 
         [ForeignKey(nameof(ApprovalInstanceId))]
-        public ApprovalInstance ApprovalInstance { get; set; } = null!;
+        public ApprovalProcess ApprovalInstance { get; set; } = null!;
 
         [Required]
         public long StepId { get; set; }
 
         [ForeignKey(nameof(StepId))]
-        public ApprovalStep Step { get; set; } = null!;
-
-        [Required]
-        public int StepOrder { get; set; }
+        public ApprovalConfig Step { get; set; } = null!;
 
         [Required]
         public long AssignedToId { get; set; }

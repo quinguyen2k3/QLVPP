@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace QLVPP.DTOs.Request
 {
-    public class ApprovalStepReq
+    public class ApprovalConfigReq
     {
         [Required(ErrorMessage = "Approval type is required")]
         [RegularExpression(

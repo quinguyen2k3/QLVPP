@@ -61,10 +61,10 @@ namespace QLVPP.Data
         #endregion
 
         #region Approval Flow
-        public DbSet<ApprovalStep> ApprovalSteps { get; set; }
-        public DbSet<ApprovalInstance> ApprovalInstances { get; set; }
-        public DbSet<ApprovalStepInstance> ApprovalStepInstances { get; set; }
-        public DbSet<ApprovalStepApprover> ApprovalStepApprovers { get; set; }
+        public DbSet<ApprovalConfig> ApprovalConfigs { get; set; }
+        public DbSet<ApprovalProcess> ApprovalProcesses { get; set; }
+        public DbSet<ApprovalTask> ApprovalTasks { get; set; }
+        public DbSet<Approver> Approvers { get; set; }
         #endregion
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -211,13 +211,13 @@ namespace QLVPP.Data
                 .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
-            #region ApprovalTemplate → ApprovalStep
+            #region Requisition → ApprovalConfig
 
             modelBuilder
-                .Entity<ApprovalStep>()
-                .HasOne(s => s.Requisition)
-                .WithMany(t => t.Steps)
-                .HasForeignKey(s => s.RequisitionId)
+                .Entity<ApprovalConfig>()
+                .HasOne(ac => ac.Requisition) 
+                .WithOne(r => r.Config)
+                .HasForeignKey<ApprovalConfig>(ac => ac.RequisitionId) 
                 .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
@@ -225,14 +225,14 @@ namespace QLVPP.Data
             #region ApprovalStep → ApprovalStepApprover
 
             modelBuilder
-                .Entity<ApprovalStepApprover>()
-                .HasOne(a => a.Step)
+                .Entity<Approver>()
+                .HasOne(a => a.Config)
                 .WithMany(s => s.Approvers)
-                .HasForeignKey(a => a.StepId)
+                .HasForeignKey(a => a.ConfigId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
-                .Entity<ApprovalStepApprover>()
+                .Entity<Approver>()
                 .HasOne(a => a.Employee)
                 .WithMany(e => e.ApproverInSteps)
                 .HasForeignKey(a => a.EmployeeId)
@@ -243,7 +243,7 @@ namespace QLVPP.Data
             #region Requisition → ApprovalInstance
 
             modelBuilder
-                .Entity<ApprovalInstance>()
+                .Entity<ApprovalProcess>()
                 .HasOne(i => i.Requisition)
                 .WithMany(r => r.Instances)
                 .HasForeignKey(i => i.RequisitionId)
@@ -253,7 +253,7 @@ namespace QLVPP.Data
             #region ApprovalInstance → ApprovalStepInstance
 
             modelBuilder
-                .Entity<ApprovalStepInstance>()
+                .Entity<ApprovalTask>()
                 .HasOne(s => s.ApprovalInstance)
                 .WithMany(i => i.StepInstances)
                 .HasForeignKey(s => s.ApprovalInstanceId)
@@ -264,7 +264,7 @@ namespace QLVPP.Data
             #region ApprovalStepInstance → ApprovalStep
 
             modelBuilder
-                .Entity<ApprovalStepInstance>()
+                .Entity<ApprovalTask>()
                 .HasOne(s => s.Step)
                 .WithMany()
                 .HasForeignKey(s => s.StepId)
@@ -275,14 +275,14 @@ namespace QLVPP.Data
             #region ApprovalStepInstance → Employee (Multiple FKs)
 
             modelBuilder
-                .Entity<ApprovalStepInstance>()
+                .Entity<ApprovalTask>()
                 .HasOne(s => s.AssignedTo)
                 .WithMany(e => e.AssignedApprovalSteps)
                 .HasForeignKey(s => s.AssignedToId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder
-                .Entity<ApprovalStepInstance>()
+                .Entity<ApprovalTask>()
                 .HasOne(s => s.ApprovedBy)
                 .WithMany(e => e.ProcessedApprovalSteps)
                 .HasForeignKey(s => s.ApprovedById)

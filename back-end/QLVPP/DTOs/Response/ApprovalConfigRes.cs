@@ -1,6 +1,6 @@
 namespace QLVPP.DTOs.Response
 {
-    public class ApprovalStepRes
+    public class ApprovalConfigRes
     {
         public long Id { get; set; }
         public string ApprovalType { get; set; } = string.Empty;
