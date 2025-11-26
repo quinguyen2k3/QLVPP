@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using QLVPP.Data;
 using QLVPP.Models;
 
@@ -11,6 +12,19 @@ namespace QLVPP.Repositories.Implementations
             : base(context)
         {
             _context = context;
+        }
+
+        public async Task<List<ApprovalTask>> GetByProcessIdAndConfigId(
+            long processId,
+            long configId
+        )
+        {
+            return await _context
+                .ApprovalTasks.Where(at =>
+                    at.ApprovalInstanceId == processId && at.ConfigId == configId
+                )
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

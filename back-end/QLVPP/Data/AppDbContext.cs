@@ -234,7 +234,7 @@ namespace QLVPP.Data
             modelBuilder
                 .Entity<Approver>()
                 .HasOne(a => a.Employee)
-                .WithMany(e => e.ApproverInSteps)
+                .WithMany(e => e.ApproverInConfig)
                 .HasForeignKey(a => a.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -245,8 +245,8 @@ namespace QLVPP.Data
             modelBuilder
                 .Entity<ApprovalProcess>()
                 .HasOne(i => i.Requisition)
-                .WithMany(r => r.Instances)
-                .HasForeignKey(i => i.RequisitionId)
+                .WithOne(r => r.Process)
+                .HasForeignKey<ApprovalProcess>(i => i.RequisitionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
@@ -265,9 +265,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalTask>()
-                .HasOne(s => s.Step)
+                .HasOne(s => s.Config)
                 .WithMany()
-                .HasForeignKey(s => s.StepId)
+                .HasForeignKey(s => s.ConfigId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion

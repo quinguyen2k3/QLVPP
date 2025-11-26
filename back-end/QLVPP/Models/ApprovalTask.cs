@@ -12,16 +12,24 @@ namespace QLVPP.Models
         public ApprovalProcess ApprovalInstance { get; set; } = null!;
 
         [Required]
-        public long StepId { get; set; }
+        public long ConfigId { get; set; }
 
-        [ForeignKey(nameof(StepId))]
-        public ApprovalConfig Step { get; set; } = null!;
+        [ForeignKey(nameof(ConfigId))]
+        public ApprovalConfig Config { get; set; } = null!;
 
         [Required]
         public long AssignedToId { get; set; }
 
         [ForeignKey(nameof(AssignedToId))]
         public Employee AssignedTo { get; set; } = null!;
+
+        public long? DelegateId { get; set; }
+
+        [ForeignKey(nameof(DelegateId))]
+        public Employee? Delegate { get; set; }
+
+        [NotMapped]
+        public bool IsDelegated => DelegateId != null;
 
         [StringLength(20)]
         public string ApprovalType { get; set; } = "SEQUENTIAL";

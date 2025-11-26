@@ -9,6 +9,7 @@ namespace QLVPP.Services
         Task<RequisitionRes?> GetById(long id);
         Task<RequisitionRes> Create(RequisitionReq request);
         Task<RequisitionRes?> Update(long id, string status);
+        Task Approve(ApproveReq request);
         Task<bool> Delete(long id);
     }
 }

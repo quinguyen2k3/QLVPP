@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126033723_AddDelagteIdForTask")]
+    partial class AddDelagteIdForTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,8 +76,7 @@ namespace QLVPP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RequisitionId")
-                        .IsUnique();
+                    b.HasIndex("RequisitionId");
 
                     b.ToTable("ApprovalProcesses");
                 });
@@ -1241,8 +1243,8 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.ApprovalProcess", b =>
                 {
                     b.HasOne("QLVPP.Models.Requisition", "Requisition")
-                        .WithOne("Process")
-                        .HasForeignKey("QLVPP.Models.ApprovalProcess", "RequisitionId")
+                        .WithMany("Processes")
+                        .HasForeignKey("RequisitionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1788,8 +1790,7 @@ namespace QLVPP.Migrations
                     b.Navigation("Config")
                         .IsRequired();
 
-                    b.Navigation("Process")
-                        .IsRequired();
+                    b.Navigation("Processes");
 
                     b.Navigation("RequisitionDetails");
                 });

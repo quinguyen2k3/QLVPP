@@ -142,5 +142,42 @@ namespace QLVPP.Controllers
                 return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
+
+        [HttpPost("{requisitionId:long}/approve")]
+        public async Task<IActionResult> Approve(
+            [FromRoute] long requisitionId,
+            [FromBody] ApproveReq request
+        )
+        {
+            if (requisitionId != request.RequisitionId)
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+
+            try
+            {
+                await _service.Approve(request);
+
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
     }
 }
