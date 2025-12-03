@@ -17,5 +17,6 @@ namespace QLVPP.Models
         public int? RequiredApprovals { get; set; }
 
         public virtual ICollection<Approver> Approvers { get; set; } = new List<Approver>();
+        public virtual ICollection<ApprovalTask> Tasks { get; set; } = new List<ApprovalTask>();
     }
 }

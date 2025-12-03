@@ -93,9 +93,56 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpPut("{id:long}")]
-        public async Task<ActionResult<RequisitionRes>> Update(long id, [FromQuery] string status)
+        [HttpPost("{requisitionId:long}/approve")]
+        public async Task<IActionResult> Approve(
+            [FromRoute] long requisitionId,
+            [FromBody] ApproveReq request
+        )
         {
+            if (requisitionId != request.RequisitionId)
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+
+            try
+            {
+                await _service.Approve(request);
+
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPost("{requisitionId:long}/delegate")]
+        public async Task<IActionResult> Delegate(
+            [FromRoute] long requisitionId,
+            [FromBody] DelegateReq request
+        )
+        {
+            if (requisitionId != request.RequisitionId)
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -108,16 +155,20 @@ namespace QLVPP.Controllers
 
             try
             {
-                var updated = await _service.Update(id, status);
-                if (updated == null)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Requisition not found"));
-
-                return Ok(
-                    ApiResponse<RequisitionRes>.SuccessResponse(
-                        updated,
-                        "Updated requisition successfully"
-                    )
-                );
+                await _service.Delegate(request);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
             }
             catch (Exception ex)
             {
@@ -125,17 +176,47 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpDelete("{id:long}")]
-        public async Task<ActionResult<bool>> Delete(long id)
+        [HttpPost("{requisitionId:long}/reject")]
+        public async Task<IActionResult> Reject(
+            [FromRoute] long requisitionId,
+            [FromBody] RejectReq request
+        )
         {
+            if (requisitionId != request.RequisitionId)
+            {
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+
             try
             {
-                var deleted = await _service.Delete(id);
-
-                if (deleted == false)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Return not found"));
-
-                return Ok(ApiResponse<bool>.SuccessResponse(deleted, "Delete return successfully"));
+                await _service.Reject(request);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
             }
             catch (Exception ex)
             {

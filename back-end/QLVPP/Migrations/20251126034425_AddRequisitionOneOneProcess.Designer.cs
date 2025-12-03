@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QLVPP.Data;
 
@@ -11,9 +12,11 @@ using QLVPP.Data;
 namespace QLVPP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126034425_AddRequisitionOneOneProcess")]
+    partial class AddRequisitionOneOneProcess
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,6 +52,36 @@ namespace QLVPP.Migrations
                     b.ToTable("ApprovalConfigs");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.ApprovalProcess", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrentStepOrder")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RequisitionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequisitionId")
+                        .IsUnique();
+
+                    b.ToTable("ApprovalProcesses");
+                });
+
             modelBuilder.Entity("QLVPP.Models.ApprovalTask", b =>
                 {
                     b.Property<long>("Id")
@@ -61,7 +94,7 @@ namespace QLVPP.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<long?>("ApprovalConfigId")
+                    b.Property<long>("ApprovalInstanceId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("ApprovalType")
@@ -117,7 +150,7 @@ namespace QLVPP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovalConfigId");
+                    b.HasIndex("ApprovalInstanceId");
 
                     b.HasIndex("ApprovedById");
 
@@ -1208,11 +1241,24 @@ namespace QLVPP.Migrations
                     b.Navigation("Requisition");
                 });
 
+            modelBuilder.Entity("QLVPP.Models.ApprovalProcess", b =>
+                {
+                    b.HasOne("QLVPP.Models.Requisition", "Requisition")
+                        .WithOne("Process")
+                        .HasForeignKey("QLVPP.Models.ApprovalProcess", "RequisitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Requisition");
+                });
+
             modelBuilder.Entity("QLVPP.Models.ApprovalTask", b =>
                 {
-                    b.HasOne("QLVPP.Models.ApprovalConfig", null)
-                        .WithMany("Tasks")
-                        .HasForeignKey("ApprovalConfigId");
+                    b.HasOne("QLVPP.Models.ApprovalProcess", "ApprovalInstance")
+                        .WithMany("StepInstances")
+                        .HasForeignKey("ApprovalInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("QLVPP.Models.Employee", "ApprovedBy")
                         .WithMany("ProcessedApprovalSteps")
@@ -1234,6 +1280,8 @@ namespace QLVPP.Migrations
                     b.HasOne("QLVPP.Models.Employee", "Delegate")
                         .WithMany("DelegatedTasks")
                         .HasForeignKey("DelegateId");
+
+                    b.Navigation("ApprovalInstance");
 
                     b.Navigation("ApprovedBy");
 
@@ -1652,8 +1700,11 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.ApprovalConfig", b =>
                 {
                     b.Navigation("Approvers");
+                });
 
-                    b.Navigation("Tasks");
+            modelBuilder.Entity("QLVPP.Models.ApprovalProcess", b =>
+                {
+                    b.Navigation("StepInstances");
                 });
 
             modelBuilder.Entity("QLVPP.Models.Category", b =>
@@ -1738,6 +1789,9 @@ namespace QLVPP.Migrations
             modelBuilder.Entity("QLVPP.Models.Requisition", b =>
                 {
                     b.Navigation("Config")
+                        .IsRequired();
+
+                    b.Navigation("Process")
                         .IsRequired();
 
                     b.Navigation("RequisitionDetails");

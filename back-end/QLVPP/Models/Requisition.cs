@@ -29,6 +29,5 @@ namespace QLVPP.Models
         public ApprovalConfig Config { get; set; } = null!;
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();
-        public ICollection<ApprovalProcess> Instances { get; set; } = new List<ApprovalProcess>();
     }
 }

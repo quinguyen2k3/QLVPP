@@ -24,8 +24,8 @@ namespace QLVPP.Repositories.Implementations
         public IReportRepository Report { get; private set; }
         public ITransferRepository Transfer { get; private set; }
         public IStockTakeRepository StockTake { get; private set; }
-        public IApprovalProcessRepository ApprovalProcess { get; private set; }
         public IApprovalTaskRepository ApprovalTask { get; private set; }
+        public IApprovalConfigRepository ApprovalConfig { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -49,8 +49,8 @@ namespace QLVPP.Repositories.Implementations
             Report = new ReportRepository(context);
             Transfer = new TransferRepository(context);
             StockTake = new StockTakeRepository(context);
-            ApprovalProcess = new ApprovalProcessRepository(context);
             ApprovalTask = new ApprovalTaskRepository(context);
+            ApprovalConfig = new ApprovalConfigRepository(context);
             _context = context;
         }
 

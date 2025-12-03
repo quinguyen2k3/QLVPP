@@ -62,7 +62,6 @@ namespace QLVPP.Data
 
         #region Approval Flow
         public DbSet<ApprovalConfig> ApprovalConfigs { get; set; }
-        public DbSet<ApprovalProcess> ApprovalProcesses { get; set; }
         public DbSet<ApprovalTask> ApprovalTasks { get; set; }
         public DbSet<Approver> Approvers { get; set; }
         #endregion
@@ -215,9 +214,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalConfig>()
-                .HasOne(ac => ac.Requisition) 
+                .HasOne(ac => ac.Requisition)
                 .WithOne(r => r.Config)
-                .HasForeignKey<ApprovalConfig>(ac => ac.RequisitionId) 
+                .HasForeignKey<ApprovalConfig>(ac => ac.RequisitionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
@@ -234,30 +233,9 @@ namespace QLVPP.Data
             modelBuilder
                 .Entity<Approver>()
                 .HasOne(a => a.Employee)
-                .WithMany(e => e.ApproverInSteps)
+                .WithMany(e => e.ApproverInConfig)
                 .HasForeignKey(a => a.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-
-            #region Requisition → ApprovalInstance
-
-            modelBuilder
-                .Entity<ApprovalProcess>()
-                .HasOne(i => i.Requisition)
-                .WithMany(r => r.Instances)
-                .HasForeignKey(i => i.RequisitionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-            #region ApprovalInstance → ApprovalStepInstance
-
-            modelBuilder
-                .Entity<ApprovalTask>()
-                .HasOne(s => s.ApprovalInstance)
-                .WithMany(i => i.StepInstances)
-                .HasForeignKey(s => s.ApprovalInstanceId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
 
@@ -265,9 +243,9 @@ namespace QLVPP.Data
 
             modelBuilder
                 .Entity<ApprovalTask>()
-                .HasOne(s => s.Step)
+                .HasOne(s => s.Config)
                 .WithMany()
-                .HasForeignKey(s => s.StepId)
+                .HasForeignKey(s => s.ConfigId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion

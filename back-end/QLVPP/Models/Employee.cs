@@ -55,7 +55,7 @@ namespace QLVPP.Models
         public ICollection<StockTake> StockTakesPerformed { get; set; } = new List<StockTake>();
 
         [InverseProperty(nameof(Approver.Employee))]
-        public virtual ICollection<Approver> ApproverInSteps { get; set; } = new List<Approver>();
+        public virtual ICollection<Approver> ApproverInConfig { get; set; } = new List<Approver>();
 
         [InverseProperty(nameof(ApprovalTask.AssignedTo))]
         public virtual ICollection<ApprovalTask> AssignedApprovalSteps { get; set; } =
@@ -64,5 +64,7 @@ namespace QLVPP.Models
         [InverseProperty(nameof(ApprovalTask.ApprovedBy))]
         public virtual ICollection<ApprovalTask> ProcessedApprovalSteps { get; set; } =
             new List<ApprovalTask>();
+
+        public ICollection<ApprovalTask>? DelegatedTasks { get; set; } = new List<ApprovalTask>();
     }
 }
