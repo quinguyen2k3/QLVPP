@@ -9,6 +9,8 @@ namespace QLVPP.Services
         Task<List<RequisitionRes>> GetPendingRequisitionsForMe();
         Task<RequisitionRes?> GetById(long id);
         Task<RequisitionRes> Create(RequisitionReq request);
+        Task Delegate(DelegateReq request);
         Task Approve(ApproveReq request);
+        Task Reject(RejectReq request);
     }
 }

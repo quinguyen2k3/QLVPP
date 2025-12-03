@@ -155,6 +155,118 @@ namespace QLVPP.Services.Implementations
             return _mapper.Map<RequisitionRes>(requisition);
         }
 
+        public async Task Delegate(DelegateReq request)
+        {
+            var userId = _currentUserService.GetUserId();
+
+            var requisition =
+                await _unitOfWork.Requisition.GetById(request.RequisitionId)
+                ?? throw new KeyNotFoundException(
+                    $"Requisition #{request.RequisitionId} not found"
+                );
+
+            if (requisition.Status != RequisitionStatus.Pending)
+                throw new InvalidOperationException(
+                    "Cannot delegate when requisition is not pending"
+                );
+
+            var delegateEmployee =
+                await _unitOfWork.Employee.GetById(request.DelegateToEmployeeId)
+                ?? throw new KeyNotFoundException(
+                    $"Employee #{request.DelegateToEmployeeId} not found"
+                );
+
+            if (!delegateEmployee.IsActivated)
+                throw new InvalidOperationException(
+                    $"Employee #{request.DelegateToEmployeeId} is inactive"
+                );
+
+            var tasks = await _unitOfWork.ApprovalTask.GetByConfigId(requisition.Config.Id);
+
+            var myTask =
+                tasks.FirstOrDefault(t =>
+                    t.AssignedToId == userId && t.Status == RequisitionStatus.Pending
+                )
+                ?? throw new InvalidOperationException(
+                    "You have no pending approval task to delegate"
+                );
+
+            if (requisition.Config.ApprovalType == ApprovalType.SEQUENTIAL)
+            {
+                int nextSeq = tasks
+                    .Where(t => t.Status == RequisitionStatus.Pending)
+                    .Min(t => t.SequenceInGroup);
+
+                if (myTask.SequenceInGroup != nextSeq)
+                {
+                    throw new InvalidOperationException(
+                        $"You cannot delegate now because it is not your turn to approve. "
+                            + $"Your sequence: {myTask.SequenceInGroup}, Current sequence: {nextSeq}"
+                    );
+                }
+            }
+
+            if (myTask.DelegateId != null)
+                throw new InvalidOperationException(
+                    "This approval task has already been delegated"
+                );
+
+            myTask.DelegateId = request.DelegateToEmployeeId;
+            myTask.Comments = request.Comments;
+
+            await _unitOfWork.ApprovalTask.Update(myTask);
+            await _unitOfWork.SaveChanges();
+        }
+
+        public async Task Reject(RejectReq request)
+        {
+            var userId = _currentUserService.GetUserId();
+
+            var requisition =
+                await _unitOfWork.Requisition.GetById(request.RequisitionId)
+                ?? throw new KeyNotFoundException(
+                    $"Requisition #{request.RequisitionId} not found"
+                );
+
+            if (requisition.Status != RequisitionStatus.Pending)
+                throw new InvalidOperationException("Requisition is not in pending state");
+
+            var tasks = await _unitOfWork.ApprovalTask.GetByConfigId(requisition.Config.Id);
+
+            var myTask =
+                tasks.FirstOrDefault(t =>
+                    (t.AssignedToId == userId || t.DelegateId == userId)
+                    && t.Status == RequisitionStatus.Pending
+                )
+                ?? throw new UnauthorizedAccessException(
+                    "You are not allowed to reject this requisition"
+                );
+
+            if (requisition.Config.ApprovalType == ApprovalType.SEQUENTIAL)
+            {
+                int nextSeq = tasks
+                    .Where(t => t.Status == RequisitionStatus.Pending)
+                    .Min(t => t.SequenceInGroup);
+
+                if (myTask.SequenceInGroup != nextSeq)
+                    throw new InvalidOperationException(
+                        "It is not your turn to reject this requisition"
+                    );
+            }
+
+            myTask.Status = RequisitionStatus.Rejected;
+            myTask.ApprovedById = userId;
+            myTask.ApprovedDate = DateTime.UtcNow;
+            myTask.Comments = request.Comments;
+
+            await _unitOfWork.ApprovalTask.Update(myTask);
+
+            requisition.Status = RequisitionStatus.Rejected;
+
+            await _unitOfWork.Requisition.Update(requisition);
+            await _unitOfWork.SaveChanges();
+        }
+
         public async Task<List<RequisitionRes>> GetAllByMyself()
         {
             var curAccount = _currentUserService.GetUserAccount();

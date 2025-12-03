@@ -1,0 +1,23 @@
+{
+    "files.exclude": {
+        "**/.git": false,
+        "**/.svn": false,
+        "**/.hg": false,
+        "**/.DS_Store": false,
+        "**/Thumbs.db": false,
+        "**/*.csproj": true,
+        "**/*.json": false,
+        "**/appsettings.Development.json": true,
+        "**/obj": true,
+        "obj": true,
+        "**/bin": true,
+        "**/.vscode": true,
+        ".vscode": true,
+        "**/.vs": true,
+        ".vs": true,
+        "**/*.http": true,
+        "**/*.user": true,
+        "**/*.sln": true
+    },
+    "explorerExclude.backup": {}
+}

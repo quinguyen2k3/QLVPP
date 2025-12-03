@@ -129,5 +129,99 @@ namespace QLVPP.Controllers
                 return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
         }
+
+        [HttpPost("{requisitionId:long}/delegate")]
+        public async Task<IActionResult> Delegate(
+            [FromRoute] long requisitionId,
+            [FromBody] DelegateReq request
+        )
+        {
+            if (requisitionId != request.RequisitionId)
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+
+            try
+            {
+                await _service.Delegate(request);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPost("{requisitionId:long}/reject")]
+        public async Task<IActionResult> Reject(
+            [FromRoute] long requisitionId,
+            [FromBody] RejectReq request
+        )
+        {
+            if (requisitionId != request.RequisitionId)
+            {
+                return BadRequest(
+                    ApiResponse<string>.ErrorResponse(
+                        "RequisitionId in route and body do not match"
+                    )
+                );
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+
+            try
+            {
+                await _service.Reject(request);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
     }
 }

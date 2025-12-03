@@ -30,6 +30,7 @@ namespace QLVPP.Repositories.Implementations
 
             return await _context
                 .Requisitions.Include(r => r.Config)
+                .ThenInclude(r => r.Approvers)
                 .Include(r => r.RequisitionDetails)
                 .ThenInclude(d => d.Product)
                 .ThenInclude(p => p.Unit)
