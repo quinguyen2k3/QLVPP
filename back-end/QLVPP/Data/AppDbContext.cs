@@ -6,14 +6,11 @@ namespace QLVPP.Data
 {
     public class AppDbContext : DbContext
     {
-        private readonly ICurrentUserService _currentUserService;
-
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options) { }
+        private readonly ICurrentUserService? _currentUserService;
 
         public AppDbContext(
             DbContextOptions<AppDbContext> options,
-            ICurrentUserService currentUserService
+            ICurrentUserService? currentUserService = null
         )
             : base(options)
         {
@@ -74,13 +71,13 @@ namespace QLVPP.Data
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = _currentUserService.GetUserAccount();
+                    entry.Entity.CreatedBy = _currentUserService?.GetUserAccount() ?? "System";
                     entry.Entity.CreatedDate = DateTime.Now;
                     entry.Entity.IsActivated = true;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    entry.Entity.ModifiedBy = _currentUserService.GetUserAccount();
+                    entry.Entity.ModifiedBy = _currentUserService?.GetUserAccount() ?? "System";
                     entry.Entity.ModifiedDate = DateTime.Now;
                 }
             }

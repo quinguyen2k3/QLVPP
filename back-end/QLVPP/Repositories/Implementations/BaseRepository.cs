@@ -10,7 +10,8 @@ namespace QLVPP.Repositories.Implementations
 
         public virtual async Task Add(T entity) => await _context.Set<T>().AddAsync(entity);
 
-        public virtual async Task Delete(T entity) => _context.Set<T>().Remove(entity);
+        public virtual async Task Delete(T entity) =>
+            await Task.Run(() => _context.Set<T>().Remove(entity));
 
         public async Task<bool> ExistById(object id)
         {

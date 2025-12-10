@@ -20,7 +20,7 @@
             Errors = errors;
         }
 
-        public static ApiResponse<T> SuccessResponse(T data, string message = "Request Successful")
+        public static ApiResponse<T> SuccessResponse(T? data, string message = "Request Successful")
         {
             return new ApiResponse<T>(true, message, data);
         }

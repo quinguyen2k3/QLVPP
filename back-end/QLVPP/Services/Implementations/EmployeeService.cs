@@ -30,6 +30,11 @@ namespace QLVPP.Services.Implementations
             if (existed != null)
                 throw new Exception("Account already exists.");
 
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                throw new Exception("Password is required.");
+            }
+
             var employee = _mapper.Map<Employee>(request);
 
             employee.Password = PasswordHasher.HashPassword(request.Password);

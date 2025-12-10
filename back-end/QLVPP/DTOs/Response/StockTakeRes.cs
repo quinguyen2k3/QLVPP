@@ -8,6 +8,6 @@ namespace QLVPP.DTOs.Response
         public string Purpose = null!;
         public DateTime CreatedDate;
         public long PerformanceId { get; set; }
-        public List<StockTakeResItem> Items { get; set; }
+        public required List<StockTakeResItem> Items { get; set; }
     }
 }

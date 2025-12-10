@@ -2,8 +2,8 @@ namespace QLVPP.Services
 {
     public interface IOnlineUserService
     {
-        Task AddUser(string userId);
-        Task RemoveUser(string userId);
+        Task AddUser(long userId);
+        Task RemoveUser(long userId);
         Task<int> GetOnlineUserCount();
     }
 }
