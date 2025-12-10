@@ -11,8 +11,11 @@ namespace QLVPP.DTOs.Request
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; }
 
-        [Required(ErrorMessage = "IsActivated status is required")]
+        [Required(ErrorMessage = "Department is required")]
         public long DepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Warehouse is required")]
+        public long WarehouseId { get; set; }
 
         [Required(ErrorMessage = "Approval config is required")]
         public ApprovalConfigReq Config { get; set; } = new();

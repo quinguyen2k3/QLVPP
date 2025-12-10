@@ -1,4 +1,3 @@
-using AspNetCoreRateLimit;
 using Microsoft.OpenApi.Models;
 
 namespace QLVPP.Extensions
@@ -12,12 +11,6 @@ namespace QLVPP.Extensions
         {
             // Routing
             services.AddRouting(options => options.LowercaseUrls = true);
-
-            // Rate Limiting
-            services.AddMemoryCache();
-            services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
-            services.AddInMemoryRateLimiting();
-            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
             services.AddSwaggerGen(c =>
             {

@@ -1,5 +1,4 @@
-﻿using AspNetCoreRateLimit;
-using QLVPP.Extensions;
+﻿using QLVPP.Extensions;
 using QLVPP.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +11,9 @@ builder
     .AddIdentityServices(configuration)
     .AddApplicationServices()
     .AddPresentationServices(configuration)
-    .AddCustomMappings();
+    .AddCustomMappings()
+    .AddGlobalRateLimiting()
+    .AddGlobalResponseCompression();
 
 builder.Services.AddControllers();
 
@@ -29,11 +30,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseResponseCompression();
+app.UseRateLimiter();
 app.UseAuthentication();
-app.UseAuthorization();
-app.UseIpRateLimiting();
-app.UseMiddleware<AccountAccessMiddleware>();
 app.UseMiddleware<RevokedTokenMiddleware>();
+app.UseMiddleware<AccountAccessMiddleware>();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

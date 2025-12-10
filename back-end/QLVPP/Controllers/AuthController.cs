@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -29,6 +30,7 @@ namespace QLVPP.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("StrictPolicy")]
         [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<AuthRes>>> Login([FromBody] AuthReq request)
         {

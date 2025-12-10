@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.Extensions.DependencyInjection;
 using QLVPP.Mappings; // namespace chứa các profile của bạn
 
 namespace QLVPP.Extensions
@@ -20,6 +19,7 @@ namespace QLVPP.Extensions
                 cfg.AddProfile<StockTakeMappingProfile>();
                 cfg.AddProfile<TransferMappingProfile>();
                 cfg.AddProfile<ApprovalFlowMappingProfile>();
+                cfg.AddProfile<CategoryMappingProfile>();
             });
 
             IMapper mapper = mapperConfig.CreateMapper();

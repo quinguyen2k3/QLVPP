@@ -10,6 +10,7 @@
         public string? ApprovedBy { get; set; }
         public long RequesterId { get; set; }
         public long DepartmentId { get; set; }
+        public long WarehouseId { get; set; }
         public bool IsActivated { get; set; }
         public List<RequisitionItemRes> Items { get; set; } = new();
         public ApprovalConfigRes Config { get; set; } = new();
