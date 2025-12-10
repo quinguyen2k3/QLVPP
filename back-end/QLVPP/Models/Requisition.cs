@@ -26,6 +26,11 @@ namespace QLVPP.Models
 
         [ForeignKey("DepartmentId")]
         public Department? Department { get; set; }
+
+        public long WarehouseId { get; set; }
+
+        [ForeignKey("WarehouseId")]
+        public Warehouse Warehouse { get; } = null!;
         public ApprovalConfig Config { get; set; } = null!;
         public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
             new List<RequisitionDetail>();

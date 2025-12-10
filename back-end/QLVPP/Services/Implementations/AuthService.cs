@@ -49,7 +49,7 @@ namespace QLVPP.Services.Implementations
 
             var token = await _jwtService.GenerateAccessTokenAsync(employee, httpResponse);
 
-            await _onlineUserService.AddUser(employee.Id.ToString());
+            await _onlineUserService.AddUser(employee.Id);
 
             return new AuthRes
             {
@@ -67,7 +67,7 @@ namespace QLVPP.Services.Implementations
         {
             if (request == null)
                 throw new Exception("Request is invalid");
-            await _onlineUserService.RemoveUser(_currentUserService.GetUserId().ToString());
+            await _onlineUserService.RemoveUser(_currentUserService.GetUserId());
             await _jwtService.RevokeTokenAsync(request.AccessToken, httpRequest, httpResponse);
         }
 
