@@ -12,21 +12,12 @@ namespace QLVPP.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
-        private readonly IOnlineUserService _onlineUserService;
 
-        public AuthController(
-            IAuthService authService,
-            IJwtService jwtService,
-            IOnlineUserService onlineUserService,
-            ICurrentUserService currentUserService
-        )
+        public AuthController(IAuthService authService, IJwtService jwtService)
         {
             _authService = authService;
             _jwtService = jwtService;
-            _currentUserService = currentUserService;
-            _onlineUserService = onlineUserService;
         }
 
         [HttpPost("login")]
@@ -91,8 +82,6 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var userId = _currentUserService.GetUserId();
-
                 await _authService.LogoutAsync(request, Request, Response);
                 return Ok(ApiResponse<string>.SuccessResponse(string.Empty, "Logout successful."));
             }
@@ -130,23 +119,6 @@ namespace QLVPP.Controllers
             {
                 return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
             }
-        }
-
-        [HttpGet("online-users")]
-        public async Task<IActionResult> GetOnlineCount()
-        {
-            var count = await _onlineUserService.GetOnlineUserCount();
-            return Ok(ApiResponse<int>.SuccessResponse(count, "Fetch online user successfully"));
-        }
-
-        [HttpPost("heartbeat")]
-        public async Task<IActionResult> SendHeartbeat()
-        {
-            var userId = _currentUserService.GetUserId();
-
-            await _onlineUserService.AddUser(userId);
-
-            return Ok(ApiResponse<object>.SuccessResponse("Heartbeat received"));
         }
     }
 }
