@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -5,6 +6,7 @@ using QLVPP.Services;
 namespace QLVPP.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class OnlineUserController : ControllerBase
     {
