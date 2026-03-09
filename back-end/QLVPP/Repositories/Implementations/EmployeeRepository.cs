@@ -25,7 +25,10 @@ namespace QLVPP.Repositories.Implementations
 
         public async Task<Employee?> GetByAccount(string account)
         {
-            return await _context.Employees.FirstOrDefaultAsync(e => e.Account == account);
+            return await _context
+                .Employees.Include(e => e.Position)
+                .Include(e => e.Role)
+                .FirstOrDefaultAsync(e => e.Account == account);
         }
 
         public override async Task<List<Employee>> GetAll()

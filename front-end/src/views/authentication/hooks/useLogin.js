@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { setToken } from "src/services/tokenService";
-import { loginApi } from "src/api/authentication/authApi";
+import { useState } from 'react';
+import { setToken } from 'src/services/tokenService';
+import { loginApi } from 'src/api/authentication/authApi';
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -14,17 +14,16 @@ export const useLogin = () => {
 
       if (token) {
         setToken(token);
-        return { success: true, message: "Login successful" };
+        return { success: true, message: 'Login successful', data: res?.data };
       }
 
-      return { success: false, message: res?.message || "Login failed" };
-
+      return { success: false, message: res?.message || 'Login failed' };
     } catch (err) {
       console.error(err);
       if (err.status === 401) {
-         return { success: false, message: "Wrong username or password!" };
+        return { success: false, message: 'Wrong username or password!' };
       }
-      return { success: false, message: err.message || "Login failed!" };
+      return { success: false, message: err.message || 'Login failed!' };
     } finally {
       setLoading(false);
     }

@@ -158,7 +158,8 @@
     "RequireNumber": "Must contain at least 1 number",
     "RequireSpecial": "Must contain at least 1 special character",
     "MinLength8": "Must be at least 8 characters long",
-    "PasswordMismatch": "Passwords do not match"
+    "PasswordMismatch": "Passwords do not match",
+    "LoginFailed": "Username or Password is incorrect!"
   },
   "Placeholder": {
     "Select": "Please select",
@@ -261,7 +262,9 @@
     "MaterialRequestDetail": "Material Request Details",
     "MaterialRequestList": "Material Request List",
     "IncomingStock": "Incoming Stock",
-    "ChangePassword": "Change Password"
+    "ChangePassword": "Change Password",
+    "LoginTitle": "Login",
+    "LoginDescription": "Admin Dashboard Login Page"
   },
   "StockInType": {
     "Purchase": "Purchase",
@@ -286,5 +289,11 @@
     "Lower": "Contains at least 1 lowercase letter",
     "Number": "Contains at least 1 number",
     "Special": "Contains at least 1 special character (@$!%*?&#)"
+  },
+  "Auth": {
+    "WelcomeTitle": "Welcome to Modernize",
+    "AdminDashboard": "Your Admin Dashboard",
+    "NewToSystem": "New to Modernize?",
+    "CreateAccount": "Create an account"
   }
 }
