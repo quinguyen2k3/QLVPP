@@ -8,8 +8,10 @@
         public string? Phone { get; set; }
         public string? Account { get; set; }
         public long? DepartmentId { get; set; }
+        public long? PositionId { get; set; }
         public string? DepartmentName { get; set; }
         public long? WarehouseId { get; set; }
         public bool? IsActivated { get; set; }
+        public bool IsWarehouseKeeper { get; set; }
     }
 }

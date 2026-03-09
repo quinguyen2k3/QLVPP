@@ -13,6 +13,8 @@ namespace QLVPP.Models
 
         public int SysQty { get; set; }
         public int ActualQty { get; set; }
+        public bool IsProcessed { get; set; } = false;
+        public string? ReferenceId { get; set; }
 
         [NotMapped]
         public int Difference => ActualQty - SysQty;

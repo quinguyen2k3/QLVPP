@@ -25,6 +25,11 @@ namespace QLVPP.Extensions
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
+
+                await context.Database.MigrateAsync();
+
+                await RoleSeeder.SeedRolesAsync(context);
+                await PermissionSeeder.SeedAsync(context);
                 await AppDataSeed.SeedAsync(context, logger);
             }
         }

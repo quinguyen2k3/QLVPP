@@ -78,7 +78,7 @@ namespace QLVPP.Controllers
 
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> Logout([FromBody] LogoutReq request)
+        public async Task<ActionResult<ApiResponse<string>>> Logout([FromBody] LogoutReq request)
         {
             try
             {

@@ -12,14 +12,16 @@ namespace QLVPP.Extensions
                 cfg.AddProfile<DepartmentMappingProfile>();
                 cfg.AddProfile<EmployeeMappingProfile>();
                 cfg.AddProfile<ProductMappingProfile>();
-                cfg.AddProfile<RequisitionMappingProfile>();
-                cfg.AddProfile<ReturnMappingProfile>();
                 cfg.AddProfile<StockInMappingProfile>();
                 cfg.AddProfile<StockOutMappingProfile>();
                 cfg.AddProfile<StockTakeMappingProfile>();
-                cfg.AddProfile<TransferMappingProfile>();
-                cfg.AddProfile<ApprovalFlowMappingProfile>();
                 cfg.AddProfile<CategoryMappingProfile>();
+                cfg.AddProfile<UnitMappingProfile>();
+                cfg.AddProfile<WarehouseMappingProfile>();
+                cfg.AddProfile<SupplierMappingProfile>();
+                cfg.AddProfile<InventorySnapshotMappingProfile>();
+                cfg.AddProfile<PositionMappingProfile>();
+                cfg.AddProfile<MaterialRequestMappingProfile>();
             });
 
             IMapper mapper = mapperConfig.CreateMapper();

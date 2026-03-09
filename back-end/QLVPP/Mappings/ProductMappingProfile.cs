@@ -9,16 +9,19 @@ namespace QLVPP.Mappings
     {
         public ProductMappingProfile()
         {
-            CreateMap<ProductReq, Product>();
+            CreateMap<ProductReq, Product>().ForMember(dest => dest.ImagePath, opt => opt.Ignore());
 
             CreateMap<Product, ProductRes>()
                 .ForMember(
-                    dest => dest.WarehouseId,
-                    opt => opt.MapFrom(src => src.Inventory.WarehouseId)
+                    dest => dest.Quantity,
+                    opt => opt.MapFrom(src => src.Inventories.Sum(x => x.Quantity))
                 )
                 .ForMember(
-                    dest => dest.Quantity,
-                    opt => opt.MapFrom(src => src.Inventory.Quantity)
+                    dest => dest.WarehouseId,
+                    opt =>
+                        opt.MapFrom(src =>
+                            src.Inventories.Select(x => x.WarehouseId).FirstOrDefault()
+                        )
                 );
         }
     }

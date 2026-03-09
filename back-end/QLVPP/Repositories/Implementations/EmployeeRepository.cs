@@ -40,9 +40,24 @@ namespace QLVPP.Repositories.Implementations
         public async Task<List<Employee>> GetByIds(IEnumerable<long> ids)
         {
             return await _context
-                .Employees.Where(e => ids.Contains(e.Id))
+                .Employees.Include(e => e.Position)
+                .Where(e => ids.Contains(e.Id))
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<Employee?> GetByPositionNameAndDepartmentId(
+            string name,
+            long departmentId
+        )
+        {
+            return await _context
+                .Employees.Include(e => e.Position)
+                .FirstOrDefaultAsync(e =>
+                    e.Position.Name.ToLower().Contains(name.ToLower())
+                    && e.DepartmentId == departmentId
+                    && e.IsActivated == true
+                );
         }
     }
 }

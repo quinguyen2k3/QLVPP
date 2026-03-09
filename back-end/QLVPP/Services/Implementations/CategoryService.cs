@@ -86,7 +86,7 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Category.Update(category);
             await _unitOfWork.SaveChanges();
 
-            await ClearCaches();
+            await ClearCaches(id);
 
             return _mapper.Map<CategoryRes>(category);
         }

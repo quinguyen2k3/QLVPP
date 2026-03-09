@@ -13,8 +13,5 @@ namespace QLVPP.Models
         [Column(TypeName = "nvarchar(max)")]
         public string? Note { get; set; }
         public ICollection<Employee> Employees { get; set; } = new List<Employee>();
-        public ICollection<StockOut> StockOuts { get; set; } = new List<StockOut>();
-        public ICollection<Return> Returns { get; set; } = new List<Return>();
-        public ICollection<Requisition> Requisitions { get; set; } = new List<Requisition>();
     }
 }

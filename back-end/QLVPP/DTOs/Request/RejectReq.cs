@@ -4,8 +4,8 @@ namespace QLVPP.DTOs.Request
 {
     public class RejectReq
     {
-        [Required(ErrorMessage = "RequisitionId is required")]
-        public long RequisitionId { get; set; }
+        [Required(ErrorMessage = "RequestId is required")]
+        public long RequestId { get; set; }
 
         [Required(ErrorMessage = "Reason for rejection is required")]
         [StringLength(1000, ErrorMessage = "Reason cannot exceed 1000 characters")]

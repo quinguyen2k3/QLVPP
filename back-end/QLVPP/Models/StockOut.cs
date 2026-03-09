@@ -1,43 +1,54 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using QLVPP.Constants.Types;
 
 namespace QLVPP.Models
 {
     [Table("StockOut")]
     public class StockOut : AuditableEntity
     {
-        public DateOnly DeliveryDate { get; set; }
+        [Required]
+        [MaxLength(20)]
+        public required string Code { get; set; }
+        public DateOnly StockOutDate { get; set; }
 
         [Required]
-        public long DepartmentId { get; set; }
-
-        [ForeignKey(nameof(DepartmentId))]
-        public Department Department { get; set; } = null!;
+        public StockOutType Type { get; set; }
 
         [Required]
         public long WarehouseId { get; set; }
-
-        [ForeignKey(nameof(WarehouseId))]
         public Warehouse Warehouse { get; set; } = null!;
 
-        public long? RequesterId { get; set; }
+        public long? DepartmentId { get; set; }
+        public Department? Department { get; set; }
 
-        [ForeignKey("RequesterId")]
-        public Employee? Requester { get; set; }
+        public long? ToWarehouseId { get; set; }
+        public Warehouse? ToWarehouse { get; set; }
+        public string? Note { get; set; }
+        public long RequesterId { get; set; }
+        public Employee Requester { get; set; }
 
         public long? ApproverId { get; set; }
-
-        [ForeignKey("ApproverId")]
         public Employee? Approver { get; set; }
-        public DateTime? ApprovedDate { get; set;}
+        public DateTime? ApprovedDate { get; set; }
 
         public long? ReceiverId { get; set; }
-
-        [ForeignKey("ReceiverId")]
         public Employee? Receiver { get; set; }
+        public DateTime? ReceivedDate { get; set; }
+
+        public string? ReferenceId { get; set; }
+
         public string Status { get; set; } = string.Empty;
+
         public ICollection<StockOutDetail> StockOutDetails { get; set; } =
             new List<StockOutDetail>();
-        public ICollection<Return> Returns { get; set; } = new List<Return>();
+
+        public StockOut()
+        {
+            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            string sequence = (timestamp % 100000000).ToString("D8");
+
+            Code = $"PXK-{sequence}";
+        }
     }
 }

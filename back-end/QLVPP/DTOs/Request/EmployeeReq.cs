@@ -29,7 +29,6 @@ namespace QLVPP.DTOs.Request
         )]
         public string Account { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "The Password field is required.")]
         [RegularExpression(
             "^.{8,}$",
             ErrorMessage = "Password must be at least 8 characters long."
@@ -39,9 +38,13 @@ namespace QLVPP.DTOs.Request
         [Required(ErrorMessage = "Department is required")]
         public long DepartmentId { get; set; }
 
+        [Required(ErrorMessage = "Position is required")]
+        public long PositionId { get; set; }
+
         public long? WarehouseId { get; set; }
 
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; } = true;
+        public bool IsWarehouseKeeper { get; set; }
     }
 }

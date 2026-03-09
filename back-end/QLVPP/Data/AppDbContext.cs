@@ -17,51 +17,31 @@ namespace QLVPP.Data
             _currentUserService = currentUserService;
         }
 
-        #region Product & Inventory
         public DbSet<Product> Products { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
-        #endregion
-
-        #region Human Resources
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Position> Positions { get; set; }
-        #endregion
-
-        #region Stock Operations
         public DbSet<StockIn> StockIns { get; set; }
         public DbSet<StockInDetail> StockInDetails { get; set; }
         public DbSet<StockOut> StockOuts { get; set; }
         public DbSet<StockOutDetail> StockOutDetails { get; set; }
-        public DbSet<Requisition> Requisitions { get; set; }
-        public DbSet<RequisitionDetail> RequisitionDetails { get; set; }
-        public DbSet<Return> Returns { get; set; }
-        public DbSet<ReturnDetail> ReturnDetails { get; set; }
-        public DbSet<Transfer> Transfers { get; set; }
-        public DbSet<TransferDetail> TransferDetails { get; set; }
-        #endregion
-
-        #region Inventory Management
         public DbSet<InventorySnapshot> InventorySnapshots { get; set; }
         public DbSet<SnapshotDetail> SnapshotDetails { get; set; }
         public DbSet<StockTake> StockTakes { get; set; }
         public DbSet<StockTakeDetail> StockTakeDetails { get; set; }
-        #endregion
-
-        #region Authentication
         public DbSet<InvalidToken> InvalidTokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        #endregion
-
-        #region Approval Flow
-        public DbSet<ApprovalConfig> ApprovalConfigs { get; set; }
-        public DbSet<ApprovalTask> ApprovalTasks { get; set; }
-        public DbSet<Approver> Approvers { get; set; }
-        #endregion
+        public DbSet<MaterialRequest> MaterialRequests { get; set; }
+        public DbSet<MaterialRequestDetail> MaterialRequestDetails { get; set; }
+        public DbSet<ApprovalLog> ApprovalLogs { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -89,68 +69,131 @@ namespace QLVPP.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            #region Composite Keys
-            modelBuilder.Entity<Inventory>().HasKey(i => new { i.WarehouseId, i.ProductId });
-            #endregion
-
-            #region Return Relationships
-            modelBuilder.Entity<Return>(entity =>
+            modelBuilder.Entity<MaterialRequest>(entity =>
             {
                 entity
-                    .HasOne(r => r.Delivery)
-                    .WithMany(d => d.Returns)
-                    .HasForeignKey(r => r.DeliveryId)
+                    .HasOne(m => m.Warehouse)
+                    .WithMany()
+                    .HasForeignKey(m => m.WarehouseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(m => m.Requester)
+                    .WithMany()
+                    .HasForeignKey(m => m.RequesterId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(m => m.Approver)
+                    .WithMany()
+                    .HasForeignKey(m => m.ApproverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasMany(m => m.Details)
+                    .WithOne(m => m.MaterialRequest)
+                    .HasForeignKey(m => m.MaterialRequestId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity
+                    .HasMany(m => m.ApprovalLogs)
+                    .WithOne(a => a.MaterialRequest)
+                    .HasForeignKey(a => a.MaterialRequestId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-            #endregion
 
-            #region Transfer Relationships
+            modelBuilder.Entity<StockIn>(entity =>
+            {
+                entity
+                    .HasOne(s => s.Warehouse)
+                    .WithMany()
+                    .HasForeignKey(s => s.WarehouseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(s => s.FromWarehouse)
+                    .WithMany()
+                    .HasForeignKey(s => s.FromWarehouseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(s => s.Supplier)
+                    .WithMany()
+                    .HasForeignKey(s => s.SupplierId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<StockOut>(entity =>
+            {
+                entity
+                    .HasOne(d => d.Warehouse)
+                    .WithMany()
+                    .HasForeignKey(d => d.WarehouseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(d => d.ToWarehouse)
+                    .WithMany()
+                    .HasForeignKey(d => d.ToWarehouseId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(d => d.Department)
+                    .WithMany()
+                    .HasForeignKey(d => d.DepartmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(d => d.Requester)
+                    .WithMany(e => e.DeliveriesRequested)
+                    .HasForeignKey(d => d.RequesterId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(d => d.Approver)
+                    .WithMany(e => e.DeliveriesApproved)
+                    .HasForeignKey(d => d.ApproverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity
+                    .HasOne(d => d.Receiver)
+                    .WithMany(e => e.DeliveriesReceived)
+                    .HasForeignKey(d => d.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(d => d.Type).HasConversion<int>();
+            });
+
             modelBuilder
-                .Entity<Transfer>()
-                .HasOne(t => t.FromWarehouse)
-                .WithMany(w => w.TransfersFrom)
-                .HasForeignKey(t => t.FromWarehouseId)
+                .Entity<StockTake>()
+                .HasOne(s => s.Requester)
+                .WithMany(e => e.StockTakesRequested)
+                .HasForeignKey(s => s.RequesterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder
-                .Entity<Transfer>()
-                .HasOne(t => t.ToWarehouse)
-                .WithMany(w => w.TransfersTo)
-                .HasForeignKey(t => t.ToWarehouseId)
+                .Entity<StockTake>()
+                .HasOne(s => s.Approver)
+                .WithMany(e => e.StockTakesApproved)
+                .HasForeignKey(s => s.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventory>().HasKey(i => new { i.WarehouseId, i.ProductId });
+
+            modelBuilder
+                .Entity<Inventory>()
+                .HasOne(i => i.Product)
+                .WithMany(p => p.Inventories)
+                .HasForeignKey(i => i.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder
-                .Entity<Transfer>()
-                .HasOne(t => t.Requester)
-                .WithMany(e => e.TransfersRequested)
-                .HasForeignKey(t => t.RequesterId)
+                .Entity<Inventory>()
+                .HasOne(i => i.Warehouse)
+                .WithMany(w => w.Inventories)
+                .HasForeignKey(i => i.WarehouseId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<Transfer>()
-                .HasOne(t => t.Approver)
-                .WithMany(e => e.TransfersApproved)
-                .HasForeignKey(t => t.ApproverId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<Transfer>()
-                .HasOne(t => t.Receiver)
-                .WithMany(e => e.TransfersReceived)
-                .HasForeignKey(t => t.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
-            #endregion
-
-            #region Requisition Relationships
-            modelBuilder
-                .Entity<Requisition>()
-                .HasOne(r => r.Requester)
-                .WithMany(e => e.RequisitionsCreated)
-                .HasForeignKey(r => r.RequesterId)
-                .OnDelete(DeleteBehavior.Restrict);
-            #endregion
-
-            #region StockOut Relationships
             modelBuilder
                 .Entity<StockOut>()
                 .HasOne(d => d.Requester)
@@ -171,9 +214,7 @@ namespace QLVPP.Data
                 .WithMany(e => e.DeliveriesReceived)
                 .HasForeignKey(d => d.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
-            #endregion
 
-            #region StockIn Relationships
             modelBuilder
                 .Entity<StockIn>()
                 .HasOne(s => s.Requester)
@@ -187,10 +228,7 @@ namespace QLVPP.Data
                 .WithMany(e => e.StockInsApproved)
                 .HasForeignKey(s => s.ApproverId)
                 .OnDelete(DeleteBehavior.Restrict);
-            #endregion
 
-            #region Employee Relationships
-            // Employee → Department
             modelBuilder
                 .Entity<Employee>()
                 .HasOne(e => e.Department)
@@ -198,71 +236,29 @@ namespace QLVPP.Data
                 .HasForeignKey(e => e.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Employee → Position
             modelBuilder
                 .Entity<Employee>()
                 .HasOne(e => e.Position)
                 .WithMany(p => p.Employees)
                 .HasForeignKey(e => e.PositionId)
                 .OnDelete(DeleteBehavior.Restrict);
-            #endregion
-
-            #region Requisition → ApprovalConfig
 
             modelBuilder
-                .Entity<ApprovalConfig>()
-                .HasOne(ac => ac.Requisition)
-                .WithOne(r => r.Config)
-                .HasForeignKey<ApprovalConfig>(ac => ac.RequisitionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            #endregion
-
-            #region ApprovalStep → ApprovalStepApprover
+                .Entity<RolePermission>()
+                .HasIndex(rp => new { rp.RoleId, rp.PermissionId })
+                .IsUnique();
 
             modelBuilder
-                .Entity<Approver>()
-                .HasOne(a => a.Config)
-                .WithMany(s => s.Approvers)
-                .HasForeignKey(a => a.ConfigId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
 
             modelBuilder
-                .Entity<Approver>()
-                .HasOne(a => a.Employee)
-                .WithMany(e => e.ApproverInConfig)
-                .HasForeignKey(a => a.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-
-            #region ApprovalStepInstance → ApprovalStep
-
-            modelBuilder
-                .Entity<ApprovalTask>()
-                .HasOne(s => s.Config)
-                .WithMany()
-                .HasForeignKey(s => s.ConfigId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-
-            #region ApprovalStepInstance → Employee (Multiple FKs)
-
-            modelBuilder
-                .Entity<ApprovalTask>()
-                .HasOne(s => s.AssignedTo)
-                .WithMany(e => e.AssignedApprovalSteps)
-                .HasForeignKey(s => s.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<ApprovalTask>()
-                .HasOne(s => s.ApprovedBy)
-                .WithMany(e => e.ProcessedApprovalSteps)
-                .HasForeignKey(s => s.ApprovedById)
-                .OnDelete(DeleteBehavior.Restrict);
-            #endregion
+                .Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId);
         }
     }
 }

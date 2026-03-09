@@ -93,7 +93,7 @@ namespace QLVPP.Services.Implementations
 
         public bool Validator(string token)
         {
-            var jwtSettings = _configuration.GetSection("JwtSec");
+            var jwtSettings = _configuration.GetSection("Jwt");
             var secretKey =
                 jwtSettings["Key"]
                 ?? throw new ArgumentNullException("JwtSettings:Key is missing in configuration");
@@ -179,7 +179,7 @@ namespace QLVPP.Services.Implementations
                 throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
-            var accessToken = request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
+            var accessToken = request.Headers["X-Expired-Access-Token"].FirstOrDefault();
 
             if (string.IsNullOrEmpty(accessToken) || !Validator(accessToken))
                 throw new UnauthorizedAccessException("Invalid access token");

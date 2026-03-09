@@ -3,27 +3,27 @@ using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Models;
 
-namespace QLVPP.Mappings
+public class StockTakeMappingProfile : Profile
 {
-    public class StockTakeMappingProfile : Profile
+    public StockTakeMappingProfile()
     {
-        public StockTakeMappingProfile()
-        {
-            CreateMap<StockTakeReq, StockTake>()
-                .ForMember(dest => dest.PerformedById, opt => opt.MapFrom(src => src.PerformanceId))
-                .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Items))
-                .ForMember(dest => dest.WarehouseId, opt => opt.Ignore());
+        CreateMap<StockTakeReq, StockTake>()
+            .ForMember(dest => dest.RequesterId, opt => opt.MapFrom(src => src.RequesterId))
+            .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Items))
+            .ForMember(dest => dest.WarehouseId, opt => opt.Ignore());
 
-            CreateMap<StockTakeDetail, StockTakeReqItem>();
+        CreateMap<StockTakeReqItem, StockTakeDetail>()
+            .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
+            .ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.ActualQty));
 
-            CreateMap<StockTake, StockTakeRes>()
-                .ForMember(
-                    dest => dest.PerformanceId,
-                    opt => opt.MapFrom(src => src.PerformedById)
-                );
+        CreateMap<StockTake, StockTakeRes>()
+            .ForMember(dest => dest.RequesterId, opt => opt.MapFrom(src => src.RequesterId))
+            .ForMember(dest => dest.WarehouseId, opt => opt.MapFrom(src => src.WarehouseId))
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Details));
 
-            CreateMap<StockTakeDetail, StockTakeResItem>()
-                .ForMember(dest => dest.Difference, opt => opt.MapFrom(src => src.Difference));
-        }
+        CreateMap<StockTakeDetail, StockTakeResItem>()
+            .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
+            .ForMember(dest => dest.SysQty, opt => opt.MapFrom(src => src.SysQty))
+            .ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.ActualQty));
     }
 }

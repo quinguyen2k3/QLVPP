@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QLVPP.Constants.Status;
 using QLVPP.Data;
-using QLVPP.DTOs.Projection;
+using QLVPP.DTOs.Result;
 
 namespace QLVPP.Repositories.Implementations
 {
@@ -14,7 +14,7 @@ namespace QLVPP.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<List<UsageSummaryProj>> GetUsageReport(
+        public async Task<List<UsageSummaryResult>> GetUsageReport(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate
@@ -22,37 +22,21 @@ namespace QLVPP.Repositories.Implementations
         {
             var deliveredItems =
                 from detail in _context.StockOutDetails
-                join delivery in _context.StockOuts on detail.DeliveryId equals delivery.Id
+                join delivery in _context.StockOuts on detail.StockOutId equals delivery.Id
                 where
                     delivery.WarehouseId == warehouseId
                     && delivery.Status == StockOutStatus.Approved
-                    && delivery.DeliveryDate >= startDate
-                    && delivery.DeliveryDate <= endDate
-                select new TransactionItemProj
+                    && delivery.StockOutDate >= startDate
+                    && delivery.StockOutDate <= endDate
+                select new TransactionItemResult
                 {
-                    DepartmentId = delivery.DepartmentId,
+                    DepartmentId = delivery.DepartmentId ?? 0,
                     ProductId = detail.ProductId,
                     Quantity = detail.Quantity,
                 };
 
-            var returnedItems =
-                from detail in _context.ReturnDetails
-                join ret in _context.Returns on detail.ReturnId equals ret.Id
-                where
-                    ret.WarehouseId == warehouseId
-                    && ret.Status == ReturnStatus.Returned
-                    && ret.ReturnDate >= startDate
-                    && ret.ReturnDate <= endDate
-                select new TransactionItemProj
-                {
-                    DepartmentId = ret.DepartmentId,
-                    ProductId = detail.ProductId,
-                    Quantity = -detail.ReturnedQuantity,
-                };
-            var allTransactions = deliveredItems.Concat(returnedItems);
-
             var query =
-                from trans in allTransactions
+                from trans in deliveredItems
                 join department in _context.Departments on trans.DepartmentId equals department.Id
                 join product in _context.Products on trans.ProductId equals product.Id
                 group trans by new
@@ -62,7 +46,7 @@ namespace QLVPP.Repositories.Implementations
                     ProductId = product.Id,
                     ProductName = product.Name,
                 } into g
-                select new UsageSummaryProj
+                select new UsageSummaryResult
                 {
                     DepartmentId = g.Key.DepartmentId,
                     DepartmentName = g.Key.DepartmentName,

@@ -102,6 +102,10 @@ namespace QLVPP.Services.Implementations
             {
                 employee.Password = PasswordHasher.HashPassword(request.Password);
             }
+            else
+            {
+                employee.Password = employee.Password;
+            }
 
             await _unitOfWork.Employee.Update(employee);
             await _unitOfWork.SaveChanges();

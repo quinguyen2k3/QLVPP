@@ -31,5 +31,12 @@ namespace QLVPP.Repositories.Implementations
                 .StockTakes.Include(s => s.Details)
                 .FirstOrDefaultAsync(s => s.Id == longId);
         }
+
+        public async Task<StockTake?> GetByCode(string code)
+        {
+            return await _context
+                .StockTakes.Include(s => s.Details)
+                .FirstOrDefaultAsync(s => s.Code == code);
+        }
     }
 }

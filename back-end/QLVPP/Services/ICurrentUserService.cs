@@ -7,5 +7,6 @@
         long GetDepartmentId();
         string GetUserAccount();
         bool IsUserAuthenticated();
+        bool IsWarehouseKeeper();
     }
 }

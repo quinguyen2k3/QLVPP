@@ -20,7 +20,5 @@ namespace QLVPP.Models
 
         [StringLength(50)]
         public string? Email { get; set; }
-
-        public ICollection<StockIn> Orders { get; set; } = new List<StockIn>();
     }
 }

@@ -35,15 +35,12 @@ namespace QLVPP.Models
         public ICollection<StockOutDetail> StockOutDetails { get; set; } =
             new List<StockOutDetail>();
         public ICollection<StockInDetail> OrderDetails { get; set; } = new List<StockInDetail>();
-        public ICollection<RequisitionDetail> RequisitionDetails { get; set; } =
-            new List<RequisitionDetail>();
         public ICollection<SnapshotDetail> SnapshotDetails { get; set; } =
             new List<SnapshotDetail>();
-        public ICollection<ReturnDetail> ReturnDetails { get; set; } = new List<ReturnDetail>();
-        public ICollection<TransferDetail> TransferDetails { get; set; } =
-            new List<TransferDetail>();
         public ICollection<StockTakeDetail> StockTakeDetails { get; set; } =
             new List<StockTakeDetail>();
-        public Inventory Inventory { get; set; } = null!;
+        public ICollection<MaterialRequestDetail> MaterialRequestDetails { get; set; } =
+            new List<MaterialRequestDetail>();
+        public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
     }
 }

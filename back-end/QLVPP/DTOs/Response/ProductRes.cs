@@ -15,7 +15,7 @@
         public decimal? Height { get; set; }
         public decimal? Depth { get; set; }
         public int Quantity { get; set; }
-
+        public string Description { get; set; } = string.Empty;
         public long WarehouseId { get; set; }
         public bool IsAsset { get; set; }
         public bool IsActivated { get; set; }

@@ -57,5 +57,14 @@
 
             throw new InvalidOperationException("Department ID not found for the current user.");
         }
+
+        public bool IsWarehouseKeeper()
+        {
+            var value = _httpContextAccessor
+                .HttpContext?.User?.FindFirst("isWarehouseKeeper")
+                ?.Value;
+
+            return bool.TryParse(value, out var result) && result;
+        }
     }
 }
