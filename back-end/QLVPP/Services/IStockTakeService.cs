@@ -10,5 +10,8 @@ namespace QLVPP.Services
         public Task<StockTakeRes?> Update(long id, StockTakeReq request);
         public Task<List<StockTakeRes>> GetByWarehouse();
         public Task<StockTakeRes?> GetById(long id);
+        public Task<bool> Cancel(long id);
+        public Task<bool> Approve(long id);
+        public Task<bool> Delete(long id);
     }
 }

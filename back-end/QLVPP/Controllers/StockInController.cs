@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QLVPP.Constants.Status;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -11,11 +12,16 @@ namespace QLVPP.Controllers
     [ApiController]
     public class StockInController : ControllerBase
     {
-        private readonly IStockInService _service;
+        private readonly IStockInService _stockInService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public StockInController(IStockInService service)
+        public StockInController(
+            IStockInService stockInService,
+            ICurrentUserService currentUserService
+        )
         {
-            _service = service;
+            _stockInService = stockInService;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet("warehouse/pending")]
@@ -23,7 +29,15 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var stockIns = await _service.GetPendingByWarehouse();
+                var stockIns = await _stockInService.GetByConditions(
+                    new StockInFilterReq
+                    {
+                        Statuses = new List<string> { StockInStatus.Pending },
+                        WarehouseId = _currentUserService.GetWarehouseId(),
+                        OrderByDesc = true,
+                        IsActivated = true,
+                    }
+                );
 
                 return Ok(
                     ApiResponse<List<StockInRes>>.SuccessResponse(
@@ -43,7 +57,14 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var stockIns = await _service.GetByWarehouse();
+                var stockIns = await _stockInService.GetByConditions(
+                    new StockInFilterReq
+                    {
+                        WarehouseId = _currentUserService.GetWarehouseId(),
+                        OrderByDesc = true,
+                        IsActivated = true,
+                    }
+                );
 
                 return Ok(
                     ApiResponse<List<StockInRes>>.SuccessResponse(
@@ -63,7 +84,14 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var stockIns = await _service.GetAllByMyself();
+                var stockIns = await _stockInService.GetByConditions(
+                    new StockInFilterReq
+                    {
+                        CreatedBy = _currentUserService.GetUserAccount(),
+                        OrderByDesc = true,
+                        IsActivated = true,
+                    }
+                );
                 return Ok(
                     ApiResponse<List<StockInRes>>.SuccessResponse(
                         stockIns,
@@ -82,7 +110,7 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var stockIn = await _service.GetById(id);
+                var stockIn = await _stockInService.GetById(id);
                 if (stockIn == null)
                     return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
 
@@ -113,7 +141,7 @@ namespace QLVPP.Controllers
 
             try
             {
-                var created = await _service.Create(request);
+                var created = await _stockInService.Create(request);
 
                 return CreatedAtAction(
                     nameof(GetById),
@@ -142,7 +170,7 @@ namespace QLVPP.Controllers
 
             try
             {
-                var updated = await _service.Update(id, request);
+                var updated = await _stockInService.Update(id, request);
                 if (updated == null)
                     return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
 
@@ -157,7 +185,7 @@ namespace QLVPP.Controllers
         }
 
         [HttpPut("approve/{id:long}")]
-        public async Task<ActionResult<StockInRes>> Receive(long id, [FromBody] StockInReq request)
+        public async Task<ActionResult<bool>> Approve(long id)
         {
             if (!ModelState.IsValid)
             {
@@ -171,12 +199,41 @@ namespace QLVPP.Controllers
 
             try
             {
-                var updated = await _service.Approve(id, request);
-                if (updated == null)
-                    return NotFound(ApiResponse<string>.ErrorResponse("Order not found"));
+                var updated = await _stockInService.Approve(id);
+                if (updated == false)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Stock In not found"));
 
                 return Ok(
-                    ApiResponse<StockInRes>.SuccessResponse(updated, "Received order successfully")
+                    ApiResponse<bool>.SuccessResponse(updated, "Approved stock in successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPut("cancel/{id:long}")]
+        public async Task<ActionResult<bool>> Cancel(long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+
+            try
+            {
+                var updated = await _stockInService.Cancel(id);
+                if (updated == false)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Stock In not found"));
+
+                return Ok(
+                    ApiResponse<bool>.SuccessResponse(updated, "Cancelled stock in successfully")
                 );
             }
             catch (Exception ex)
@@ -190,7 +247,7 @@ namespace QLVPP.Controllers
         {
             try
             {
-                var deleted = await _service.Delete(id);
+                var deleted = await _stockInService.Delete(id);
 
                 if (deleted == false)
                     return NotFound(ApiResponse<string>.ErrorResponse("Delivery not found"));

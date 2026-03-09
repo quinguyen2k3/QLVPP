@@ -38,33 +38,20 @@ namespace QLVPP.Models
         [ForeignKey("PositionId")]
         public Position? Position { get; set; }
 
-        [InverseProperty("Requester")]
-        public ICollection<Requisition> RequisitionsCreated { get; set; } = new List<Requisition>();
+        public long? RoleId { get; set; }
+
+        [ForeignKey(nameof(RoleId))]
+        public Role? Role { get; set; }
+
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
         public ICollection<StockOut> DeliveriesRequested { get; set; } = new List<StockOut>();
         public ICollection<StockOut> DeliveriesApproved { get; set; } = new List<StockOut>();
         public ICollection<StockOut> DeliveriesReceived { get; set; } = new List<StockOut>();
 
-        public ICollection<Transfer> TransfersRequested { get; set; } = new List<Transfer>();
-        public ICollection<Transfer> TransfersApproved { get; set; } = new List<Transfer>();
-        public ICollection<Transfer> TransfersReceived { get; set; } = new List<Transfer>();
-
         public ICollection<StockIn> StockInsRequested { get; set; } = new List<StockIn>();
         public ICollection<StockIn> StockInsApproved { get; set; } = new List<StockIn>();
-        public ICollection<StockTake> StockTakesPerformed { get; set; } = new List<StockTake>();
-
-        [InverseProperty(nameof(Approver.Employee))]
-        public virtual ICollection<Approver> ApproverInConfig { get; set; } = new List<Approver>();
-
-        [InverseProperty(nameof(ApprovalTask.AssignedTo))]
-        public virtual ICollection<ApprovalTask> AssignedApprovalSteps { get; set; } =
-            new List<ApprovalTask>();
-
-        [InverseProperty(nameof(ApprovalTask.ApprovedBy))]
-        public virtual ICollection<ApprovalTask> ProcessedApprovalSteps { get; set; } =
-            new List<ApprovalTask>();
-
-        public ICollection<ApprovalTask>? DelegatedTasks { get; set; } = new List<ApprovalTask>();
+        public ICollection<StockTake> StockTakesRequested { get; set; } = new List<StockTake>();
+        public ICollection<StockTake> StockTakesApproved { get; set; } = new List<StockTake>();
     }
 }

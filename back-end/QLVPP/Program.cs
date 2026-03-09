@@ -4,6 +4,8 @@ using QLVPP.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
+builder.Services.Configure<FileUploadOptions>(configuration.GetSection("FileUpload"));
+
 // ================== ĐĂNG KÝ CÁC DỊCH VỤ ==================
 builder
     .Services.AddDatabaseServices(configuration)
@@ -13,7 +15,8 @@ builder
     .AddPresentationServices(configuration)
     .AddCustomMappings()
     .AddGlobalRateLimiting()
-    .AddGlobalResponseCompression();
+    .AddGlobalResponseCompression()
+    .AddCustomCors(configuration);
 
 builder.Services.AddControllers();
 
@@ -29,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowFrontend");
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -38,6 +43,9 @@ app.UseAuthentication();
 app.UseMiddleware<RevokedTokenMiddleware>();
 app.UseMiddleware<AccountAccessMiddleware>();
 app.UseAuthorization();
+
+app.UseConfiguredStaticFiles(configuration, "FileUpload");
+
 app.MapControllers();
 
 app.Run();

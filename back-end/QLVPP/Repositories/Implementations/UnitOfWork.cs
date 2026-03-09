@@ -14,18 +14,17 @@ namespace QLVPP.Repositories.Implementations
         public IDepartmentRepository Department { get; private set; }
         public ISupplierRepository Supplier { get; private set; }
         public IWarehouseRepository Warehouse { get; private set; }
-        public IRequisitionRepository Requisition { get; private set; }
         public IProductRepository Product { get; private set; }
         public IStockInRepository StockIn { get; private set; }
         public IInventoryRepository Inventory { get; private set; }
         public IStockOutRepository StockOut { get; private set; }
-        public IReturnRepository Return { get; private set; }
         public IInventorySnapshotRepository InventorySnapshot { get; private set; }
         public IReportRepository Report { get; private set; }
-        public ITransferRepository Transfer { get; private set; }
         public IStockTakeRepository StockTake { get; private set; }
-        public IApprovalTaskRepository ApprovalTask { get; private set; }
-        public IApprovalConfigRepository ApprovalConfig { get; private set; }
+        public IDepartmentInventoryRepository DepartmentInventory { get; private set; }
+        public IPositionRepository Position { get; private set; }
+        public IMaterialRequestRepository MaterialRequest { get; private set; }
+        public IApprovalLogRepository ApprovalLog { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -38,19 +37,18 @@ namespace QLVPP.Repositories.Implementations
             InvalidToken = new InvalidTokenRepository(context);
             Department = new DepartmentRepository(context);
             Supplier = new SupplierRepository(context);
-            Warehouse = new WarehouseRepository(context);
-            Requisition = new RequisitionRepository(context);
             Product = new ProductRepository(context);
             StockIn = new StockInRepository(context);
             Inventory = new InventoryRepository(context);
             StockOut = new StockOutRepository(context);
-            Return = new ReturnRepository(context);
             InventorySnapshot = new InventorySnapshotRepository(context);
             Report = new ReportRepository(context);
-            Transfer = new TransferRepository(context);
             StockTake = new StockTakeRepository(context);
-            ApprovalTask = new ApprovalTaskRepository(context);
-            ApprovalConfig = new ApprovalConfigRepository(context);
+            DepartmentInventory = new DepartmentInventoryRepository(context);
+            Warehouse = new WarehouseRepository(context);
+            Position = new PositionRepository(context);
+            MaterialRequest = new MaterialRequestRepository(context);
+            ApprovalLog = new ApprovalLogRepository(context);
             _context = context;
         }
 

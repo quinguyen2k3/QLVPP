@@ -16,7 +16,7 @@ namespace QLVPP.DTOs.Request
 
         [Required(ErrorMessage = "CategoryId is required")]
         public long CategoryId { get; set; }
-        public string? ImagePath { get; set; }
+        public IFormFile? Image { get; set; }
         public decimal? Weight { get; set; }
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
@@ -27,6 +27,6 @@ namespace QLVPP.DTOs.Request
 
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; }
-        public long WarehouseId { get; set; }
+        public string? Description { get; set; } = string.Empty;
     }
 }

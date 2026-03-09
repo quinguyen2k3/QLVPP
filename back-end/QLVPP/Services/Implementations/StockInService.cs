@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using QLVPP.Constants.Status;
+using QLVPP.Constants.Types;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Models;
@@ -26,51 +27,199 @@ namespace QLVPP.Services.Implementations
 
         public async Task<StockInRes> Create(StockInReq request)
         {
-            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
+            await ValidateAccountingPeriod(request.StockInDate, request.WarehouseId, "create");
 
-            if (latestSnapshotDate != null && request.StockInDate <= latestSnapshotDate.Value)
+            ValidateStockInType(request);
+            await ValidateDuplicateProducts(request);
+
+            if (request.Items == null || !request.Items.Any())
             {
                 throw new InvalidOperationException(
-                    $"Cannot create order note on date ({request.StockInDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
+                    "Stock-in voucher must contain at least one item."
                 );
             }
 
-            if (request.Items != null && request.Items.Any())
+            var requestedProductIds = request
+                .Items.Select(item => item.ProductId)
+                .Distinct()
+                .ToList();
+            var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
+
+            if (existingProducts.Count() != requestedProductIds.Count)
             {
-                var requestedProductIds = request
-                    .Items.Select(item => item.ProductId)
-                    .Distinct()
-                    .ToList();
-
-                var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
-
-                if (existingProducts.Count() != requestedProductIds.Count)
-                {
-                    var existingProductIds = existingProducts.Select(p => p.Id).ToHashSet();
-                    var invalidProductIds = requestedProductIds.Where(id =>
-                        !existingProductIds.Contains(id)
-                    );
-
-                    throw new InvalidOperationException(
-                        $"One or more products do not exist. Invalid Product IDs: {string.Join(", ", invalidProductIds)}."
-                    );
-                }
+                var invalidProductIds = requestedProductIds.Except(
+                    existingProducts.Select(p => p.Id)
+                );
+                throw new InvalidOperationException(
+                    $"One or more products were not found: {string.Join(", ", invalidProductIds)}."
+                );
             }
+
             var stockIn = _mapper.Map<StockIn>(request);
             stockIn.Status = StockInStatus.Pending;
-            await _unitOfWork.StockIn.Add(stockIn);
 
+            await _unitOfWork.StockIn.Add(stockIn);
             await _unitOfWork.SaveChanges();
 
-            var response = _mapper.Map<StockInRes>(stockIn);
-            return response;
+            return _mapper.Map<StockInRes>(stockIn);
         }
 
-        public async Task<List<StockInRes>> GetPendingByWarehouse()
+        public async Task<StockInRes?> Update(long id, StockInReq request)
         {
-            var warehouseId = _currentUserService.GetWarehouseId();
-            var requisitions = await _unitOfWork.StockIn.GetPendingByWarehouseId(warehouseId);
-            return _mapper.Map<List<StockInRes>>(requisitions);
+            var stockIn = await _unitOfWork.StockIn.GetById(id);
+            if (stockIn == null)
+                return null;
+
+            if (stockIn.CreatedBy != _currentUserService.GetUserAccount())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update a record that you did not create."
+                );
+            }
+
+            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to update a record from another warehouse."
+                );
+            }
+
+            if (stockIn.Status != StockInStatus.Pending)
+            {
+                throw new InvalidOperationException(
+                    "Only vouchers in 'Pending' status can be modified."
+                );
+            }
+
+            if (stockIn.Type != request.Type)
+            {
+                throw new InvalidOperationException(
+                    "Changing the Stock-In type is not allowed. Please delete and create a new voucher instead."
+                );
+            }
+
+            await ValidateAccountingPeriod(request.StockInDate, stockIn.WarehouseId, "update");
+            ValidateStockInType(request);
+            await ValidateDuplicateProducts(request);
+
+            if (request.Items == null || !request.Items.Any())
+            {
+                throw new InvalidOperationException(
+                    "Stock-in voucher must contain at least one item."
+                );
+            }
+
+            var requestedProductIds = request
+                .Items.Select(item => item.ProductId)
+                .Distinct()
+                .ToList();
+            var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
+
+            if (existingProducts.Count() != requestedProductIds.Count)
+            {
+                var invalidProductIds = requestedProductIds.Except(
+                    existingProducts.Select(p => p.Id)
+                );
+                throw new InvalidOperationException(
+                    $"Invalid Product IDs: {string.Join(", ", invalidProductIds)}."
+                );
+            }
+
+            _mapper.Map(request, stockIn);
+
+            await _unitOfWork.StockIn.Update(stockIn);
+            await _unitOfWork.SaveChanges();
+
+            return _mapper.Map<StockInRes>(stockIn);
+        }
+
+        public async Task<bool> Approve(long id)
+        {
+            var stockIn = await _unitOfWork.StockIn.GetById(id);
+            if (stockIn == null)
+                return false;
+
+            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to approve a Stock In from another warehouse."
+                );
+            }
+
+            await ValidateAccountingPeriod(stockIn.StockInDate, stockIn.WarehouseId, "approve");
+
+            if (stockIn.Status == StockInStatus.Approve)
+            {
+                throw new InvalidOperationException("Stock In has already been approved.");
+            }
+
+            if (stockIn.Status != StockInStatus.Pending)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot approve Stock In with status '{stockIn.Status}'."
+                );
+            }
+
+            var stockInDetails = stockIn.StockInDetails;
+            if (stockInDetails == null || !stockInDetails.Any())
+            {
+                throw new InvalidOperationException($"Stock In '{id}' has no items to process.");
+            }
+
+            foreach (var detail in stockInDetails)
+            {
+                var inventory = await _unitOfWork.Inventory.GetByKey(
+                    stockIn.WarehouseId,
+                    detail.ProductId
+                );
+
+                if (inventory == null)
+                {
+                    var newInventory = new Inventory
+                    {
+                        ProductId = detail.ProductId,
+                        WarehouseId = stockIn.WarehouseId,
+                        Quantity = detail.Quantity,
+                    };
+                    await _unitOfWork.Inventory.Add(newInventory);
+                }
+                else
+                {
+                    inventory.Quantity += detail.Quantity;
+                    await _unitOfWork.Inventory.Update(inventory);
+                }
+            }
+
+            if (
+                stockIn.Type == StockInType.Adjustment
+                && !string.IsNullOrWhiteSpace(stockIn.ReferenceId)
+            )
+            {
+                var stockTake = await _unitOfWork.StockTake.GetByCode(stockIn.ReferenceId);
+                if (stockTake != null && stockTake.Details != null)
+                {
+                    var processedProductIds = stockInDetails.Select(d => d.ProductId).ToList();
+
+                    foreach (var detail in stockTake.Details)
+                    {
+                        if (processedProductIds.Contains(detail.ProductId))
+                        {
+                            detail.IsProcessed = true;
+                        }
+                    }
+
+                    await _unitOfWork.StockTake.Update(stockTake);
+                }
+            }
+
+            stockIn.Status = StockInStatus.Approve;
+            stockIn.ApproverId = _currentUserService.GetUserId();
+            stockIn.ApprovedDate = DateTime.UtcNow.Date;
+
+            await _unitOfWork.StockIn.Update(stockIn);
+            await _unitOfWork.SaveChanges();
+
+            return true;
         }
 
         public async Task<StockInRes?> GetById(long id)
@@ -79,200 +228,150 @@ namespace QLVPP.Services.Implementations
             return stockIn == null ? null : _mapper.Map<StockInRes>(stockIn);
         }
 
-        public async Task<StockInRes?> Update(long id, StockInReq request)
-        {
-            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
-
-            if (latestSnapshotDate != null && request.StockInDate <= latestSnapshotDate.Value)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot create order note on date ({request.StockInDate:dd/MM/yyyy}) because it is within or before the last closed period ending on ({latestSnapshotDate.Value:dd/MM/yyyy})."
-                );
-            }
-
-            if (request.Items != null && request.Items.Any())
-            {
-                var requestedProductIds = request
-                    .Items.Select(item => item.ProductId)
-                    .Distinct()
-                    .ToList();
-
-                var existingProducts = await _unitOfWork.Product.GetByIds(requestedProductIds);
-
-                if (existingProducts.Count() != requestedProductIds.Count)
-                {
-                    var existingProductIds = existingProducts.Select(p => p.Id).ToHashSet();
-                    var invalidProductIds = requestedProductIds.Where(id =>
-                        !existingProductIds.Contains(id)
-                    );
-
-                    throw new InvalidOperationException(
-                        $"One or more products do not exist. Invalid Product IDs: {string.Join(", ", invalidProductIds)}."
-                    );
-                }
-            }
-
-            var stockIn = await _unitOfWork.StockIn.GetById(id);
-            if (stockIn == null)
-                return null;
-
-            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
-            {
-                throw new UnauthorizedAccessException(
-                    "You are not allowed to update or approve a record from another warehouse."
-                );
-            }
-
-            if (stockIn.Status != StockInStatus.Pending)
-            {
-                throw new InvalidOperationException(
-                    "Stock In is not in Pending status and cannot be updated."
-                );
-            }
-
-            _mapper.Map(request, stockIn);
-
-            await _unitOfWork.StockIn.Update(stockIn);
-
-            await _unitOfWork.SaveChanges();
-
-            return _mapper.Map<StockInRes>(stockIn);
-        }
-
         public async Task<bool> Delete(long id)
         {
             var stockIn = await _unitOfWork.StockIn.GetById(id);
             if (stockIn == null)
-            {
                 return false;
-            }
 
-            if (stockIn.Status == StockInStatus.Cancelled)
-            {
-                throw new InvalidOperationException($"Stock In '{id}' has already been cancelled.");
-            }
-
-            DateOnly snapshotDate = (DateOnly)
-                await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
-
-            if (stockIn.StockInDate <= snapshotDate)
+            if (stockIn.Status != StockInStatus.Pending)
             {
                 throw new InvalidOperationException(
-                    $"Cannot cancel the order because the inventory has been finalized for this period."
+                    $"Cannot delete StockIn '{id}' because it is not PENDING. Current status: {stockIn.Status}"
                 );
             }
 
-            switch (stockIn.Status)
-            {
-                case StockInStatus.Pending:
-                    break;
-
-                case StockInStatus.Approve:
-                    var stockInDetails = stockIn.StockInDetails;
-                    if (stockInDetails == null || !stockInDetails.Any())
-                    {
-                        throw new InvalidOperationException(
-                            $"Order '{id}' is complete but has no details to revert stock."
-                        );
-                    }
-
-                    foreach (var detail in stockInDetails)
-                    {
-                        var inventory = await _unitOfWork.Inventory.GetByKey(
-                            stockIn.WarehouseId,
-                            detail.ProductId
-                        );
-                        if (inventory == null)
-                        {
-                            throw new InvalidOperationException(
-                                $"Inventory record not found for Product ID '{detail.ProductId}' in Warehouse ID '{stockIn.WarehouseId}'."
-                            );
-                        }
-
-                        inventory.Quantity = inventory.Quantity - detail.Quantity;
-                        await _unitOfWork.Inventory.Update(inventory);
-                    }
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        $"Cannot cancel an stockIn with the status '{stockIn.Status}'."
-                    );
-            }
-
-            stockIn.Status = StockInStatus.Cancelled;
             stockIn.IsActivated = false;
-
             await _unitOfWork.SaveChanges();
-
             return true;
         }
 
-        public async Task<StockInRes?> Approve(long id, StockInReq request)
+        public async Task<bool> Cancel(long id)
         {
-            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestSnapshotDate();
             var stockIn = await _unitOfWork.StockIn.GetById(id);
             if (stockIn == null)
-                return null;
+                return false;
 
-            if (stockIn.WarehouseId != _currentUserService.GetWarehouseId())
-            {
-                throw new UnauthorizedAccessException(
-                    "You are not allowed to update or approve a record from another warehouse."
-                );
-            }
-
-            if (latestSnapshotDate != null && stockIn.StockInDate <= latestSnapshotDate.Value)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot process Stock In on date ({stockIn.StockInDate:dd/MM/yyyy}) as it falls within a closed accounting period."
-                );
-            }
+            if (stockIn.Status == StockInStatus.Cancelled)
+                throw new InvalidOperationException($"Stock In '{id}' has already been cancelled.");
 
             if (stockIn.Status == StockInStatus.Approve)
-            {
-                throw new InvalidOperationException("Stock In has already been completed.");
-            }
-
-            foreach (var detail in stockIn.StockInDetails)
-            {
-                var inventory = await _unitOfWork.Inventory.GetByKey(
-                    stockIn.WarehouseId,
-                    detail.ProductId
+                throw new InvalidOperationException(
+                    $"Cannot cancel an APPROVED Stock In using this function because items are already in inventory. Please use 'Revert' function instead."
                 );
-                if (inventory == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Inventory record not found for Product ID '{detail.ProductId}' in Warehouse ID '{stockIn.WarehouseId}'."
-                    );
-                }
 
-                inventory.Quantity += detail.Quantity;
-                await _unitOfWork.Inventory.Update(inventory);
-            }
-
-            stockIn.Status = StockInStatus.Approve;
-            stockIn.ApproverId = _currentUserService.GetUserId();
-            stockIn.ApprovedDate = DateTime.Now.Date;
-
-            await _unitOfWork.StockIn.Update(stockIn);
+            stockIn.Status = StockInStatus.Cancelled;
             await _unitOfWork.SaveChanges();
-
-            return _mapper.Map<StockInRes>(stockIn);
+            return true;
         }
 
-        public async Task<List<StockInRes>> GetAllByMyself()
+        private async Task ValidateDuplicateProducts(StockInReq request)
         {
-            var curAccount = _currentUserService.GetUserAccount();
-            var requisitions = await _unitOfWork.StockIn.GetByCreator(curAccount);
-            return _mapper.Map<List<StockInRes>>(requisitions);
+            if (
+                request.Type != StockInType.Adjustment
+                || string.IsNullOrWhiteSpace(request.ReferenceId)
+            )
+                return;
+
+            var stockTake = await _unitOfWork.StockTake.GetByCode(request.ReferenceId);
+
+            if (stockTake == null || stockTake.Status != StockTakeStatus.Approve)
+                return;
+
+            if (stockTake.Details == null)
+                return;
+
+            var requestedProductIds = request.Items.Select(i => i.ProductId).ToList();
+
+            var processedProductIds = stockTake
+                .Details.Where(d => requestedProductIds.Contains(d.ProductId) && d.IsProcessed)
+                .Select(d => d.ProductId)
+                .ToList();
+
+            if (processedProductIds.Any())
+            {
+                throw new InvalidOperationException(
+                    $"One or more products ({string.Join(", ", processedProductIds)}) have already been processed in reference '{request.ReferenceId}'."
+                );
+            }
         }
 
-        public async Task<List<StockInRes>> GetByWarehouse()
+        private async Task ValidateAccountingPeriod(
+            DateOnly transactionDate,
+            long? warehouseId,
+            string actionName
+        )
         {
-            var curWarehouse = _currentUserService.GetWarehouseId();
-            var requisitions = await _unitOfWork.StockIn.GetByWarehouseId(curWarehouse);
-            return _mapper.Map<List<StockInRes>>(requisitions);
+            var latestSnapshotDate = await _unitOfWork.InventorySnapshot.GetLatestToDateAsync(
+                warehouseId
+            );
+
+            if (latestSnapshotDate != null && transactionDate <= latestSnapshotDate.Value)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot {actionName} voucher on ({transactionDate:yyyy-MM-dd}) "
+                        + $"because the accounting period was closed on ({latestSnapshotDate.Value:yyyy-MM-dd})."
+                );
+            }
+        }
+
+        private void ValidateStockInType(StockInReq request)
+        {
+            switch (request.Type)
+            {
+                case StockInType.Purchase:
+                    if (!request.SupplierId.HasValue)
+                        throw new InvalidOperationException(
+                            "Supplier is required for Purchase stock-in."
+                        );
+                    request.FromWarehouseId = null;
+                    request.FromDepartmentId = null;
+                    break;
+
+                case StockInType.Transfer:
+                    if (!request.FromWarehouseId.HasValue)
+                        throw new InvalidOperationException(
+                            "Source warehouse is required for Transfer stock-in."
+                        );
+                    if (request.FromWarehouseId == request.WarehouseId)
+                        throw new InvalidOperationException(
+                            "Source and Destination warehouses cannot be the same."
+                        );
+                    request.SupplierId = null;
+                    request.FromDepartmentId = null;
+                    break;
+
+                case StockInType.Return:
+                    if (!request.FromDepartmentId.HasValue)
+                        throw new InvalidOperationException(
+                            "Source department is required for Return stock-in."
+                        );
+                    request.SupplierId = null;
+                    request.FromWarehouseId = null;
+                    break;
+
+                case StockInType.Adjustment:
+                    if (string.IsNullOrWhiteSpace(request.Note))
+                        throw new InvalidOperationException(
+                            "A detailed Note is required for Adjustment stock-in."
+                        );
+                    request.SupplierId = null;
+                    request.FromWarehouseId = null;
+                    request.FromDepartmentId = null;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(request.Type),
+                        "Invalid Stock-In Type provided."
+                    );
+            }
+        }
+
+        public async Task<List<StockInRes>> GetByConditions(StockInFilterReq filter)
+        {
+            var entities = await _unitOfWork.StockIn.GetByConditions(filter);
+            return _mapper.Map<List<StockInRes>>(entities);
         }
     }
 }

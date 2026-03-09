@@ -1,10 +1,10 @@
-using QLVPP.DTOs.Projection;
+using QLVPP.DTOs.Result;
 
 namespace QLVPP.Repositories
 {
     public interface IReportRepository
     {
-        Task<List<UsageSummaryProj>> GetUsageReport(
+        Task<List<UsageSummaryResult>> GetUsageReport(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate

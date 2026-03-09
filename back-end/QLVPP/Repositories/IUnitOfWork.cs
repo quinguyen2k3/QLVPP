@@ -12,18 +12,17 @@ namespace QLVPP.Repositories
         IDepartmentRepository Department { get; }
         ISupplierRepository Supplier { get; }
         IWarehouseRepository Warehouse { get; }
-        IRequisitionRepository Requisition { get; }
         IProductRepository Product { get; }
         IStockInRepository StockIn { get; }
         IInventoryRepository Inventory { get; }
         IStockOutRepository StockOut { get; }
-        IReturnRepository Return { get; }
         IInventorySnapshotRepository InventorySnapshot { get; }
         IReportRepository Report { get; }
-        ITransferRepository Transfer { get; }
         IStockTakeRepository StockTake { get; }
-        IApprovalTaskRepository ApprovalTask { get; }
-        IApprovalConfigRepository ApprovalConfig { get; }
+        IDepartmentInventoryRepository DepartmentInventory { get; }
+        IPositionRepository Position { get; }
+        IMaterialRequestRepository MaterialRequest { get; }
+        IApprovalLogRepository ApprovalLog { get; }
         Task<int> SaveChanges();
     }
 }

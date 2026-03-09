@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QLVPP.Attributes;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -21,6 +22,7 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet]
+        [AllowCommonAccess]
         public async Task<ActionResult<List<SupplierRes>>> GetSuppliers([FromQuery] bool? activated)
         {
             try

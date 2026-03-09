@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QLVPP.Attributes;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -19,6 +20,7 @@ namespace QLVPP.Controllers
         }
 
         [HttpGet]
+        [AllowCommonAccess]
         public async Task<ActionResult<List<ProductRes>>> GetProducts([FromQuery] bool? activated)
         {
             try
@@ -48,12 +50,13 @@ namespace QLVPP.Controllers
             }
         }
 
-        [HttpGet("my-warehouse")]
-        public async Task<ActionResult<List<ProductRes>>> GetAllByWarehouse()
+        [HttpGet("warehouse/{id:long}")]
+        [AllowCommonAccess]
+        public async Task<ActionResult<List<ProductRes>>> GetAllByWarehouse(long id)
         {
             try
             {
-                var products = await _service.GetByWarehouse();
+                var products = await _service.GetByWarehouse(id);
                 return Ok(
                     ApiResponse<List<ProductRes>>.SuccessResponse(
                         products,
@@ -87,8 +90,9 @@ namespace QLVPP.Controllers
         }
 
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ApiResponse<ProductRes>>> Create(
-            [FromBody] ProductReq request
+            [FromForm] ProductReq request
         )
         {
             if (!ModelState.IsValid)
@@ -118,7 +122,8 @@ namespace QLVPP.Controllers
         }
 
         [HttpPut("{id:long}")]
-        public async Task<ActionResult<ProductRes>> Update(long id, [FromBody] ProductReq request)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ProductRes>> Update(long id, [FromForm] ProductReq request)
         {
             if (!ModelState.IsValid)
             {

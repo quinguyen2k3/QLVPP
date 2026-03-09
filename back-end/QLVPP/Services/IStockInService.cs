@@ -5,13 +5,12 @@ namespace QLVPP.Services
 {
     public interface IStockInService
     {
-        Task<List<StockInRes>> GetByWarehouse();
-        Task<List<StockInRes>> GetPendingByWarehouse();
-        Task<List<StockInRes>> GetAllByMyself();
+        Task<List<StockInRes>> GetByConditions(StockInFilterReq filter);
         Task<StockInRes?> GetById(long id);
         Task<StockInRes> Create(StockInReq request);
         Task<StockInRes?> Update(long id, StockInReq request);
-        Task<StockInRes?> Approve(long id, StockInReq request);
+        Task<bool> Approve(long id);
+        Task<bool> Cancel(long id);
         Task<bool> Delete(long id);
     }
 }

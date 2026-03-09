@@ -7,5 +7,6 @@ namespace QLVPP.Repositories
         Task<Employee?> GetByAccount(string account);
         Task<List<Employee>> GetAllIsActivated();
         Task<List<Employee>> GetByIds(IEnumerable<long> ids);
+        Task<Employee?> GetByPositionNameAndDepartmentId(string name, long departmentId);
     }
 }

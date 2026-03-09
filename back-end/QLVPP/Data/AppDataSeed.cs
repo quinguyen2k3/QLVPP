@@ -12,6 +12,17 @@ namespace QLVPP.Data
 
             if (!context.Employees.Any())
             {
+                var adminRole = await context.Roles.FirstOrDefaultAsync(r =>
+                    r.Name == "System Admin"
+                );
+
+                if (adminRole == null)
+                {
+                    adminRole = new Role { Name = "System Admin" };
+                    context.Roles.Add(adminRole);
+                    await context.SaveChangesAsync();
+                }
+
                 var defaultPassword = "admin@123";
                 var admin = new Employee
                 {
@@ -20,6 +31,7 @@ namespace QLVPP.Data
                     Phone = "0123456789",
                     Account = "admin",
                     Password = PasswordHasher.HashPassword(defaultPassword),
+                    Role = adminRole,
                 };
 
                 context.Employees.Add(admin);

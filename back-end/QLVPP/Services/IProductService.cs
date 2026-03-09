@@ -7,7 +7,7 @@ namespace QLVPP.Services
     {
         Task<List<ProductRes>> GetAll();
         Task<List<ProductRes>> GetAllActivated();
-        Task<List<ProductRes>> GetByWarehouse();
+        Task<List<ProductRes>> GetByWarehouse(long id);
         Task<ProductRes?> GetById(long id);
         Task<ProductRes> Create(ProductReq request);
         Task<ProductRes?> Update(long id, ProductReq request);

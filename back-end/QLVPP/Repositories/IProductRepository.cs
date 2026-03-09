@@ -1,4 +1,4 @@
-﻿using QLVPP.DTOs.Projection;
+﻿using QLVPP.DTOs.Result;
 using QLVPP.Models;
 
 namespace QLVPP.Repositories
@@ -8,19 +8,13 @@ namespace QLVPP.Repositories
         Task<List<Product>> GetAllIsActivated();
         Task<List<Product>> GetByIds(IEnumerable<long> ids);
         Task<List<Product>> GetByWarehouseId(long id);
-        Task<List<ProductReportProj>> GetTotalIn(
+        Task<List<ProductReportResult>> GetTotalIn(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate
         );
 
-        Task<List<ProductReportProj>> GetTotalOut(
-            long warehouseId,
-            DateOnly startDate,
-            DateOnly endDate
-        );
-
-        Task<List<ProductReportProj>> GetTotalReturnAsync(
+        Task<List<ProductReportResult>> GetTotalOut(
             long warehouseId,
             DateOnly startDate,
             DateOnly endDate

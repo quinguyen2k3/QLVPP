@@ -85,7 +85,7 @@ namespace QLVPP.Services.Implementations
             await _unitOfWork.Supplier.Update(supplier);
             await _unitOfWork.SaveChanges();
 
-            await ClearCaches();
+            await ClearCaches(id);
 
             return _mapper.Map<SupplierRes>(supplier);
         }

@@ -14,7 +14,7 @@ namespace QLVPP.Controllers
     {
         public readonly IStockTakeService _service;
 
-        public StockTakeController(StockTakeService service)
+        public StockTakeController(IStockTakeService service)
         {
             _service = service;
         }
@@ -119,6 +119,74 @@ namespace QLVPP.Controllers
                         updated,
                         "Updated stock take successfully"
                     )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPut("approve/{id:long}")]
+        public async Task<ActionResult<bool>> Approve(long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResponse<string>.ErrorResponse("Validation failed", errors));
+            }
+            try
+            {
+                var updated = await _service.Approve(id);
+                if (!updated)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Stock take not found"));
+
+                return Ok(
+                    ApiResponse<bool>.SuccessResponse(updated, "Approve stock take successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPut("cancel/{id:long}")]
+        public async Task<ActionResult<bool>> Cancel(long id)
+        {
+            try
+            {
+                var deleted = await _service.Cancel(id);
+
+                if (deleted == false)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Stock take not found"));
+
+                return Ok(
+                    ApiResponse<bool>.SuccessResponse(deleted, "Cancel stock take successfully")
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpDelete("{id:long}")]
+        public async Task<ActionResult<bool>> Delete(long id)
+        {
+            try
+            {
+                var deleted = await _service.Delete(id);
+
+                if (deleted == false)
+                    return NotFound(ApiResponse<string>.ErrorResponse("Stock take not found"));
+
+                return Ok(
+                    ApiResponse<bool>.SuccessResponse(deleted, "Delete delivery successfully")
                 );
             }
             catch (Exception ex)

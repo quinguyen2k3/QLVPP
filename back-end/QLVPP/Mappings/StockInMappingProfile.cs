@@ -23,6 +23,7 @@ namespace QLVPP.Mappings
 
             CreateMap<StockInDetail, StockInItemRes>()
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.UnitId, opt => opt.MapFrom(src => src.Product.Unit.Id))
                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice));
         }
     }

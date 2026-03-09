@@ -5,5 +5,6 @@ namespace QLVPP.Repositories
     public interface IStockTakeRepository : IBaseRepository<StockTake>
     {
         Task<List<StockTake>> GetByWarehouseId(long id);
+        Task<StockTake?> GetByCode(string code);
     }
 }

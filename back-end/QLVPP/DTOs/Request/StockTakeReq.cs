@@ -12,9 +12,10 @@ namespace QLVPP.DTOs.Request
         public string Purpose { get; set; } = null!;
 
         [Required(ErrorMessage = "Please select an employee to perform the stock take.")]
-        [Range(1, long.MaxValue, ErrorMessage = "Employee ID must be greater than 0.")]
-        public long PerformanceId { get; set; }
+        public long RequesterId { get; set; }
 
+        [Required(ErrorMessage = "Please select an warehouse to perform the stock take")]
+        public long WarehouseId { get; set; }
         public List<StockTakeReqItem> Items { get; set; } = null!;
     }
 }

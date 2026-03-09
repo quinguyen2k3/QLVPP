@@ -9,10 +9,10 @@ namespace QLVPP.Models
         public int Quantity { get; set; }
 
         [Required]
-        public long DeliveryId { get; set; }
+        public long StockOutId { get; set; }
 
-        [ForeignKey(nameof(DeliveryId))]
-        public StockOut Delivery { get; set; } = null!;
+        [ForeignKey(nameof(StockOutId))]
+        public StockOut StockOut { get; set; } = null!;
 
         [Required]
         public long ProductId { get; set; }

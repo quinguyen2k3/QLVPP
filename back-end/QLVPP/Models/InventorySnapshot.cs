@@ -6,7 +6,10 @@ namespace QLVPP.Models
     public class InventorySnapshot : AuditableEntity
     {
         [Required]
-        public DateOnly SnapshotDate { get; set; }
+        public DateOnly FromDate { get; set; }
+
+        [Required]
+        public DateOnly ToDate { get; set; }
 
         [Required]
         public long WarehouseId { get; set; }
