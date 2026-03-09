@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useContext } from 'react';
 import { Link } from 'react-router';
 import { Box, Menu, Avatar, Typography, Divider, Button, IconButton } from '@mui/material';
 import * as dropdownData from './data';
@@ -11,8 +12,10 @@ import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 import Scrollbar from 'src/components/custom-scroll/Scrollbar';
 import { useLogout } from '../../shared/hooks/useLogout';
 import { useTranslation } from 'react-i18next';
+import { AuthContext } from 'src/context/AuthContext';
 
 const Profile = () => {
+  const { user } = useContext(AuthContext);
   const { t } = useTranslation();
   const [anchorEl2, setAnchorEl2] = useState(null);
   const { logout } = useLogout();
@@ -78,10 +81,10 @@ const Profile = () => {
               <Avatar src={ProfileImg} alt={ProfileImg} sx={{ width: 95, height: 95 }} />
               <Box>
                 <Typography variant="subtitle2" color="textPrimary" fontWeight={600}>
-                  Mathew Anderson
+                  {user.name}
                 </Typography>
                 <Typography variant="subtitle2" color="textSecondary">
-                  Designer
+                  {user.position}
                 </Typography>
                 <Typography
                   variant="subtitle2"
@@ -91,7 +94,7 @@ const Profile = () => {
                   gap={1}
                 >
                   <IconMail width={15} height={15} />
-                  info@modernize.com
+                  {user.email}
                 </Typography>
               </Box>
             </Stack>

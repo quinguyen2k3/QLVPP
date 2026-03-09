@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using QLVPP.Attributes;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -92,6 +93,7 @@ namespace QLVPP.Controllers
         }
 
         [HttpPost("change-password")]
+        [AllowCommonAccess]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassReq request)
         {

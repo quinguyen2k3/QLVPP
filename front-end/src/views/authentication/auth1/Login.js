@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router';
+import React, { useState, useContext } from 'react';
+import { Link } from 'react-router-dom'; // Đã sửa lại đúng import từ react-router-dom
 import { Grid, Box, Stack, Typography, Alert } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 import img1 from 'src/assets/images/backgrounds/login-bg.svg';
@@ -7,8 +7,12 @@ import Logo from 'src/layouts/full/shared/logo/Logo';
 import AuthLogin from '../authForms/AuthLogin';
 import { useLogin } from '../hooks/useLogin';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from 'src/context/AuthContext';
+import { useTranslation } from 'react-i18next'; // Import bộ dịch
 
 const Login = () => {
+  const { t } = useTranslation(); // Khởi tạo hook dịch
+  const { saveUserInfo } = useContext(AuthContext);
   const { login, loading } = useLogin();
   const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
@@ -17,16 +21,18 @@ const Login = () => {
     setErrors([]);
     const res = await login(account, password);
 
-    if (res.success == true) {
+    if (res.success == true || res?.data?.authenticated) {
       navigate('/');
+      saveUserInfo(res.data);
       return;
     }
 
-    setErrors([res?.message || 'Username or Password is incorrect!']);
+    // Dịch câu thông báo lỗi mặc định nếu API không trả về message
+    setErrors([res?.message || t('Message.LoginFailed') || 'Username or Password is incorrect!']);
   };
 
   return (
-    <PageContainer title="Login" description="this is Login page">
+    <PageContainer title={t('Page.LoginTitle') || 'Login'} description={t('Page.LoginDescription') || 'This is Login page'}>
       <Grid container spacing={0} sx={{ overflowX: 'hidden' }}>
         <Grid
           size={{ xs: 12, sm: 12, lg: 7, xl: 8 }}
@@ -85,29 +91,11 @@ const Login = () => {
             <AuthLogin
               onLogin={handleLogin}
               loading={loading}
-              title="Welcome to Modernize"
+              title={t('Auth.WelcomeTitle') || 'Welcome to Modernize'}
               subtext={
                 <Typography variant="subtitle1" color="textSecondary" mb={1}>
-                  Your Admin Dashboard
+                  {t('Auth.AdminDashboard') || 'Your Admin Dashboard'}
                 </Typography>
-              }
-              subtitle={
-                <Stack direction="row" spacing={1} mt={3}>
-                  <Typography color="textSecondary" variant="h6" fontWeight="500">
-                    New to Modernize?
-                  </Typography>
-                  <Typography
-                    component={Link}
-                    to="/auth/register"
-                    fontWeight="500"
-                    sx={{
-                      textDecoration: 'none',
-                      color: 'primary.main',
-                    }}
-                  >
-                    Create an account
-                  </Typography>
-                </Stack>
               }
             />
           </Box>

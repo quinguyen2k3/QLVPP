@@ -1,13 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Box, Avatar, Typography, IconButton, Tooltip, useMediaQuery } from '@mui/material';
 import { CustomizerContext } from 'src/context/CustomizerContext';
-import { useContext } from 'react';
 import img1 from 'src/assets/images/profile/user-1.jpg';
 import { IconPower } from '@tabler/icons';
 import { Link } from "react-router";
 import { useLogout } from '../../../shared/hooks/useLogout';
+import {AuthContext} from 'src/context/AuthContext';
 
 export const Profile = () => {
+  const {user} = useContext(AuthContext);
   const { isSidebarHover, isCollapse } = useContext(CustomizerContext);
   const { logout } = useLogout(); 
 
@@ -30,8 +31,8 @@ export const Profile = () => {
           <Avatar alt="Remy Sharp" src={img1} />
 
           <Box>
-            <Typography variant="h6" color="textPrimary">Mathew</Typography>
-            <Typography variant="caption" color="textSecondary">Designer</Typography>
+            <Typography variant="h6" color="textPrimary">{user?.name?.trim().split(' ').pop() || 'Khách'}</Typography>
+            <Typography variant="caption" color="textSecondary">{user.position}</Typography>
           </Box>
           <Box sx={{ ml: 'auto' }}>
             <Tooltip title="Logout" placement="top">
