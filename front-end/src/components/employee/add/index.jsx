@@ -27,7 +27,7 @@ import { useMasterData } from 'src/hooks/useMasterData';
 
 const AddDialog = ({ open, onClose, onSuccess }) => {
   const { t } = useTranslation();
-  const { departments, warehouses, positions } = useMasterData();
+  const { departments, warehouses, positions, roles } = useMasterData();
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({
@@ -67,6 +67,10 @@ const AddDialog = ({ open, onClose, onSuccess }) => {
       .number()
       .nullable()
       .required(t('Placeholder.Select') + ' ' + t('Field.Warehouse')),
+    roleId: yup
+      .number()
+      .nullable()
+      .required(t('Placeholder.Select') + ' ' + t('Field.Role')),
   });
 
   const formik = useFormik({
@@ -80,6 +84,7 @@ const AddDialog = ({ open, onClose, onSuccess }) => {
       departmentId: null,
       positionId: null,
       warehouseId: null,
+      roleId: null,
       isActivated: true,
     },
     validationSchema,
@@ -95,6 +100,7 @@ const AddDialog = ({ open, onClose, onSuccess }) => {
         departmentId: values.departmentId,
         positionId: values.positionId,
         warehouseId: values.warehouseId,
+        roleId: values.roleId,
         isActivated: values.isActivated,
       };
 
@@ -219,7 +225,7 @@ const AddDialog = ({ open, onClose, onSuccess }) => {
               />
             </Grid>
 
-            <Grid item size={{ xs: 12 }}>
+            <Grid item size={{ xs: 12, sm: 6 }}>
               <CustomTextField
                 label={t('Field.Password')}
                 name="password"
@@ -232,6 +238,28 @@ const AddDialog = ({ open, onClose, onSuccess }) => {
                 required
                 disabled={loading}
                 placeholder={t('Placeholder.Enter')}
+              />
+            </Grid>
+
+            <Grid item size={{ xs: 12, sm: 6 }}>
+              <Autocomplete
+                options={roles || []}
+                getOptionLabel={(option) => option.name || ''}
+                value={roles?.find((r) => r.id === formik.values.roleId) || null}
+                onChange={(e, newValue) => {
+                  formik.setFieldValue('roleId', newValue ? newValue.id : null);
+                }}
+                disabled={loading}
+                renderInput={(params) => (
+                  <CustomTextField
+                    {...params}
+                    label={t('Field.Role')}
+                    required
+                    error={formik.touched.roleId && Boolean(formik.errors.roleId)}
+                    helperText={formik.touched.roleId && formik.errors.roleId}
+                    placeholder={t('Placeholder.Select')}
+                  />
+                )}
               />
             </Grid>
 

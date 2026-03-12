@@ -48,6 +48,11 @@ namespace QLVPP.Repositories.Implementations
                 query = query.Where(x => x.CreatedBy == filter.CreatedBy);
             }
 
+            if (filter.RequestTypes != null && filter.RequestTypes.Any())
+            {
+                query = query.Where(x => filter.RequestTypes.Contains(x.Type));
+            }
+
             if (filter.OrderByDesc)
             {
                 query = query.OrderByDescending(x => x.CreatedDate);

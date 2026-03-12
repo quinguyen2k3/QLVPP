@@ -1,29 +1,18 @@
 import React, { lazy } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router';
-
 import Loadable from '../layouts/full/shared/loadable/Loadable';
+import ProtectedRoute from './ProtectedRoute';
 
-/* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
 
-/* ****Pages***** */
 const ModernDash = Loadable(lazy(() => import('../views/dashboard/Modern')));
 const EcommerceDash = Loadable(lazy(() => import('../views/dashboard/Ecommerce')));
 
-/* ****Apps***** */
-// const Blog = Loadable(lazy(() => import('../views/apps/blog/Blog')));
-// const BlogDetail = Loadable(lazy(() => import('../views/apps/blog/BlogPost')));
-
 const Login = Loadable(lazy(() => import('../views/authentication/auth1/Login')));
-const Register = Loadable(lazy(() => import('../views/authentication/auth1/Register')));
-const ForgotPassword = Loadable(lazy(() => import('../views/authentication/auth1/ForgotPassword')));
-
-const TwoSteps = Loadable(lazy(() => import('../views/authentication/auth1/TwoSteps')));
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
-const Maintenance = Loadable(lazy(() => import('../views/authentication/Maintenance')));
+const Forbidden = Loadable(lazy(() => import('../views/authentication/Forbidden')));
 
-//product
 const ProductList = Loadable(lazy(() => import('../views/products/list/page')));
 const AddProduct = Loadable(lazy(() => import('../views/products/add/page')));
 const EditProduct = Loadable(lazy(() => import('../views/products/edit/page')));
@@ -85,69 +74,282 @@ const EditStockTake = Loadable(
 const StockTakeDetail = Loadable(
   lazy(() => import('../views/inventory-transaction/stock-take/detail/page')),
 );
-const MaterialRequestCreate = Loadable(
-  lazy(() => import('../views/request/material/add/page')),
-);
-const MaterialRequestListing = Loadable(
-  lazy(() => import('../views/request/material/list/page')),
-);
-const EditMaterialRequest = Loadable(
-  lazy(() => import('../views/request/material/edit/page')),
-);
-const MaterialRequestDetail = Loadable(
-  lazy(() => import('../views/request/material/detail/page')),
-);
-const ChangePasswordPage = Loadable(
-  lazy(() => import('../views/change-password/page')),
-);
+
+const MaterialRequestCreate = Loadable(lazy(() => import('../views/request/material/add/page')));
+const MaterialRequestListing = Loadable(lazy(() => import('../views/request/material/list/page')));
+const EditMaterialRequest = Loadable(lazy(() => import('../views/request/material/edit/page')));
+const MaterialRequestDetail = Loadable(lazy(() => import('../views/request/material/detail/page')));
+const ChangePasswordPage = Loadable(lazy(() => import('../views/change-password/page')));
 
 const Router = [
   {
     path: '/',
-    element: <FullLayout />,
+    element: (
+      <ProtectedRoute>
+        <FullLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: '/', element: <Navigate to="/dashboards/modern" /> },
       { path: '/dashboards/modern', exact: true, element: <ModernDash /> },
       { path: '/dashboards/ecommerce', exact: true, element: <EcommerceDash /> },
 
-      { path: '/catalog/products', element: <ProductList /> },
-      { path: '/catalog/product/add', element: <AddProduct /> },
-      { path: '/catalog/product/edit/:id', element: <EditProduct /> },
+      {
+        path: '/catalog/products',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <ProductList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/product/add',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <AddProduct />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/product/edit/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <EditProduct />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/categories',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <CategoryList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/units',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <UnitList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/suppliers',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <SupplierList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/catalog/warehouses',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <WarehouseList />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/catalog/categories', element: <CategoryList /> },
-      { path: '/catalog/units', element: <UnitList /> },
-      { path: '/catalog/suppliers', element: <SupplierList /> },
-      { path: '/catalog/warehouses', element: <WarehouseList /> },
+      {
+        path: '/inventory/stock-in/add',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockIn />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/add/transfer',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockIn type={2} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/add/return',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockIn type={3} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/add/adjustment',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockIn type={4} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/list',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockInListing />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/edit/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <EditStockIn />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-in/detail/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockInDetail />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/inventory/stock-in/add', element: <CreateStockIn /> },
-      { path: '/inventory/stock-in/add/transfer', element: <CreateStockIn type={2} /> },
-      { path: '/inventory/stock-in/add/return', element: <CreateStockIn type={3} /> },
-      { path: '/inventory/stock-in/add/adjustment', element: <CreateStockIn type={4} /> },
-      { path: '/inventory/stock-in/list', element: <StockInListing /> },
-      { path: '/inventory/stock-in/edit/:id', element: <EditStockIn /> },
-      { path: '/inventory/stock-in/detail/:id', element: <StockInDetail /> },
+      {
+        path: '/inventory/stock-out/add',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockOut />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-out/add/transfer',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockOut type={2} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-out/add/adjustment',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <CreateStockOut type={3} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-out/edit/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <EditStockOut />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-out/detail/:id',
+        element: (
+          <ProtectedRoute
+            allowedRoles={['Warehouse Keeper', 'Warehouse Staff', 'DepartmentHead', 'Regular User']}
+          >
+            <StockOutDetail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-out/list',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockOutListing />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/inventory/stock-out/add', element: <CreateStockOut /> },
-      { path: '/inventory/stock-out/add/transfer', element: <CreateStockOut type={2} /> },
-      { path: '/inventory/stock-out/add/adjustment', element: <CreateStockOut type={3} /> },
-      { path: '/inventory/stock-out/edit/:id', element: <EditStockOut /> },
-      { path: '/inventory/stock-out/detail/:id', element: <StockOutDetail /> },
-      { path: '/inventory/stock-out/list', element: <StockOutListing /> },
+      {
+        path: '/inventory/transfer/list',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <ReceiveTransferList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/report',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <SnapshotList />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/inventory/transfer/list', element: <ReceiveTransferList /> },
+      {
+        path: '/inventory/stock-take/add',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockTakeCreate />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-take/list',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockTakeList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-take/edit/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <EditStockTake />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/inventory/stock-take/detail/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['Warehouse Keeper', 'Warehouse Staff']}>
+            <StockTakeDetail />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/my-work-space/inventory', element: <InventoryDepartmentPage /> },
-      { path: '/my-work-space/incoming-stock', element: <IncomingStockPage /> },
+      {
+        path: '/my-work-space/inventory',
+        element: (
+          <ProtectedRoute allowedRoles={['Department Head', 'Regular User']}>
+            <InventoryDepartmentPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/my-work-space/incoming-stock',
+        element: (
+          <ProtectedRoute allowedRoles={['Department Head', 'Regular User']}>
+            <IncomingStockPage />
+          </ProtectedRoute>
+        ),
+      },
 
-      { path: '/inventory/report', element: <SnapshotList /> },
-      { path: '/organization/departments', element: <DepartmentList /> },
-      { path: '/organization/positions', element: <PositionList /> },
-      { path: '/organization/employees', element: <EmployeeList /> },
-
-      { path: '/inventory/stock-take/add', element: <StockTakeCreate /> },
-      { path: '/inventory/stock-take/list', element: <StockTakeList /> },
-      { path: '/inventory/stock-take/edit/:id', element: <EditStockTake /> },
-      { path: '/inventory/stock-take/detail/:id', element: <StockTakeDetail /> },
+      {
+        path: '/organization/departments',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <DepartmentList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/organization/positions',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <PositionList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/organization/employees',
+        element: (
+          <ProtectedRoute allowedRoles={['Metadata Manager']}>
+            <EmployeeList />
+          </ProtectedRoute>
+        ),
+      },
 
       { path: '/request/material/add', element: <MaterialRequestCreate /> },
       { path: '/request/material/list', element: <MaterialRequestListing /> },
@@ -163,10 +365,8 @@ const Router = [
     element: <BlankLayout />,
     children: [
       { path: '/auth/404', element: <Error /> },
+      { path: '/auth/403', element: <Forbidden /> },
       { path: '/auth/login', element: <Login /> },
-      { path: '/auth/register', element: <Register /> },
-      { path: '/auth/forgot-password', element: <ForgotPassword /> },
-      { path: '/auth/two-steps', element: <TwoSteps /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

@@ -13,7 +13,7 @@ namespace QLVPP.Security
 
         public static bool VerifyPassword(string password, string hashedPassword)
         {
-            return Verify(password, hashedPassword);
+            return EnhancedVerify(password, hashedPassword);
         }
     }
 }

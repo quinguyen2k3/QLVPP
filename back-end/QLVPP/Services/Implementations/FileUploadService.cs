@@ -11,7 +11,7 @@ public class FileUploadService : IFileUploadService
         _options = options.Value;
     }
 
-   public async Task<string> UploadAsync(IFormFile file, UploadFolder folderType)
+    public async Task<string> UploadAsync(IFormFile file, UploadFolder folderType)
     {
         var folderKey = folderType.ToString();
 

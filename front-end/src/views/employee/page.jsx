@@ -24,7 +24,7 @@ function DepartmentPage() {
   const BCrumb = [
     { to: '/', title: t('Menu.Home') },
     { title: t('Menu.Organization') },
-    { title: t('Menu.Department') },
+    { title: t('Menu.Employee') },
   ];
 
   const [openAdd, setOpenAdd] = useState(false);
@@ -50,7 +50,7 @@ function DepartmentPage() {
   };
 
   return (
-    <PageContainer title={t('Menu.Employee')} description="Trang quản lý danh sách phòng ban">
+    <PageContainer title={t('Menu.Employee')} description="Trang quản lý danh sách nhân viên">
       <Breadcrumb title={t('Menu.Employee')} items={BCrumb} />
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
@@ -63,11 +63,7 @@ function DepartmentPage() {
         </Button>
       </Box>
 
-      <EmployeeListTable
-        employees={employees}
-        loading={isLoading}
-        onEditClick={handleEditClick}
-      />
+      <EmployeeListTable employees={employees} loading={isLoading} onEditClick={handleEditClick} />
 
       <AddDialog open={openAdd} onClose={() => setOpenAdd(false)} onSuccess={handleAddSuccess} />
 

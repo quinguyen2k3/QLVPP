@@ -21,13 +21,11 @@ const Login = () => {
     setErrors([]);
     const res = await login(account, password);
 
-    if (res.success == true || res?.data?.authenticated) {
+    if (res.success == true) {
       navigate('/');
       saveUserInfo(res.data);
       return;
     }
-
-    // Dịch câu thông báo lỗi mặc định nếu API không trả về message
     setErrors([res?.message || t('Message.LoginFailed') || 'Username or Password is incorrect!']);
   };
 

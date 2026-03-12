@@ -43,6 +43,9 @@ namespace QLVPP.DTOs.Request
 
         public long? WarehouseId { get; set; }
 
+        [Required(ErrorMessage = "Role is required")]
+        public long RoleId { get; set; }
+
         [Required(ErrorMessage = "IsActivated status is required")]
         public bool IsActivated { get; set; } = true;
         public bool IsWarehouseKeeper { get; set; }

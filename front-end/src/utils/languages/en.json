@@ -127,7 +127,11 @@
     "UserProfile": "User Profile",
     "PasswordRequirements": "Password Requirements:",
     "NewPassword": "New Password",
-    "ConfirmPassword": "Confirm New Password"
+    "ConfirmPassword": "Confirm New Password",
+    "CompletedApprove": "Completed Approve",
+    "PendingToApproveByDepartment": "Pending to Approve by Department Head",
+    "PendingToApproveByWarehouse": "Pending to Approve by Warehouse Keeper",
+    "Role": "Role"
   },
   "Entity": {
     "Product": "Product",
@@ -159,7 +163,8 @@
     "RequireSpecial": "Must contain at least 1 special character",
     "MinLength8": "Must be at least 8 characters long",
     "PasswordMismatch": "Passwords do not match",
-    "LoginFailed": "Username or Password is incorrect!"
+    "LoginFailed": "Username or Password is incorrect!",
+    "NoTransferRequest": "No transfer request found for this product in the selected warehouse."
   },
   "Placeholder": {
     "Select": "Please select",
@@ -295,5 +300,12 @@
     "AdminDashboard": "Your Admin Dashboard",
     "NewToSystem": "New to Modernize?",
     "CreateAccount": "Create an account"
+  },
+  "Error": {
+    "404Title": "Oops!!!",
+    "404Description": "This page you are looking for could not be found.",
+    "403Title": "403 - Access Denied",
+    "403Description": "You do not have permission to access this page.",
+    "BackToHome": "Go Back to Home"
   }
 }

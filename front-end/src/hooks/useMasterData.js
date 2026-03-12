@@ -7,6 +7,7 @@ import { categoryApi } from 'src/api/category/categoryApi';
 import { supplierApi } from 'src/api/supplier/supplierApi';
 import { productApi } from 'src/api/product/productApi';
 import { positionApi } from 'src/api/position/positionApi';
+import { roleApi } from 'src/api/role/roleApi';
 
 const masterDataConfig = {
   revalidateOnFocus: false,
@@ -141,6 +142,12 @@ export const useProducts = (scope = 'global', warehouseId = null) => {
   };
 };
 
+export const useRole = () => {
+  const { data, error, isLoading, mutate } = useSWR('/role', roleApi.getAll, masterDataConfig);
+  const handlers = createCacheHandlers(mutate);
+  return { roles: data?.data || [], isLoading, isError: error, ...handlers };
+};
+
 export const useMasterData = () => {
   const { units } = useUnits();
   const { employees } = useEmployees();
@@ -149,6 +156,7 @@ export const useMasterData = () => {
   const { categories } = useCategories();
   const { suppliers } = useSuppliers();
   const { positions } = usePositions();
+  const { roles } = useRole();
   const { products } = useProducts('global');
 
   return {
@@ -161,5 +169,6 @@ export const useMasterData = () => {
     suppliers,
     products,
     positions,
+    roles,
   };
 };

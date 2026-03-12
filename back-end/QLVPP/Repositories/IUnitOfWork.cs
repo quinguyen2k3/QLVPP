@@ -23,6 +23,8 @@ namespace QLVPP.Repositories
         IPositionRepository Position { get; }
         IMaterialRequestRepository MaterialRequest { get; }
         IApprovalLogRepository ApprovalLog { get; }
+        IPermissionRepository Permission { get; }
+        IRoleRepository Role { get; }
         Task<int> SaveChanges();
     }
 }

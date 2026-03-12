@@ -25,6 +25,8 @@ namespace QLVPP.Repositories.Implementations
         public IPositionRepository Position { get; private set; }
         public IMaterialRequestRepository MaterialRequest { get; private set; }
         public IApprovalLogRepository ApprovalLog { get; private set; }
+        public IPermissionRepository Permission { get; private set; }
+        public IRoleRepository Role { get; private set; }
 
         public readonly AppDbContext _context;
 
@@ -49,6 +51,8 @@ namespace QLVPP.Repositories.Implementations
             Position = new PositionRepository(context);
             MaterialRequest = new MaterialRequestRepository(context);
             ApprovalLog = new ApprovalLogRepository(context);
+            Permission = new PermissionRepository(context);
+            Role = new RoleRepository(context);
             _context = context;
         }
 

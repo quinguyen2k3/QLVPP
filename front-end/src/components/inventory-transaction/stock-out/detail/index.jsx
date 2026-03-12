@@ -29,6 +29,7 @@ import { vi, enUS } from 'date-fns/locale';
 import { StockOutContext } from 'src/context/StockOutContext';
 import { useMasterData } from 'src/hooks/useMasterData';
 import Logo from 'src/layouts/full/shared/logo/Logo';
+import RequiredRole from 'src/components/guard';
 
 const STOCK_OUT_TYPES = {
   USAGE: 1,
@@ -97,12 +98,18 @@ const StockOutDetail = () => {
 
   const getStatusColor = (status) => {
     switch (status?.toUpperCase()) {
-      case 'PENDING': return 'warning';
-      case 'APPROVED': return 'success';
-      case 'COMPLETED': return 'success';
-      case 'CANCELLED': return 'error';
-      case 'REJECTED': return 'error';
-      default: return 'default';
+      case 'PENDING':
+        return 'warning';
+      case 'APPROVED':
+        return 'success';
+      case 'COMPLETED':
+        return 'success';
+      case 'CANCELLED':
+        return 'error';
+      case 'REJECTED':
+        return 'error';
+      default:
+        return 'default';
     }
   };
 
@@ -114,10 +121,14 @@ const StockOutDetail = () => {
 
   const getTypeLabel = (type) => {
     switch (type) {
-      case STOCK_OUT_TYPES.USAGE: return t('StockOutType.Usage');
-      case STOCK_OUT_TYPES.TRANSFER: return t('StockOutType.Transfer');
-      case STOCK_OUT_TYPES.ADJUSTMENT: return t('StockOutType.Adjustment');
-      default: return 'Unknown Type';
+      case STOCK_OUT_TYPES.USAGE:
+        return t('StockOutType.Usage');
+      case STOCK_OUT_TYPES.TRANSFER:
+        return t('StockOutType.Transfer');
+      case STOCK_OUT_TYPES.ADJUSTMENT:
+        return t('StockOutType.Adjustment');
+      default:
+        return 'Unknown Type';
     }
   };
 
@@ -159,38 +170,40 @@ const StockOutDetail = () => {
   return (
     <>
       {stockOut.status === 'PENDING' && (
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          gap={1}
-          p={2}
-          bgcolor="primary.light"
-          borderRadius={1}
-          mb={3}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<AssignmentTurnedInIcon />}
-            onClick={async () => {
-              const success = await approveStockOut(stockOut.id);
-              if (success) setStockOut((prev) => ({ ...prev, status: 'APPROVED' }));
-            }}
+        <RequiredRole allowedRoles={['Warehouse Keeper']}>
+          <Box
+            display="flex"
+            justifyContent="flex-start"
+            gap={1}
+            p={2}
+            bgcolor="primary.light"
+            borderRadius={1}
+            mb={3}
           >
-            {t('Action.Approve')}
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<CancelPresentationIcon />}
-            onClick={async () => {
-              const success = await cancelStockOut(stockOut.id);
-              if (success) setStockOut((prev) => ({ ...prev, status: 'CANCELLED' }));
-            }}
-          >
-            {t('Action.Cancel')}
-          </Button>
-        </Box>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={async () => {
+                const success = await approveStockOut(stockOut.id);
+                if (success) setStockOut((prev) => ({ ...prev, status: 'APPROVED' }));
+              }}
+            >
+              {t('Action.Approve')}
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelPresentationIcon />}
+              onClick={async () => {
+                const success = await cancelStockOut(stockOut.id);
+                if (success) setStockOut((prev) => ({ ...prev, status: 'CANCELLED' }));
+              }}
+            >
+              {t('Action.Cancel')}
+            </Button>
+          </Box>
+        </RequiredRole>
       )}
 
       <Stack
@@ -204,11 +217,11 @@ const StockOutDetail = () => {
             <Typography variant="h4" fontWeight={700}>
               {stockOut.code || `#${stockOut.id}`}
             </Typography>
-            <Chip 
-              label={getTypeLabel(stockOut.type)} 
-              color="primary" 
-              size="small" 
-              variant="outlined" 
+            <Chip
+              label={getTypeLabel(stockOut.type)}
+              color="primary"
+              size="small"
+              variant="outlined"
             />
           </Stack>
           <Typography variant="body2" color="text.secondary">
@@ -269,13 +282,19 @@ const StockOutDetail = () => {
             <TableHead>
               <TableRow sx={{ bgcolor: 'grey.100' }}>
                 <TableCell width="50%">
-                  <Typography variant="subtitle2" fontWeight={600}>{t('Entity.Product')}</Typography>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {t('Entity.Product')}
+                  </Typography>
                 </TableCell>
                 <TableCell width="25%">
-                  <Typography variant="subtitle2" fontWeight={600}>{t('Menu.Unit')}</Typography>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {t('Menu.Unit')}
+                  </Typography>
                 </TableCell>
                 <TableCell width="25%">
-                  <Typography variant="subtitle2" fontWeight={600}>{t('Field.Quantity')}</Typography>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {t('Field.Quantity')}
+                  </Typography>
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -285,7 +304,9 @@ const StockOutDetail = () => {
                 <TableRow key={index} hover>
                   <TableCell>
                     <Typography variant="subtitle2" fontWeight={600}>
-                      {maps.products[item.productId] || item.productName || `Product #${item.productId}`}
+                      {maps.products[item.productId] ||
+                        item.productName ||
+                        `Product #${item.productId}`}
                     </Typography>
                   </TableCell>
                   <TableCell>{maps.units[item.unitId] || item.unitName || '-'}</TableCell>
@@ -300,9 +321,18 @@ const StockOutDetail = () => {
       </Paper>
 
       {stockOut.note && stockOut.type !== STOCK_OUT_TYPES.ADJUSTMENT && (
-        <Box mt={3} p={2} bgcolor="grey.50" borderRadius={1} border="1px solid" borderColor="grey.200">
-           <Typography variant="subtitle2" color="text.secondary" mb={0.5}>{t('Field.Note')}:</Typography>
-           <Typography variant="body2">{stockOut.note}</Typography>
+        <Box
+          mt={3}
+          p={2}
+          bgcolor="grey.50"
+          borderRadius={1}
+          border="1px solid"
+          borderColor="grey.200"
+        >
+          <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
+            {t('Field.Note')}:
+          </Typography>
+          <Typography variant="body2">{stockOut.note}</Typography>
         </Box>
       )}
 

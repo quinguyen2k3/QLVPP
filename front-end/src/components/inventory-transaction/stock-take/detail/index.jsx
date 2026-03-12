@@ -30,6 +30,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import { StockTakeContext } from 'src/context/StockTakeContext';
 import { useMasterData } from 'src/hooks/useMasterData';
 import Logo from 'src/layouts/full/shared/logo/Logo';
+import RequiredRole from 'src/components/guard';
 
 const StockTakeDetail = () => {
   const { t } = useTranslation();
@@ -153,30 +154,32 @@ const StockTakeDetail = () => {
   return (
     <>
       {stockTake.status?.toUpperCase() === 'PENDING' && (
-        <Box display="flex" gap={1} p={2} bgcolor="primary.light" borderRadius={1} mb={3}>
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<AssignmentTurnedInIcon />}
-            onClick={async () => {
-              await approveStockTake(stockTake.id);
-              setStockTake((prev) => ({ ...prev, status: 'APPROVED' }));
-            }}
-          >
-            {t('Action.Approve')}
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<CancelPresentationIcon />}
-            onClick={async () => {
-              await cancelStockTake(stockTake.id);
-              setStockTake((prev) => ({ ...prev, status: 'CANCELLED' }));
-            }}
-          >
-            {t('Action.Cancel')}
-          </Button>
-        </Box>
+        <RequiredRole allowedRoles={['Warehouse Keeper']}>
+          <Box display="flex" gap={1} p={2} bgcolor="primary.light" borderRadius={1} mb={3}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={async () => {
+                await approveStockTake(stockTake.id);
+                setStockTake((prev) => ({ ...prev, status: 'APPROVED' }));
+              }}
+            >
+              {t('Action.Approve')}
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelPresentationIcon />}
+              onClick={async () => {
+                await cancelStockTake(stockTake.id);
+                setStockTake((prev) => ({ ...prev, status: 'CANCELLED' }));
+              }}
+            >
+              {t('Action.Cancel')}
+            </Button>
+          </Box>
+        </RequiredRole>
       )}
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>

@@ -22,6 +22,7 @@ namespace QLVPP.Extensions
                 cfg.AddProfile<InventorySnapshotMappingProfile>();
                 cfg.AddProfile<PositionMappingProfile>();
                 cfg.AddProfile<MaterialRequestMappingProfile>();
+                cfg.AddProfile<RoleMappingProfile>();
             });
 
             IMapper mapper = mapperConfig.CreateMapper();

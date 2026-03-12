@@ -54,6 +54,19 @@ export const MaterialRequestProvider = ({ children }) => {
     }
   };
 
+  const fetchApprovedByWarehouse = async () => {
+    setLoading(true);
+    try {
+      const res = await materialRequestApi.getApprovedByWarehouse();
+      setMaterialRequests(processData(res));
+    } catch (err) {
+      console.error(err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addMaterialRequest = async (payload) => {
     try {
       await materialRequestApi.create(payload);
@@ -166,7 +179,7 @@ export const MaterialRequestProvider = ({ children }) => {
     try {
       const payload = {
         requestId: id,
-        delegateToId : delegateToUserId,
+        delegateToId: delegateToUserId,
         comment: comment || '',
       };
 
@@ -191,6 +204,7 @@ export const MaterialRequestProvider = ({ children }) => {
         fetchMyRequests,
         fetchToApproveByDepartment,
         fetchToApproveByWarehouse,
+        fetchApprovedByWarehouse,
         addMaterialRequest,
         updateMaterialRequest,
         deleteMaterialRequest,
