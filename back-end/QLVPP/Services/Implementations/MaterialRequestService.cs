@@ -169,13 +169,17 @@ namespace QLVPP.Services.Implementations
 
             string nextStatus;
             string actionName;
+            var currentUserId = _currentUserService.GetUserId();
 
             switch (materialRequest.Status)
             {
                 case MaterialRequestStatus.Pending_Department:
                     nextStatus = MaterialRequestStatus.Pending_Warehouse;
                     actionName = "DepartmentApproved";
-                    if (materialRequest.ApproverId != _currentUserService.GetUserId())
+                    if (
+                        materialRequest.ApproverId != currentUserId
+                        || !await CheckUserRoleAsync(currentUserId, materialRequest.Status)
+                    )
                     {
                         throw new UnauthorizedAccessException("NotAllowedToApprove");
                     }
@@ -184,12 +188,7 @@ namespace QLVPP.Services.Implementations
                 case MaterialRequestStatus.Pending_Warehouse:
                     nextStatus = MaterialRequestStatus.Approved;
                     actionName = "WarehouseApproved";
-                    if (
-                        !await CheckUserRoleAsync(
-                            _currentUserService.GetUserId(),
-                            materialRequest.Status
-                        )
-                    )
+                    if (!await CheckUserRoleAsync(currentUserId, materialRequest.Status))
                     {
                         throw new UnauthorizedAccessException("NotAllowedToApprove");
                     }
@@ -204,7 +203,7 @@ namespace QLVPP.Services.Implementations
             var log = new ApprovalLog
             {
                 MaterialRequest = materialRequest,
-                ActorId = _currentUserService.GetUserId(),
+                ActorId = currentUserId,
                 Action = actionName,
                 Comment = request.Comment,
                 LogTime = DateTime.Now,
@@ -270,18 +269,18 @@ namespace QLVPP.Services.Implementations
                 throw new InvalidOperationException("CannotRejectInCurrentStatus");
             }
 
+            var currentUserId = _currentUserService.GetUserId();
             bool isAuthorized = false;
 
             if (materialRequest.Status == MaterialRequestStatus.Pending_Department)
             {
-                isAuthorized = materialRequest.ApproverId == _currentUserService.GetUserId();
+                isAuthorized =
+                    materialRequest.ApproverId == currentUserId
+                    && await CheckUserRoleAsync(currentUserId, materialRequest.Status);
             }
             else if (materialRequest.Status == MaterialRequestStatus.Pending_Warehouse)
             {
-                isAuthorized = await CheckUserRoleAsync(
-                    _currentUserService.GetUserId(),
-                    materialRequest.Status
-                );
+                isAuthorized = await CheckUserRoleAsync(currentUserId, materialRequest.Status);
             }
 
             if (!isAuthorized)
@@ -299,7 +298,7 @@ namespace QLVPP.Services.Implementations
             var log = new ApprovalLog
             {
                 MaterialRequest = materialRequest,
-                ActorId = _currentUserService.GetUserId(),
+                ActorId = currentUserId,
                 Action = "Rejected",
                 Comment = request.Comments,
                 LogTime = DateTime.Now,
@@ -350,18 +349,22 @@ namespace QLVPP.Services.Implementations
         {
             var user = await _unitOfWork.Employee.GetById(userId);
 
-            if (user == null || user.Position == null)
+            if (user == null || user.Position == null || string.IsNullOrEmpty(user.Position.Name))
             {
                 return false;
             }
 
+            var positionName = user.Position.Name.ToLower();
+
             switch (currentStatus)
             {
                 case MaterialRequestStatus.Pending_Department:
-                    return user.Position.Name.ToLower().Contains("Trưởng phòng");
+                    return positionName.Contains("trưởng phòng")
+                        && !positionName.Contains("kho trưởng");
 
                 case MaterialRequestStatus.Pending_Warehouse:
-                    return user.Position.Name.ToLower().Contains("Kho trưởng");
+                    return positionName.Contains("kho trưởng")
+                        && !positionName.Contains("trưởng phòng");
 
                 default:
                     return false;

@@ -8,7 +8,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import CustomCheckbox from '../../../components/forms/theme-elements/CustomCheckbox';
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';

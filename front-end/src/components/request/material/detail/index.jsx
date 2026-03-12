@@ -38,6 +38,7 @@ import CustomTextField from 'src/components/forms/theme-elements/CustomTextField
 import { MaterialRequestContext } from 'src/context/MaterialRequestContext';
 import { useMasterData } from 'src/hooks/useMasterData';
 import Logo from 'src/layouts/full/shared/logo/Logo';
+import RequiredRole from 'src/components/guard';
 
 const MaterialRequestDetail = () => {
   const { t, i18n } = useTranslation();
@@ -175,42 +176,44 @@ const MaterialRequestDetail = () => {
   return (
     <>
       {isPending && (
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          gap={1}
-          p={2}
-          bgcolor="primary.light"
-          borderRadius={1}
-          mb={3}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<AssignmentTurnedInIcon />}
-            onClick={() => handleOpenActionDialog('approve')}
+        <RequiredRole allowedRoles={['Department Head', 'Warehouse Keeper']}>
+          <Box
+            display="flex"
+            justifyContent="flex-start"
+            gap={1}
+            p={2}
+            bgcolor="primary.light"
+            borderRadius={1}
+            mb={3}
           >
-            {t('Action.Approve') || 'Phê duyệt'}
-          </Button>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={() => handleOpenActionDialog('approve')}
+            >
+              {t('Action.Approve') || 'Phê duyệt'}
+            </Button>
 
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<CancelPresentationIcon />}
-            onClick={() => handleOpenActionDialog('reject')}
-          >
-            {t('Action.Reject') || 'Từ chối'}
-          </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelPresentationIcon />}
+              onClick={() => handleOpenActionDialog('reject')}
+            >
+              {t('Action.Reject') || 'Từ chối'}
+            </Button>
 
-          <Button
-            variant="contained"
-            color="info"
-            startIcon={<ReplyIcon />}
-            onClick={() => handleOpenActionDialog('delegate')}
-          >
-            {t('Action.Delegate') || 'Ủy quyền'}
-          </Button>
-        </Box>
+            <Button
+              variant="contained"
+              color="info"
+              startIcon={<ReplyIcon />}
+              onClick={() => handleOpenActionDialog('delegate')}
+            >
+              {t('Action.Delegate') || 'Ủy quyền'}
+            </Button>
+          </Box>
+        </RequiredRole>
       )}
 
       <Stack

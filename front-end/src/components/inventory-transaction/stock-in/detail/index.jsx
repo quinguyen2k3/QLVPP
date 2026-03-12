@@ -29,6 +29,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import { StockInContext } from 'src/context/StockInContext';
 import { useMasterData } from 'src/hooks/useMasterData';
 import Logo from 'src/layouts/full/shared/logo/Logo';
+import RequiredRole from 'src/components/guard';
 
 const STOCK_IN_TYPES = {
   PURCHASE: 1,
@@ -183,46 +184,48 @@ const StockInDetail = () => {
   return (
     <>
       {stockIn.status === 'PENDING' && (
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          gap={1}
-          p={2}
-          bgcolor="primary.light"
-          borderRadius={1}
-          mb={3}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<AssignmentTurnedInIcon />}
-            onClick={async () => {
-              try {
-                await approveStockIn(stockIn.id);
-                setStockIn((prev) => ({ ...prev, status: 'APPROVED' }));
-              } catch (error) {
-                console.error(error);
-              }
-            }}
+        <RequiredRole allowedRoles={['Warehouse Keeper']}>
+          <Box
+            display="flex"
+            justifyContent="flex-start"
+            gap={1}
+            p={2}
+            bgcolor="primary.light"
+            borderRadius={1}
+            mb={3}
           >
-            {t('Action.Approve')}
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<CancelPresentationIcon />}
-            onClick={async () => {
-              try {
-                await cancelStockIn(stockIn.id);
-                setStockIn((prev) => ({ ...prev, status: 'CANCELLED' }));
-              } catch (error) {
-                console.error(error);
-              }
-            }}
-          >
-            {t('Action.Cancel')}
-          </Button>
-        </Box>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={async () => {
+                try {
+                  await approveStockIn(stockIn.id);
+                  setStockIn((prev) => ({ ...prev, status: 'APPROVED' }));
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            >
+              {t('Action.Approve')}
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<CancelPresentationIcon />}
+              onClick={async () => {
+                try {
+                  await cancelStockIn(stockIn.id);
+                  setStockIn((prev) => ({ ...prev, status: 'CANCELLED' }));
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            >
+              {t('Action.Cancel')}
+            </Button>
+          </Box>
+        </RequiredRole>
       )}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}

@@ -38,6 +38,8 @@ namespace QLVPP.Extensions
             services.AddScoped<IPositionService, PositionService>();
             services.AddScoped<IStockTakeService, StockTakeService>();
             services.AddScoped<IMaterialRequestService, MaterialRequestService>();
+            services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IRoleService, RoleServices>();
 
             services.AddSingleton<ICacheService, CacheService>();
 

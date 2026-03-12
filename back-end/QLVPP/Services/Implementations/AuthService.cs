@@ -83,7 +83,10 @@ namespace QLVPP.Services.Implementations
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
-            user.Password = PasswordHasher.HashPassword(request.ConfirmPassword);
+            if (request.NewPassword != request.ConfirmPassword)
+                throw new ArgumentException("Passwords do not match");
+
+            user.Password = PasswordHasher.HashPassword(request.NewPassword.Trim());
 
             await _unitOfWork.Employee.Update(user);
             await _unitOfWork.SaveChanges();

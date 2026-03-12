@@ -48,6 +48,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { format } from 'date-fns';
+import RequireRole from 'src/components/guard';
 
 const MaterialRequestList = () => {
   const navigate = useNavigate();
@@ -58,6 +59,8 @@ const MaterialRequestList = () => {
     deleteMaterialRequest,
     fetchMyRequests,
     fetchToApproveByDepartment,
+    fetchToApproveByWarehouse,
+    fetchApprovedByWarehouse,
   } = useContext(MaterialRequestContext);
 
   const { requesters, warehouses } = useMasterData();
@@ -101,6 +104,12 @@ const MaterialRequestList = () => {
       switch (viewMode) {
         case 'ToApprove':
           fetchToApproveByDepartment();
+          break;
+        case 'ToApproveWarehouse':
+          fetchToApproveByWarehouse();
+          break;
+        case 'WarehouseApproved':
+          fetchApprovedByWarehouse();
           break;
         case 'MyRequest':
         default:
@@ -216,7 +225,11 @@ const MaterialRequestList = () => {
   const getViewLabel = () => {
     switch (viewMode) {
       case 'ToApprove':
-        return t('Field.PendingToApprove') || 'Cần phê duyệt';
+        return t('Field.PendingToApproveByDepartment') || 'Chờ trưởng phòng duyệt';
+      case 'ToApproveWarehouse':
+        return t('Field.PendingToApproveByWarehouse') || 'Chờ thủ kho duyệt';
+      case 'WarehouseApproved':
+        return t('Field.CompletedApprove') || 'Đã duyệt xong trên kho';
       case 'MyRequest':
       default:
         return t('Field.MyRequests') || 'Yêu cầu của tôi';
@@ -426,37 +439,58 @@ const MaterialRequestList = () => {
                 >
                   {t('Field.MyRequests') || 'Yêu cầu của tôi'}
                 </MenuItem>
-                <MenuItem
-                  onClick={() => handleSelectViewMode('ToApprove')}
-                  selected={viewMode === 'ToApprove'}
-                >
-                  {t('Field.PendingToApprove') || 'Cần phê duyệt'}
-                </MenuItem>
+                
+                <RequireRole allowedRoles={['Department Head']}>
+                  <MenuItem
+                    onClick={() => handleSelectViewMode('ToApprove')}
+                    selected={viewMode === 'ToApprove'}
+                  >
+                    {t('Field.PendingToApproveByDepartment') || 'Chờ trưởng phòng duyệt'}
+                  </MenuItem>
+                </RequireRole>
+
+                <RequireRole allowedRoles={['Warehouse Keeper']}>
+                  <MenuItem
+                    onClick={() => handleSelectViewMode('ToApproveWarehouse')}
+                    selected={viewMode === 'ToApproveWarehouse'}
+                  >
+                    {t('Field.PendingToApproveByWarehouse') || 'Chờ thủ kho duyệt'}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => handleSelectViewMode('WarehouseApproved')}
+                    selected={viewMode === 'WarehouseApproved'}
+                  >
+                    {t('Field.CompletedApprove') || 'Đã duyệt xong trên kho'}
+                  </MenuItem>
+                </RequireRole>
               </Menu>
             </Box>
-            {selectAll && selectedItems.length > 0 && (
+            
+            <RequireRole allowedRoles={['Regular User', 'Department Head']}>
+              {selectAll && selectedItems.length > 0 && (
+                <Button
+                  color="error"
+                  variant="outlined"
+                  onClick={() => {
+                    setDeleteId(null);
+                    setOpenDeleteDialog(true);
+                  }}
+                  startIcon={<IconTrash />}
+                  sx={{ height: '36px' }}
+                >
+                  {t('Action.Delete') || 'Xóa'}
+                </Button>
+              )}
+
               <Button
-                color="error"
-                variant="outlined"
-                onClick={() => {
-                  setDeleteId(null);
-                  setOpenDeleteDialog(true);
-                }}
-                startIcon={<IconTrash />}
+                variant="contained"
+                component={Link}
+                to="/request/material/add"
                 sx={{ height: '36px' }}
               >
-                {t('Action.Delete') || 'Xóa'}
+                {t('Action.Add') || 'Thêm mới'}
               </Button>
-            )}
-
-            <Button
-              variant="contained"
-              component={Link}
-              to="/request/material/add"
-              sx={{ height: '36px' }}
-            >
-              {t('Action.Add') || 'Thêm mới'}
-            </Button>
+            </RequireRole>
           </Box>
         </Stack>
 
@@ -552,26 +586,33 @@ const MaterialRequestList = () => {
                                 <IconEye />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title={t('Action.Edit') || 'Sửa'}>
-                              <IconButton
-                                component={Link}
-                                to={`/request/material/edit/${item.id}`}
-                                color="success"
-                              >
-                                <IconEdit />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title={t('Action.Delete') || 'Xóa'}>
-                              <IconButton
-                                color="error"
-                                onClick={() => {
-                                  setDeleteId(item.id);
-                                  setOpenDeleteDialog(true);
-                                }}
-                              >
-                                <IconTrash />
-                              </IconButton>
-                            </Tooltip>
+
+                            <RequireRole allowedRoles={['Regular User', 'Department Head']}>
+                              {item.status === 'Pending_Department' && (
+                                <>
+                                  <Tooltip title={t('Action.Edit') || 'Sửa'}>
+                                    <IconButton
+                                      component={Link}
+                                      to={`/request/material/edit/${item.id}`}
+                                      color="success"
+                                    >
+                                      <IconEdit />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title={t('Action.Delete') || 'Xóa'}>
+                                    <IconButton
+                                      color="error"
+                                      onClick={() => {
+                                        setDeleteId(item.id);
+                                        setOpenDeleteDialog(true);
+                                      }}
+                                    >
+                                      <IconTrash />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
+                              )}
+                            </RequireRole>
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -597,7 +638,9 @@ const MaterialRequestList = () => {
 
         <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
           <DialogTitle>{t('Action.Delete') || 'Xóa'}</DialogTitle>
-          <DialogContent>{t('Message.ConfirmDelete') || 'Bạn có chắc chắn muốn xóa không?'}</DialogContent>
+          <DialogContent>
+            {t('Message.ConfirmDelete') || 'Bạn có chắc chắn muốn xóa không?'}
+          </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDeleteDialog}>{t('Action.Cancel') || 'Hủy'}</Button>
             <Button color="error" variant="outlined" onClick={handleConfirmDelete}>

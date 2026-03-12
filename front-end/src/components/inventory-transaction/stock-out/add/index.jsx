@@ -55,7 +55,7 @@ const CreateStockOutApp = ({ type = STOCK_OUT_TYPES.USAGE }) => {
 
   const { warehouses, departments, units, requesters } = useMasterData();
 
-  const [showAlert, setShowAlert] = useState(false);
+  const [toast, setToast] = useState({ open: false, type: 'success', message: '' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [referenceOptions, setReferenceOptions] = useState([]);
@@ -364,13 +364,16 @@ const CreateStockOutApp = ({ type = STOCK_OUT_TYPES.USAGE }) => {
     try {
       const success = await addStockOut(payload);
       if (success) {
-        setShowAlert(true);
+        setToast({ open: true, type: 'success', message: t('Message.Success') });
         setTimeout(() => {
           router('/inventory/stock-out/list');
-        }, 800);
+        }, 1500);
+      } else {
+        setToast({ open: true, type: 'error', message: t('Message.Error') || 'Failed to create stock out.' });
       }
     } catch (error) {
       console.error(error);
+      setToast({ open: true, type: 'error', message: error.message || t('Message.Error') || 'An error occurred.' });
     } finally {
       setLoading(false);
     }
@@ -750,13 +753,17 @@ const CreateStockOutApp = ({ type = STOCK_OUT_TYPES.USAGE }) => {
           </Paper>
 
           <Snackbar
-            open={showAlert}
+            open={toast.open}
             autoHideDuration={6000}
-            onClose={() => setShowAlert(false)}
+            onClose={() => setToast((prev) => ({ ...prev, open: false }))}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            <Alert onClose={() => setShowAlert(false)} severity="success" sx={{ width: '100%' }}>
-              {t('Message.Success')}
+            <Alert 
+              onClose={() => setToast((prev) => ({ ...prev, open: false }))} 
+              severity={toast.type} 
+              sx={{ width: '100%' }}
+            >
+              {toast.message}
             </Alert>
           </Snackbar>
         </Box>

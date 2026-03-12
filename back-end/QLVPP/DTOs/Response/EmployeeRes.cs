@@ -11,6 +11,7 @@
         public long? PositionId { get; set; }
         public string? DepartmentName { get; set; }
         public long? WarehouseId { get; set; }
+        public long? RoleId { get; set; }
         public bool? IsActivated { get; set; }
         public bool IsWarehouseKeeper { get; set; }
     }

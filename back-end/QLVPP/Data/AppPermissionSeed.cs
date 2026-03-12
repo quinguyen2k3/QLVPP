@@ -136,6 +136,7 @@ namespace QLVPP.Data
                 new[]
                 {
                     "MaterialRequest.GetPendingByWarehouse",
+                    "MaterialRequest.GetApprovedByWarehouse",
                     "MaterialRequest.GetById",
                     "MaterialRequest.Approve",
                     "MaterialRequest.Reject",

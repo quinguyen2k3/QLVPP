@@ -1,20 +1,26 @@
-using System.Security.Claims;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 using QLVPP.Attributes;
-using QLVPP.Data;
+using QLVPP.Services;
 
 namespace QLVPP.Filters
 {
     public class DynamicAuthorizeFilter : IAsyncAuthorizationFilter
     {
-        private readonly AppDbContext _context;
+        private readonly IPermissionService _permissionService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public DynamicAuthorizeFilter(AppDbContext context)
+        public DynamicAuthorizeFilter(
+            IPermissionService permissionService,
+            ICurrentUserService currentUserService
+        )
         {
-            _context = context;
+            _permissionService = permissionService;
+            _currentUserService = currentUserService;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -28,21 +34,18 @@ namespace QLVPP.Filters
                 return;
             }
 
+            if (!_currentUserService.IsUserAuthenticated())
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+
             var allowCommon = context.ActionDescriptor.EndpointMetadata.Any(em =>
                 em.GetType() == typeof(AllowCommonAccessAttribute)
             );
 
             if (allowCommon)
             {
-                var tokenClaim =
-                    context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? context
-                        .HttpContext.User.FindFirst("id")
-                        ?.Value;
-
-                if (string.IsNullOrEmpty(tokenClaim))
-                {
-                    context.Result = new UnauthorizedResult();
-                }
                 return;
             }
 
@@ -54,12 +57,12 @@ namespace QLVPP.Filters
                 return;
             }
 
-            var idClaim =
-                context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? context
-                    .HttpContext.User.FindFirst("id")
-                    ?.Value;
-
-            if (string.IsNullOrEmpty(idClaim) || !long.TryParse(idClaim, out var userId))
+            long userId;
+            try
+            {
+                userId = _currentUserService.GetUserId();
+            }
+            catch (InvalidOperationException)
             {
                 context.Result = new UnauthorizedResult();
                 return;
@@ -67,11 +70,7 @@ namespace QLVPP.Filters
 
             var permissionName = $"{controller}.{action}";
 
-            var hasPermission = await _context
-                .Employees.Where(e => e.Id == userId)
-                .SelectMany(e => e.Role.RolePermissions)
-                .Select(rp => rp.Permission)
-                .AnyAsync(p => p.Name == permissionName);
+            var hasPermission = await _permissionService.HasPermission(userId, permissionName);
 
             if (!hasPermission)
             {

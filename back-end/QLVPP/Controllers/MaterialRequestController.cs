@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QLVPP.Constants.Status;
+using QLVPP.Constants.Types;
 using QLVPP.DTOs.Request;
 using QLVPP.DTOs.Response;
 using QLVPP.Services;
@@ -59,6 +60,11 @@ namespace QLVPP.Controllers
                     new MaterialRequestFilterReq
                     {
                         Statuses = new List<string> { MaterialRequestStatus.Pending_Department },
+                        RequestTypes = new List<RequestType>
+                        {
+                            RequestType.Issue,
+                            RequestType.Return,
+                        },
                         ApproverId = _currentUserService.GetUserId(),
                         OrderByDesc = true,
                     }
@@ -86,6 +92,11 @@ namespace QLVPP.Controllers
                     new MaterialRequestFilterReq
                     {
                         Statuses = new List<string> { MaterialRequestStatus.Pending_Warehouse },
+                        RequestTypes = new List<RequestType>
+                        {
+                            RequestType.Issue,
+                            RequestType.Return,
+                        },
                         WarehouseId = _currentUserService.GetWarehouseId(),
                         OrderByDesc = true,
                     }
@@ -95,6 +106,38 @@ namespace QLVPP.Controllers
                     ApiResponse<List<MaterialRequestRes>>.SuccessResponse(
                         materialRequests,
                         "Fetched material requests successfully"
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<string>.ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpGet("warehouse/approved")]
+        public async Task<ActionResult<List<MaterialRequestRes>>> GetApprovedByWarehouse()
+        {
+            try
+            {
+                var materialRequests = await _materialRequestService.GetByConditions(
+                    new MaterialRequestFilterReq
+                    {
+                        Statuses = new List<string> { MaterialRequestStatus.Approved },
+                        RequestTypes = new List<RequestType>
+                        {
+                            RequestType.Issue,
+                            RequestType.Return,
+                        },
+                        WarehouseId = _currentUserService.GetWarehouseId(),
+                        OrderByDesc = true,
+                    }
+                );
+
+                return Ok(
+                    ApiResponse<List<MaterialRequestRes>>.SuccessResponse(
+                        materialRequests,
+                        "Fetched approved material requests successfully"
                     )
                 );
             }

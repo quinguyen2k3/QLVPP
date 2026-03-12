@@ -1,9 +1,9 @@
 import { Box, Container, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import ErrorImg from 'src/assets/images/backgrounds/errorimg.svg';
+import ErrorImg from 'src/assets/images/backgrounds/forbiddenimg.svg';
 
-const Error = () => {
+const Forbidden = () => {
   const { t } = useTranslation();
 
   return (
@@ -15,12 +15,12 @@ const Error = () => {
       justifyContent="center"
     >
       <Container maxWidth="md">
-        <img src={ErrorImg} alt="404" />
+        <img src={ErrorImg} alt="403" />
         <Typography align="center" variant="h1" mb={4}>
-          {t('Error.404Title')}
+          {t('Error.403Title')}
         </Typography>
         <Typography align="center" variant="h4" mb={4}>
-          {t('Error.404Description')}
+          {t('Error.403Description')}
         </Typography>
         <Button
           color="primary"
@@ -36,4 +36,4 @@ const Error = () => {
   );
 };
 
-export default Error;
+export default Forbidden;

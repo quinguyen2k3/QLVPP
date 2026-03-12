@@ -127,7 +127,11 @@
     "UserProfile": "Hồ sơ người dùng",
     "PasswordRequirements": "Yêu cầu mật khẩu:",
     "NewPassword": "Mật khẩu mới",
-    "ConfirmPassword": "Xác nhận mật khẩu mới"
+    "ConfirmPassword": "Xác nhận mật khẩu mới",
+    "CompletedApprove": "Hoàn thành duyệt",
+    "PendingToApproveByDepartment": "Chờ phê duyệt bởi trưởng phòng",
+    "PendingToApproveByWarehouse": "Chờ phê duyệt bởi thủ kho",
+    "Role": "Vai trò"
   },
   "Entity": {
     "Product": "Sản phẩm",
@@ -173,7 +177,8 @@
     "RequireSpecial": "Phải chứa ít nhất 1 ký tự đặc biệt",
     "MinLength8": "Mật khẩu phải dài tối thiểu 8 ký tự",
     "PasswordMismatch": "Mật khẩu xác nhận không khớp",
-    "LoginFailed": "Tên đăng nhập hoặc mật khẩu không chính xác!"
+    "LoginFailed": "Tên đăng nhập hoặc mật khẩu không chính xác!",
+    "NoTransferRequest": "Không tìm thấy yêu cầu điều chuyển nào cho sản phẩm này trong kho đã chọn."
   },
   "Placeholder": {
     "Select": "Vui lòng chọn",
@@ -297,5 +302,12 @@
     "AdminDashboard": "Bảng điều khiển quản trị của bạn",
     "NewToSystem": "Chưa có tài khoản?",
     "CreateAccount": "Đăng ký ngay"
+  },
+  "Error": {
+    "404Title": "Ôi không!!!",
+    "404Description": "Không thể tìm thấy trang bạn đang yêu cầu.",
+    "403Title": "403 - Từ chối truy cập",
+    "403Description": "Bạn không có quyền truy cập vào chức năng này.",
+    "BackToHome": "Về trang chủ"
   }
 }

@@ -37,7 +37,7 @@ export const authFetcher = async (url, options = {}) => {
     throw err;
   }
 
-  if (response.status !== 401) {
+  if (response.status !== 401 || isPublicEndpoint) {
     return response;
   }
 
